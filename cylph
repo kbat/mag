@@ -1,7 +1,7 @@
 A cylinder
-c @@@ PARTICLE=E
-c @@@ ENERGY=50
-c @@@ DIR=0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+c @@@ PARTICLE=e
+c @@@ ENERGY=0.005 0.019302 0.05521145 0.15792695 0.45173399999999997 1.2921415 3.69604 10.572165 30.24055 86.5 247.425 707.732 2024.4
+c @@@ DIR=0.05 0.15 0.25 0.35 0.45 0.55 0.65 0.75 0.85 0.95
 c
 c @@@ EMAX=3000.0
 c
@@ -9,8 +9,8 @@ c Particle: PARTICLE
 c Energy: ENERGY MeV
 c Direction cosine: DIR
 c
-1 0     7
-2 0    -7 (-1:2:-3:4:-5:6)
+1 0      7
+2 0     -7 (-1:2:-3:4:-5:6)
 3 1 -1.0 1 -2 3 -4 5 -6
 
 c Surfaces
@@ -39,13 +39,20 @@ f11:e  1 2
 fc21 photons
 f21:p  1 2
 c
-tmesh
-rmesh121:n flux
-cora121 -100.0 100.0
-corb121 -50.0 49i 50.0
-corc121 -100.0 49i 100.0
-endmd
-c
+c fc101 test reflected
+c f101:e 1
+c *c101 90 0
+c fc111 test transmitted
+c f111:e 2
+c *c111 90 0
+c c
+c tmesh
+c rmesh121:p flux
+c cora121 -100.0 100.0
+c corb121 -50.0 49i 50.0
+c corc121 -100.0 49i 100.0
+c endmd
+c c
 mode n e p
 c
 imp:n 0 1 1
@@ -60,4 +67,4 @@ c 2j: skip first 2 parameters
 c 1: create mctal file
 prdmp 2j 1
 c define number of incident particles to run
-stop nps=1e5
+stop nps=1e9
