@@ -1,0 +1,63 @@
+A cylinder
+c @@@ PARTICLE=E
+c @@@ ENERGY=50
+c @@@ DIR=0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+c
+c @@@ EMAX=3000.0
+c
+c Particle: PARTICLE
+c Energy: ENERGY MeV
+c Direction cosine: DIR
+c
+1 0     7
+2 0    -7 (-1:2:-3:4:-5:6)
+3 1 1.0 1 -2 3 -4 5 -6
+
+c Surfaces
+1 py  0.0
+2 py  1.0
+3 px -100
+4 px  100
+5 pz -100
+6 pz  100
+7 so  200
+
+c Water
+m1     1001.70c 0.0668456 1002.70c 1.003e-05 8016.70c 0.0334278
+       hlib=.70h  pnlib=70u
+mt1    lwtr.01t
+mx1:p  1002 3j
+c
+sdef erg = ENERGY par = PARTICLE pos = 0 -0.1 0 dir = DIR vec = 0 1 0
+c
+e0 0.01 11ilog EMAX
+c0 -0.9  18i 1
+fc1 neutrons
+f1:n  1 2
+fc11 electrons
+f11:e  1 2
+fc21 photons
+f21:p  1 2
+c
+tmesh
+rmesh121:n flux
+cora121 -100.0 100.0
+corb121 -50.0 49i 50.0
+corc121 -100.0 49i 100.0
+endmd
+c
+mode n e p
+c
+imp:n 0 1 1
+phys:n EMAX
+cut:n j 0.0
+phys:p EMAX 2j 1
+lca 2 1 1 0023 1 1 0 1 0 0
+lea 1 4 1 0 1 0 0 1
+print
+c prdmp - print and dump settings
+c 2j: skip first 2 parameters
+c 1: create mctal file
+prdmp 2j 1
+c define number of incident particles to run
+stop nps=1e5
