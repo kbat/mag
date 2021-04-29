@@ -4,6 +4,7 @@ import sys, argparse, glob
 import ROOT
 from data import Data, Matrix
 from array import array
+from mctools.common.CombLayer import getPar as getParCL
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
@@ -22,8 +23,13 @@ def main():
 
     args = parser.parse_args()
 
-    e = Matrix("n")
+    incidentParticle = "e"
+    e = Matrix(incidentParticle)
     for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
+        inp = mctal.replace(args.mctal, args.inp)
+        print(mctal)
+        par = getParCL(inp, "Particle:")
+        # if par == incidentParticle:
         e.append(mctal)
 
     e.run()
