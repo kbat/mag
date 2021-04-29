@@ -1,20 +1,27 @@
 #!/usr/bin/env python
 
-import sys
+import sys, argparse
 import ROOT
 from data import Data
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 def main():
-    """ """
+    """ Draws Transmitted/reflected histograms from a single data file """
+
+    parser = argparse.ArgumentParser(description=main.__doc__,
+                                         epilog="Homepage: https://github.com/kbat/mc-tools")
+    parser.add_argument('fname', type=str, help='mctal.root file name')
+    parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
+
+    args = parser.parse_args()
+
     ROOT.gStyle.SetOptStat(0)
 
-    c1 = ROOT.TCanvas()
+    c1 = ROOT.TCanvas("c1", args.fname)
     c1.Divide(3,2)
 
-    fname = "water/case002/mctal.root"
-    n = Data(fname, 1)
+    n = Data(args.fname, 1)
     c1.cd(1)
     n.histT.Draw("col")
     ROOT.gPad.Modified()
@@ -26,7 +33,7 @@ def main():
     ROOT.gPad.Update()
     ROOT.gPad.SetLogx()
 
-    e = Data(fname, 11)
+    e = Data(args.fname, 11)
     c1.cd(2)
     e.histT.Draw("col")
     ROOT.gPad.Modified()
@@ -38,7 +45,7 @@ def main():
     ROOT.gPad.Update()
     ROOT.gPad.SetLogx()
 
-    p = Data(fname, 21)
+    p = Data(args.fname, 21)
     c1.cd(3)
     p.histT.Draw("col")
     ROOT.gPad.Modified()
