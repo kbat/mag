@@ -13,7 +13,7 @@ def main():
     c1 = ROOT.TCanvas()
     c1.Divide(3,2)
 
-    fname = "case001/mctal.root"
+    fname = "case002/mctal.root"
     n = Data(fname, 1)
     c1.cd(1)
     n.T.Draw("col")
@@ -49,6 +49,8 @@ def main():
     ROOT.gPad.Modified()
     ROOT.gPad.Update()
     ROOT.gPad.SetLogx()
+
+    p.PrintEbins(p.T)
 
     input()
 

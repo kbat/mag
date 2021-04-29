@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import ROOT
+from math import log10
 
 class Data:
     """ Convert THnSparse into individual
@@ -29,3 +30,19 @@ class Data:
         self.T.SetDirectory(0)
 
         f.Close()
+
+    def PrintEbins(self, M):
+        """ Print mid energy bins of the M matrix """
+        a = M.GetXaxis()
+        nb = a.GetNbins()
+        print("number of x-axis bins: ", nb, a.GetBinLowEdge(1))
+
+        for i in range(nb):
+            emin = a.GetBinLowEdge(i+1)
+            if emin<0:
+                emin = 0.0001
+            emax = a.GetBinUpEdge(i+1)
+            val = (emin+emax)/2.0 # linear
+#            val = pow(10,(log10(emin)+log10(emax))/2.0) # log
+            print(val, end=" ")
+        print("")
