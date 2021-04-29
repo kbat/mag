@@ -2,18 +2,10 @@
 
 import sys, argparse, glob
 import ROOT
-from data import Data
-import pandas as pd
+from data import Data, Matrix
+from array import array
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
-
-def getN(args):
-    """ Get square matrix order
-    """
-    for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
-        e = Data(mctal, 11)
-        return len(e.T)
-
 
 def main():
     """ Draws Transmitted/reflected histograms from a data file set
@@ -30,25 +22,16 @@ def main():
 
     args = parser.parse_args()
 
-    N = getN(args)
-
-    vecT = []
-    vecR = []
-
+    e = Matrix("n")
     for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
-        e = Data(mctal, 11)
-        vecT.append(e.T)
-        vecR.append(e.R)
+        e.append(mctal)
 
-    T = pd.DataFrame(vecT)
-    R = pd.DataFrame(vecR)
-    print(T)
+    e.run()
 
-
-
-    # c1 = ROOT.TCanvas("c1", args.fname)
-
-    # input()
+    he = ROOT.TH2D(e.T)
+    he.SetTitle(e.particle)
+    he.Draw("col")
+    input()
 
 if __name__ == "__main__":
     sys.exit(main())
