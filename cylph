@@ -12,7 +12,7 @@ c
 1 0      7
 2 0     -7 -1
 3 0     -7  2
-4 49 2.33578 -7 1 -2
+4 49 2.33578 -7 1 -2 fcl:p=1
 
 c Surfaces
 1 py  0.0
@@ -33,6 +33,8 @@ m49     1001.70c 0.00776555 1002.70c 1.16501e-06 8016.70c 0.0438499
         0.000286826 26057.70c 6.5671e-06 26058.70c 8.75613e-07
         hlib=.70h  pnlib=70u
 mt49    lwtr.01t
+mx49:p  1002 3j 12026 3j 20040 20040 4j
+c mphys on
 c
 sdef erg = ENERGY par = PARTICLE pos = 0 -0.1 0 dir = DIR vec = 0 1 0
 c
@@ -65,12 +67,12 @@ imp:n,e,p 0 1 2r
 phys:n EMAX
 cut:n j 0.0
 phys:p EMAX 2j 1
-lca 2 1 1 0023 1 1 0 1 0 0
-lea 1 4 1 0 1 0 0 1
+c lca 2 1 1 0023 1 1 0 1 0 0
+c lea 1 4 1 0 1 0 0 1
 print
 c prdmp - print and dump settings
 c 2j: skip first 2 parameters
 c 1: create mctal file
 prdmp 2j 1
 c define number of incident particles to run
-stop nps=1e9
+stop nps=1e6
