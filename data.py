@@ -15,12 +15,13 @@ class Data:
     above 0 are associated to the transmitted part; (3) a number of
     energy bins.
     """
-    def __init__(self,fname, n):
+    def __init__(self,fname, E0, mu0, n):
+        self.E0 = E0
+        self.mu0 = mu0
+        epsilon = 1e-3
+
         f = ROOT.TFile(fname)
         tally = f.Get("f%d" % n)
-#        tally.Print("a")
-
-        epsilon = 1e-3
 
         # Reflected
         tally.GetAxis(0).SetRange(1,1); # surf 1
@@ -81,28 +82,33 @@ class Matrix:
     """
     def __init__(self, particle):
         self.particle = particle
-        self.tally = {
-            "n" : 1,
-            "e" : 11,
-            "p" : 21
-        }
+        tallyDict = {"n" : 1, "e" : 11, "p" : 21 }
+        self.tally = tallyDict[particle]
         self.vecT = []
         self.vecR = []
+        self.raws = []
 
-    def append(self, mctal):
+    def append(self, mctal, E0, mu0):
         """
-        Add mctal.root to the list of data files
+        Add mctal.root to the list of raws
         """
-        raw = Data(mctal, self.tally[self.particle])
-        for val in raw.T:
-            self.vecT.append(val)
-        for val in raw.R:
-            self.vecR.append(val)
-
-        self.N = len(raw.T)
+        self.raws.append(Data(mctal, E0, mu0, self.tally))
 
     def run(self):
         """Generate the Reflection and Transmission matrices
         """
+        # sort raws by incident energy and direction
+        self.raws.sort(key=lambda x : x.E0+x.mu0, reverse=False)
+
+        for raw in self.raws:
+            print(raw.E0, raw.mu0)
+            for val in raw.T:
+                self.vecT.append(val)
+            for val in raw.R:
+                self.vecR.append(val)
+
+        self.N = len(raw.T)
+
+
         self.T = ROOT.TMatrixD(self.N, self.N, array('d',self.vecT))
         self.R = ROOT.TMatrixD(self.N, self.N, array('d',self.vecR))

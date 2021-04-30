@@ -23,15 +23,15 @@ def main():
 
     args = parser.parse_args()
 
-    incidentParticle = "n"
-    e = Matrix(incidentParticle)
+    e = Matrix("n")
     for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
         inp = mctal.replace(args.mctal, args.inp)
         if args.verbose:
             print(mctal)
         par = getParCL(inp, "Particle:")
-        # if par == incidentParticle:
-        e.append(mctal)
+        E0 = getParCL(inp, "Energy:")
+        mu0 = getParCL(inp, "Direction cosine:", 3)
+        e.append(mctal,E0,mu0)
 
     e.run()
 
