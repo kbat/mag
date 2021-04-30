@@ -12,7 +12,7 @@ c
 1 0      7
 2 0     -7 -1
 3 0     -7  2
-4 49 2.33578 -7 1 -2 fcl:p=1
+4 49 -2.33578 -7 1 -2 fcl:p=1
 
 c Surfaces
 1 py  0.0
@@ -75,4 +75,4 @@ c 2j: skip first 2 parameters
 c 1: create mctal file
 prdmp 2j 1
 c define number of incident particles to run
-stop nps=1e6
+stop ctme 60
