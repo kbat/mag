@@ -19,6 +19,7 @@ class Data:
         self.E0 = E0
         self.mu0 = mu0
         epsilon = 1e-3
+        self.fname = fname  # tmp - remove me
 
         f = ROOT.TFile(fname)
         tally = f.Get("f%d" % n)
@@ -98,10 +99,11 @@ class Matrix:
         """Generate the Reflection and Transmission matrices
         """
         # sort raws by incident energy and direction
-        self.raws.sort(key=lambda x : x.E0+x.mu0, reverse=False)
+        # 1e6 needed to avoid problems when energies are very close to each other
+        self.raws.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
 
         for raw in self.raws:
-            print(raw.E0, raw.mu0)
+            print(raw.fname, raw.E0, raw.mu0)
             for val in raw.T:
                 self.vecT.append(val)
             for val in raw.R:

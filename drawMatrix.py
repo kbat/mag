@@ -23,7 +23,7 @@ def main():
 
     args = parser.parse_args()
 
-    e = Matrix("n")
+    e = Matrix("e")
     for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
         inp = mctal.replace(args.mctal, args.inp)
         if args.verbose:
@@ -37,7 +37,7 @@ def main():
 
     he = ROOT.TH2D(e.R)
     he.SetTitle(e.particle)
-    he.Draw("col,text")
+    he.Draw("col")
     input()
 
 if __name__ == "__main__":
