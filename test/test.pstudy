@@ -1,7 +1,7 @@
 Test of RT matrices
 c @@@ PARTICLE=n
 c @@@ ENERGY=250 750 2000 2700
-c @@@ DIR=-0.75 -0.25 0.25 0.75
+c @@@ DIR=0.25 0.75
 c
 c @@@ EMAX=3000.0
 c
