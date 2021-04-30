@@ -45,7 +45,10 @@ class Data:
             exit(1)
 
     def buildRaw(self, hist):
-        """ Build a raw from hist """
+        """Build a _sorted_ raw from hist: inner loop is energy, outer loop is
+        direction.
+
+        """
         nx = hist.GetNbinsX()
         ny = hist.GetNbinsY()
         raw = []

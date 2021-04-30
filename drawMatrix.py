@@ -19,25 +19,25 @@ def main():
     parser.add_argument('dir',   type=str, help='folder with case*/mctal.root files')
     parser.add_argument("-mctal",type=str, help='mctal.root file names', default="mctal.root")
     parser.add_argument("-inp",  type=str, help='MCNP input file names (assumed to be in the same folder as mctal.root)', default="inp")
-    parser.add_argument("-cylph",  type=str, help='pstudy input file name', default="cylph")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
 
     args = parser.parse_args()
 
-    incidentParticle = "e"
+    incidentParticle = "n"
     e = Matrix(incidentParticle)
     for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
         inp = mctal.replace(args.mctal, args.inp)
-        print(mctal)
+        if args.verbose:
+            print(mctal)
         par = getParCL(inp, "Particle:")
         # if par == incidentParticle:
         e.append(mctal)
 
     e.run()
 
-    he = ROOT.TH2D(e.T)
+    he = ROOT.TH2D(e.R)
     he.SetTitle(e.particle)
-    he.Draw("col")
+    he.Draw("col,text")
     input()
 
 if __name__ == "__main__":
