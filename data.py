@@ -41,7 +41,7 @@ class Data:
         f.Close()
 
         if len(self.R) != len(self.T):
-            print("Error: R and T have different lengths")
+            print("Error: R and T have different lengths", len(self.R), len(self.T))
             exit(1)
 
     def buildRaw(self, hist):
