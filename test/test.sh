@@ -17,11 +17,6 @@ cat mctal.template | sed "s;^VALUES;$A;" > mctal
 rm -fr case*
 mctal2root mctal
 pstudy -i test.pstudy -setup
-for i in {1..8}; do
-    d=case00$i
-    mkdir -p $d
-    cp mctal.root $d
-    if [ $i != 1 ]; then
-	cp case001/inp $d
-    fi
+for dir in case*; do
+    cp mctal.root $dir
 done
