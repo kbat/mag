@@ -6,7 +6,7 @@ from math import log10
 from array import array
 
 class Data:
-    """Convert THnSparse into raws of Reflected and Transmitted
+    """Convert THnSparse into rows of Reflected and Transmitted
     matrices. The class assumes that the tally 'n' has (1) two
     surface bins: first is the backward surface (reflected), and
     second is the forward surface (transmitted); (2) a number of
@@ -30,7 +30,7 @@ class Data:
         self.histR = tally.Projection(5,6)
         self.histR.SetNameTitle("R", "Reflected %s;Energy [MeV];#mu" % tally.GetTitle())
         self.histR.SetDirectory(0)
-        self.R = self.buildRaw(self.histR)
+        self.R = self.buildRow(self.histR)
 
         # Transmitted
         tally.GetAxis(0).SetRange(2,2); # surf 2
@@ -38,7 +38,7 @@ class Data:
         self.histT = tally.Projection(5,6)
         self.histT.SetNameTitle("T", "Transmitted %s;Energy [MeV];#mu" % tally.GetTitle())
         self.histT.SetDirectory(0)
-        self.T = self.buildRaw(self.histT)
+        self.T = self.buildRow(self.histT)
 
         f.Close()
 
@@ -46,18 +46,18 @@ class Data:
             print("Error: R and T have different lengths", len(self.R), len(self.T))
             exit(1)
 
-    def buildRaw(self, hist):
-        """Build a _sorted_ raw from hist: inner loop is energy, outer loop is
+    def buildRow(self, hist):
+        """Build a _sorted_ row from hist: inner loop is energy, outer loop is
         direction.
 
         """
         nx = hist.GetNbinsX()
         ny = hist.GetNbinsY()
-        raw = []
+        row = []
         for j in range(1,ny+1):
             for i in range(1,nx+1):
-                raw.append(hist.GetBinContent(i,j))
-        return raw
+                row.append(hist.GetBinContent(i,j))
+        return row
 
     def printEbins(self, M):
         """ Print mid energy bins of the M matrix """
@@ -87,29 +87,29 @@ class Matrix:
         self.tally = tallyDict[particle]
         self.vecT = []
         self.vecR = []
-        self.raws = []
+        self.rows = []
 
     def append(self, mctal, E0, mu0):
         """
-        Add mctal.root to the list of raws
+        Add mctal.root to the list of rows
         """
-        self.raws.append(Data(mctal, E0, mu0, self.tally))
+        self.rows.append(Data(mctal, E0, mu0, self.tally))
 
     def run(self):
         """Generate the Reflection and Transmission matrices
         """
-        # sort raws by incident energy and direction
+        # sort rows by incident energy and direction
         # 1e6 needed to avoid problems when energies are very close to each other
-        self.raws.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
+        self.rows.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
 
-        for raw in self.raws:
-            print(raw.fname, raw.E0, raw.mu0)
-            for val in raw.T:
+        for row in self.rows:
+            print(row.fname, row.E0, row.mu0)
+            for val in row.T:
                 self.vecT.append(val)
-            for val in raw.R:
+            for val in row.R:
                 self.vecR.append(val)
 
-        self.N = len(raw.T)
+        self.N = len(row.T)
 
 
         self.T = ROOT.TMatrixD(self.N, self.N, array('d',self.vecT))
