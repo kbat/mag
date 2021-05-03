@@ -11,6 +11,8 @@ def main():
     """ Solve matrix transport equation
     """
 
+    ROOT.gStyle.SetPalette(ROOT.kRust)
+
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
     parser.add_argument('dir',   type=str, help='folder with case*/mctal.root files')
@@ -20,11 +22,15 @@ def main():
 
     args = parser.parse_args()
 
-    d0 = Data(args.dir+"/case020/mctal.root", 3.69604, 0.15, 1)
-    h0 = d0.histT
+    assert os.path.isdir(args.dir), "%s is not a folder or does not exist" % args.dir
 
+    d0 = Data(os.path.join(args.dir,"case020","mctal.root"), 3.69604, 0.15, 1)
+    h0 = d0.histT
     h0.Reset()
-    h0.SetBinContent(7, 2, 1)
+
+    print(d0)
+
+    h0.Fill(707.732, 0.05)
     h0.SetTitle("Source TH2")
 
     s = Source(h0)
@@ -49,7 +55,7 @@ def main():
 
 #    res.S.Print()
 
-    res.S *= m.T #.T()
+    res.S *= m.T.T()
 
 #    res.S.Print()
 
@@ -60,8 +66,25 @@ def main():
 
     c1.cd(4)
     h = res.fillHist()
-    h.ProjectionX().Draw()
+    h.SetTitle("Penetrated")
+    h1 = h.ProjectionX()
+    h1.Draw()
     ROOT.gPad.SetLogx()
+    ROOT.gPad.SetLogy()
+
+    # compare with original data:
+    fOrig = ROOT.TFile("water/case012/mctal.root")
+    f1 = fOrig.Get("f1")
+    f1.GetAxis(0).SetRange(2,2)
+    f1.GetAxis(5).SetRange(11,20)
+    hOrig = f1.Projection(6)
+
+    f1.Print("a")
+
+    n = h1.GetNbinsX()
+    print("bins: ", n)
+    for b in range(1,n+1):
+        print(b, h1.GetBinContent(b), hOrig.GetBinContent(b), "\t", h1.GetBinContent(b)-hOrig.GetBinContent(b))
 
 
     c1.Update()
