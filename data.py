@@ -70,6 +70,9 @@ class Data(Base):
             print("Error: R and T have different lengths", len(self.R), len(self.T))
             exit(1)
 
+    def __str__(self):
+        return "E0: %g MeV\t μ0: %g\t %s" % (self.E0, self.mu0, self.fname)
+
     def printEbins(self, M):
         """ Print mid energy bins of the M matrix """
         a = M.GetXaxis()
@@ -102,6 +105,9 @@ class Matrix:
         self.energies = set()
         self.directions = set()
 
+    def __str__(self):
+        return "Particle: %s" % (self.particle)
+
     def append(self, mctal, E0, mu0):
         """
         Add mctal.root to the list of rows
@@ -115,7 +121,7 @@ class Matrix:
 
         # sort rows by incident energy and direction
         # 1e6 needed to avoid problems when energies are very close to each other
-        self.rows.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
+        self.rows.sort(key=lambda x : x.E0+1e6*x.mu0, reverse=False)
 
         for row in self.rows:
             self.energies.add(row.E0)
