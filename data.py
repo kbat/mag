@@ -99,6 +99,8 @@ class Matrix:
         self.vecT = []
         self.vecR = []
         self.rows = []
+        self.energies = set()
+        self.directions = set()
 
     def append(self, mctal, E0, mu0):
         """
@@ -107,21 +109,23 @@ class Matrix:
         self.rows.append(Data(mctal, E0, mu0, self.tally))
 
     def run(self):
-        """Generate the Reflection and Transmission matrices
-        """
+        """Generate the Reflection and Transmission matrices """
+
+        assert len(self.rows) != 0, "Matrix is empty. Fill it row by row with the Matrix::append method"
+
         # sort rows by incident energy and direction
         # 1e6 needed to avoid problems when energies are very close to each other
         self.rows.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
 
         for row in self.rows:
-#            print(row.fname, row.E0, row.mu0)
+            self.energies.add(row.E0)
+            self.directions.add(row.mu0)
             for val in row.T:
                 self.vecT.append(val)
             for val in row.R:
                 self.vecR.append(val)
 
         self.N = len(row.T)
-
 
         self.T = ROOT.TMatrixD(self.N, self.N, array('d',self.vecT))
         self.R = ROOT.TMatrixD(self.N, self.N, array('d',self.vecR))
@@ -130,9 +134,25 @@ class Source(Base):
     """ sdef definition """
 
     def __init__(self, hist):
+        self.hist = hist.Clone()
         s = self.buildRow(hist)
 
-        self.S = ROOT.TMatrixD(len(s), 1, array('d', s))
+        self.S = ROOT.TVectorD(len(s), array('d', s))
+
+    def __copy__(self):
+        return type(self)(self.hist)
+
+    def fillHist(self):
+        """ Fill TH2 based on TVectorD """
+        h = self.hist #.Clone(self.hist+"_filled")
+        h.Reset()
+        nx = h.GetNbinsX()
+        ny = h.GetNbinsY()
+        for j in range(ny):
+            for i in range(nx):
+                h.SetBinContent(i+1,j+1, self.S[i+j*nx])
+        return h
+
 
 def readData(particle, files, inpname='inp'):
     """ Build matrix from mctal files.
@@ -140,13 +160,18 @@ def readData(particle, files, inpname='inp'):
         files : list of case*/mctal.root files
         inpname : input file name in the case* folders   (inp)
         mctalname : mctal file name in the case* folders (mctail.root)
-        """
+
+    """
+
     m = Matrix(particle)
+
     for mctal in glob(files):
         inp = mctal.replace(basename(mctal), inpname)
         par = getParCL(inp, "Particle:")
-        E0 = getParCL(inp, "Energy:")
+        E0  = getParCL(inp, "Energy:")
         mu0 = getParCL(inp, "Direction cosine:", 3)
         m.append(mctal,E0,mu0)
+
     m.run()
+
     return m

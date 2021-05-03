@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys, argparse, glob
+import sys, argparse, glob, os
 import ROOT
-from data import Data, Matrix
+from data import Data, Matrix, Source, readData
 from array import array
 from mctools.common.CombLayer import getPar as getParCL
 
@@ -23,21 +23,21 @@ def main():
 
     args = parser.parse_args()
 
-    e = Matrix("e")
-    for mctal in glob.glob(args.dir+"/case*/"+args.mctal):
-        inp = mctal.replace(args.mctal, args.inp)
-        if args.verbose:
-            print(mctal)
-        par = getParCL(inp, "Particle:")
-        E0 = getParCL(inp, "Energy:")
-        mu0 = getParCL(inp, "Direction cosine:", 3)
-        e.append(mctal,E0,mu0)
+    m = readData('n', os.path.join(args.dir, "case*", args.mctal))
 
-    e.run()
+    h = ROOT.TH2D(m.T)
+    h.SetTitle(m.particle)
+    h.Draw("colz")
 
-    he = ROOT.TH2D(e.R)
-    he.SetTitle(e.particle)
-    he.Draw("col")
+
+    # d0 = Data(args.dir+"/case020/mctal.root", 3.69604, 0.15, 1)
+    # h0 = d0.histT
+    # h0.Draw("col")
+
+    # s = Source(h0)
+
+    # F = s.Mult(
+
     input()
 
 if __name__ == "__main__":
