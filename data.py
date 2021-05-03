@@ -1,11 +1,35 @@
-#!/usr/bin/env python
+"""GAM module.
+
+An implimentation of Genetic Algorithms with Matrices transport method.
+"""
+
+__title__   = 'GAM'
+__version__ = '0.1'
+__author__  = 'Konstantin Batkov'
 
 import ROOT
 from sys import exit
+from os.path import basename
 from math import log10
 from array import array
+from glob import glob
+from mctools.common.CombLayer import getPar as getParCL
 
-class Data:
+class Base:
+    def buildRow(self, hist):
+        """ Build a _sorted_ row from TH2:
+        inner loop is energy, outer loop is direction consine.
+
+        """
+        nx = hist.GetNbinsX()
+        ny = hist.GetNbinsY()
+        row = []
+        for j in range(1,ny+1):
+            for i in range(1,nx+1):
+                row.append(hist.GetBinContent(i,j))
+        return row
+
+class Data(Base):
     """Convert THnSparse into rows of Reflected and Transmitted
     matrices. The class assumes that the tally 'n' has (1) two
     surface bins: first is the backward surface (reflected), and
@@ -45,19 +69,6 @@ class Data:
         if len(self.R) != len(self.T):
             print("Error: R and T have different lengths", len(self.R), len(self.T))
             exit(1)
-
-    def buildRow(self, hist):
-        """Build a _sorted_ row from hist: inner loop is energy, outer loop is
-        direction.
-
-        """
-        nx = hist.GetNbinsX()
-        ny = hist.GetNbinsY()
-        row = []
-        for j in range(1,ny+1):
-            for i in range(1,nx+1):
-                row.append(hist.GetBinContent(i,j))
-        return row
 
     def printEbins(self, M):
         """ Print mid energy bins of the M matrix """
@@ -103,7 +114,7 @@ class Matrix:
         self.rows.sort(key=lambda x : x.E0*1e6+x.mu0, reverse=False)
 
         for row in self.rows:
-            print(row.fname, row.E0, row.mu0)
+#            print(row.fname, row.E0, row.mu0)
             for val in row.T:
                 self.vecT.append(val)
             for val in row.R:
@@ -114,3 +125,28 @@ class Matrix:
 
         self.T = ROOT.TMatrixD(self.N, self.N, array('d',self.vecT))
         self.R = ROOT.TMatrixD(self.N, self.N, array('d',self.vecR))
+
+class Source(Base):
+    """ sdef definition """
+
+    def __init__(self, hist):
+        s = self.buildRow(hist)
+
+        self.S = ROOT.TMatrixD(len(s), 1, array('d', s))
+
+def readData(particle, files, inpname='inp'):
+    """ Build matrix from mctal files.
+        particle : particle id (n, p, e ...)
+        files : list of case*/mctal.root files
+        inpname : input file name in the case* folders   (inp)
+        mctalname : mctal file name in the case* folders (mctail.root)
+        """
+    m = Matrix(particle)
+    for mctal in glob(files):
+        inp = mctal.replace(basename(mctal), inpname)
+        par = getParCL(inp, "Particle:")
+        E0 = getParCL(inp, "Energy:")
+        mu0 = getParCL(inp, "Direction cosine:", 3)
+        m.append(mctal,E0,mu0)
+    m.run()
+    return m
