@@ -121,7 +121,7 @@ class Matrix:
 
         # sort rows by incident energy and direction
         # 1e6 needed to avoid problems when energies are very close to each other
-        self.rows.sort(key=lambda x : x.E0+1e6*x.mu0, reverse=False)
+        self.rows.sort(key=lambda x : x.E0+1e6*abs(x.mu0), reverse=False)
 
         for row in self.rows:
             self.energies.add(row.E0)
