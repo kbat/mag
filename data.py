@@ -97,7 +97,7 @@ class Matrix:
     """
     def __init__(self, particle):
         self.particle = particle
-        tallyDict = {"n" : 1, "e" : 11, "p" : 21 }
+        tallyDict = {"n" : 1, "p" : 11, "e" : 21, "|" : 31 }
         self.tally = tallyDict[particle]
         self.vecT = []
         self.vecR = []
@@ -173,7 +173,7 @@ def readData(particle, files, inpname='inp'):
 
     for mctal in glob(files):
         inp = mctal.replace(basename(mctal), inpname)
-        par = getParCL(inp, "Particle:")
+        par = getParCL(inp, "Incident particle:", 3)
         E0  = getParCL(inp, "Energy:")
         mu0 = getParCL(inp, "Direction cosine:", 3)
         m.append(mctal,E0,mu0)
