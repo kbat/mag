@@ -61,9 +61,9 @@ def main():
 
     assert os.path.isdir(args.dir), "%s is not a folder or does not exist" % args.dir
 
-    E0 = 53.2785
-    mu0 = 0.95
-    fname = os.path.join(args.dir,"case0992","mctal.root")
+    E0 = 707.732
+    mu0 = 0.05
+    fname = os.path.join(args.dir,"case012/50cm","mctal.root")
 
     d0 = Data(fname, E0, mu0, 1)
     h0 = d0.histT
@@ -103,7 +103,7 @@ def main():
     R1 = copy(R)
     #####################
 
-    for i in range(100-1):
+    for i in range(50-1):
         T1 = getNextT(T, T1, R, R1)
         R1 = getNextR(T, T1, R, R1)
 
@@ -131,8 +131,8 @@ def main():
     ROOT.gPad.SetLogy()
 
     # compare with original data:
-#    fOrig = ROOT.TFile(fname)
-    fOrig = ROOT.TFile("water-E100/case0992/100cm/mctal.root")
+    fOrig = ROOT.TFile(fname)
+#    fOrig = ROOT.TFile("water-E100/case0992/100cm/mctal.root")
 #    fOrig = ROOT.TFile("water-E100/case0992/2cm/mctal.root")
     f1 = fOrig.Get("f1")
     f1.GetAxis(0).SetRange(2,2)
@@ -147,7 +147,10 @@ def main():
     n = h1x.GetNbinsX()
     print("bins: ", n)
     for b in range(1,n+1):
-        print(b, h1x.GetBinContent(b), hOrigE.GetBinContent(b), "\t", h1x.GetBinContent(b)-hOrigE.GetBinContent(b))
+        valOrig = hOrigE.GetBinContent(b)
+
+        if valOrig > 0:
+            print(b, h1x.GetBinContent(b), valOrig, "\t", h1x.GetBinContent(b)/valOrig)
 
     c1.cd(6)
     h1y = h.ProjectionY()
