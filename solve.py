@@ -64,6 +64,9 @@ def main():
     E0 = 707.732
     mu0 = 0.05
     fname = os.path.join(args.dir,"case012/50cm","mctal.root")
+    # E0 = 53.2785
+    # mu0 = 0.95
+#    fname="water-E100/case0992/100cm/mctal.root"
 
     d0 = Data(fname, E0, mu0, 1)
     h0 = d0.histT
@@ -103,11 +106,24 @@ def main():
     R1 = copy(R)
     #####################
 
-    for i in range(50-1):
-        T1 = getNextT(T, T1, R, R1)
-        R1 = getNextR(T, T1, R, R1)
+    # for i in range(1):#50-1):
+    #     T1 = getNextT(T, T1, R, R1)
+    #     R1 = getNextR(T, T1, R, R1)
 
     res.S *= T1
+
+    ######################## save matrices into ROOT file
+    hT1 = ROOT.TH2D(T1)
+    hT1.SetName("hT1")
+    hT1.SetDirectory(0)
+    hR1 = ROOT.TH2D(T1)
+    hR1.SetName("hR1")
+    hR1.SetDirectory(0)
+
+    fout = ROOT.TFile("RT-python.root", "recreate")
+    hT1.Write()
+    hR1.Write()
+    fout.Close()
 
 #    res.S.Print()
 
@@ -127,6 +143,7 @@ def main():
 
     h1x = h.ProjectionX()
     h1x.Draw()
+
     ROOT.gPad.SetLogx()
     ROOT.gPad.SetLogy()
 
