@@ -75,11 +75,14 @@ std::shared_ptr<TMatrixD> Material::h2m(const TH2D *h) const
 
 std::shared_ptr<TMatrixD> Material::get(const std::string& name) const
 {
-  // Return transmission matrix with the given name
+  // Return matrix with the given name
+
+  std::vector<std::pair<std::string, std::shared_ptr<TMatrixD> > > m =
+    (name[1] == 'T') ? T : R;
 
   for (std::vector<std::pair<std::string,
-	 std::shared_ptr<TMatrixD> > >::const_iterator it=T.begin();
-       it!=T.end(); ++it)
+	 std::shared_ptr<TMatrixD> > >::const_iterator it=m.begin();
+       it!=m.end(); ++it)
     if (it->first == name)
       return it->second;
 
@@ -91,20 +94,26 @@ std::shared_ptr<TMatrixD> Material::get(const std::string& name) const
 std::shared_ptr<TMatrixD> Material::getT(const char pIn,
 					 const char pOut) const
 {
+  // Return transmission matrix given incident and scored particles
+
   std::string name;
   name += pIn;
   name += 'T';
   name += pOut;
+
   return get(name);
 }
 
 std::shared_ptr<TMatrixD> Material::getR(const char pIn,
 					 const char pOut) const
 {
+  // Return reflection matrix given incident and scored particles
+
   std::string name;
   name += pIn;
   name += 'R';
   name += pOut;
+
   return get(name);
 }
 

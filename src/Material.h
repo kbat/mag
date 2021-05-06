@@ -25,6 +25,7 @@ class Material
   std::shared_ptr<TMatrixD> get(const std::string&) const;
   std::shared_ptr<TMatrixD> getT(const char, const char) const;
   std::shared_ptr<TMatrixD> getR(const char, const char) const;
+  inline std::shared_ptr<TH2D> getSDEF() const { return sdef; }
   void print() const;
 };
 
