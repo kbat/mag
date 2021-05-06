@@ -37,3 +37,9 @@ std::shared_ptr<TH2D> Source::FillHist() const
 
   return h;
 }
+
+TVectorD &Source::operator*=(const TMatrixD &source)
+{
+  *S *= source;
+  return *S;
+}

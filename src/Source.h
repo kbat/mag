@@ -13,9 +13,10 @@ class Source {
   std::vector<double> buildRow();
  public:
   Source(const TH2D* h);
-  TVectorD *GetS() const { return S; }
   std::shared_ptr<TH2D> FillHist() const;
   inline Int_t GetNrows() const { return S->GetNrows(); }
+
+  TVectorD &operator*=(const TMatrixD &source);
 };
 
 #endif

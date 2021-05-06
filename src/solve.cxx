@@ -129,7 +129,7 @@ int main(int argc, const char **argv)
 
   SaveMatrices(T1, R1);
 
-  *res->GetS() *= *T1;
+  *res *= *T1;
 
   std::shared_ptr<TH2D> h = res->FillHist();
 
