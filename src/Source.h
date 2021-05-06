@@ -13,7 +13,7 @@ class Source {
   std::vector<double> buildRow();
  public:
   Source(const TH2D* h);
-  std::shared_ptr<TH2D> FillHist() const;
+  std::shared_ptr<TH2D> Histogram() const;
   inline Int_t GetNrows() const { return vec->GetNrows(); }
 
   TVectorD &operator*=(const TMatrixD &source);

@@ -13,7 +13,7 @@ std::shared_ptr<TMatrixD> GetReflectionsT(std::shared_ptr<TMatrixD> T,std::share
 {
   assert(order==1 && "Orders > 1 not supported yet");
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn);
+  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn); // todo: check if not cloned
 
   *m *= *R;
   *m *= *Rn;
@@ -132,7 +132,7 @@ int main(int argc, const char **argv)
 
   *res *= *T1;
 
-  std::shared_ptr<TH2D> h = res->FillHist();
+  std::shared_ptr<TH2D> h = res->Histogram();
 
   h->SaveAs("res.root");
 
