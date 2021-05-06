@@ -83,10 +83,10 @@ void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
 {
   TFile fout(fname, "recreate");
   TH2D *hT = new TH2D(*T.get());
-  TH2D *hR = new TH2D(*R.get());
-
   hT->SetName("T");
+  TH2D *hR = new TH2D(*R.get());
   hR->SetName("R");
+
   hT->Write();
   hR->Write();
   fout.Close();
