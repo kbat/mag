@@ -5,7 +5,7 @@ Source::Source(const TH2D* h) :
   hist(h)
 {
   std::vector<double> s = buildRow();
-  S = new TVectorD(s.size(), s.data());
+  vec = std::make_shared<TVectorD>(s.size(), s.data());
 }
 
 std::vector<double> Source::buildRow()
@@ -19,7 +19,7 @@ std::vector<double> Source::buildRow()
     for (Int_t i=1; i<=nx; ++i)
       vec.push_back(hist->GetBinContent(i,j));
 
-  return vec; // todo: how to avoid creating a new vector?
+  return vec;
 }
 
 std::shared_ptr<TH2D> Source::FillHist() const
@@ -33,13 +33,13 @@ std::shared_ptr<TH2D> Source::FillHist() const
 
   for (Int_t j=0; j<ny; ++j)
     for (Int_t i=0; i<nx; ++i)
-      h->SetBinContent(i+1,j+1, (*S)[i+j*nx]);
+      h->SetBinContent(i+1,j+1, (*vec)[i+j*nx]);
 
   return h;
 }
 
 TVectorD &Source::operator*=(const TMatrixD &source)
 {
-  *S *= source;
-  return *S;
+  *vec *= source;
+  return *vec;
 }

@@ -8,13 +8,13 @@
 class Source {
  private:
   const TH2D* hist;
-  TVectorD *S;
+  std::shared_ptr<TVectorD> vec;
 
   std::vector<double> buildRow();
  public:
   Source(const TH2D* h);
   std::shared_ptr<TH2D> FillHist() const;
-  inline Int_t GetNrows() const { return S->GetNrows(); }
+  inline Int_t GetNrows() const { return vec->GetNrows(); }
 
   TVectorD &operator*=(const TMatrixD &source);
 };
