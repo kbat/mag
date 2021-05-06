@@ -22,7 +22,7 @@ std::vector<double> Source::buildRow()
   return vec; // todo: how to avoid creating a new vector?
 }
 
-std::shared_ptr<TH2D> Source::FillHist()
+std::shared_ptr<TH2D> Source::FillHist() const
 {
   std::shared_ptr<TH2D> h = std::make_shared<TH2D>(*hist);
   h->Reset();

@@ -17,7 +17,7 @@ obj/%.o: src/%.cxx src/%.h
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ $< $(ROOTCFLAGS) -o $@
 
-obj/solve.o: src/solve.cxx
+obj/solve.o: src/solve.cxx obj/Source.o
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ $< $(ROOTCFLAGS) -o $@
 

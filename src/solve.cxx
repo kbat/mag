@@ -124,7 +124,7 @@ int main(int argc, const char **argv)
     R1 = GetNextR(T, T1, R, R1);
   }
 
-  std::cout << "Result rows: " << res->GetS()->GetNrows() << std::endl;
+  std::cout << "Result rows: " << res->GetNrows() << std::endl;
   std::cout << "Matrix: " << T1->GetNrows() << " x " << T1->GetNcols() << std::endl;
 
   SaveMatrices(T1, R1);
