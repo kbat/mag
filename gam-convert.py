@@ -17,7 +17,7 @@ def getH0(args):
     d0 = Data(fname, E0, mu0, 1)
     h0 = d0.histT
     h0.Reset()
-    h0.SetName("h0")
+    h0.SetNameTitle("sdef", "SDEF histogram [empty]")
 
     return h0
 
