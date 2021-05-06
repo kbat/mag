@@ -7,6 +7,20 @@ from copy import copy
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
+def getH0(args):
+    """ Return empty histogram for energy / direction bins """
+
+    E0 = 707.732 # dummy
+    mu0 = 0.05   # dummy
+    fname = os.path.join(args.dir,"case001",args.mctal)
+
+    d0 = Data(fname, E0, mu0, 1)
+    h0 = d0.histT
+    h0.Reset()
+    h0.SetName("h0")
+
+    return h0
+
 def main():
     """Convert mctal.root files into transport matrices
 
@@ -26,18 +40,9 @@ def main():
 
     assert os.path.isdir(args.dir), "%s is not a folder or does not exist" % args.dir
 
-    E0 = 707.732 # dummy
-    mu0 = 0.05   # dummy
-    fname = os.path.join(args.dir,"case001",args.mctal)
-
-    d0 = Data(fname, E0, mu0, 1)
-    h0 = d0.histT
-    h0.Reset()
-    h0.SetName("h0")
-
-    print(d0)
-
     m = readData('n', os.path.join(args.dir, "case*", args.mctal)) # matrix
+
+    h0 = getH0(args)
 
     hT = ROOT.TH2D(m.T)
     hT.SetNameTitle("T", m.particle)
@@ -45,7 +50,7 @@ def main():
     hR = ROOT.TH2D(m.R)
     hR.SetNameTitle("R", m.particle)
 
-    fout = ROOT.TFile("gam.root", "recreate")
+    fout = ROOT.TFile(args.dir+".root", "recreate")
     hT.Write()
     hR.Write()
     h0.Write()
