@@ -94,9 +94,8 @@ def main():
     c1.cd(3)
     res = copy(s) # result
 
-    m = readData('n', os.path.join(args.dir, "case*", args.mctal)) # matrix
+    m = readData('n', os.path.join(args.dir, "case*", args.mctal)) # dic of matrices
 #    print(sorted(m.energies), sorted(m.directions))
-
 #    res.S.Print()
 
     T = m.T.T() # transpose the matrix

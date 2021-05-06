@@ -96,7 +96,7 @@ class Matrix:
     n - tally number
     """
     def __init__(self, particle):
-        self.particle = particle
+        self.particle = particle # scored particle
         tallyDict = {"n" : 1, "p" : 11, "e" : 21, "|" : 31 }
         self.tally = tallyDict[particle]
         self.vecT = []
@@ -160,24 +160,34 @@ class Source(Base):
         return h
 
 
-def readData(particle, files, inpname='inp'):
-    """ Build matrix from mctal files.
-        particle : particle id (n, p, e ...)
+def readData(files, particles, inpname='inp'):
+    """ Build matrices from mctal files.
+
         files : list of case*/mctal.root files
+        particles : list of incident and scored particles
         inpname : input file name in the case* folders   (inp)
-        mctalname : mctal file name in the case* folders (mctail.root)
+
+        Return dictionary with len(particles)*len(particles) matrices
 
     """
 
-    m = Matrix(particle)
+    m = {}
+
+    for p0 in particles: # incident
+        m[p0] = {}
+        for p in particles: # scored
+            m[p0][p] = Matrix(p)
 
     for mctal in glob(files):
         inp = mctal.replace(basename(mctal), inpname)
-        par = getParCL(inp, "Incident particle:", 3)
+        p0  = getParCL(inp, "Incident particle:", 3)
         E0  = getParCL(inp, "Energy:")
         mu0 = getParCL(inp, "Direction cosine:", 3)
-        m.append(mctal,E0,mu0)
+        for p in particles:
+            m[p0][p].append(mctal,E0,mu0)
 
-    m.run()
+    for p0 in particles: # incident
+        for p in particles: # scored
+            m[p0][p].run()
 
     return m

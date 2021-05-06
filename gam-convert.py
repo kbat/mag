@@ -30,30 +30,43 @@ def main():
     ROOT.gStyle.SetOptStat(False)
 
     parser = argparse.ArgumentParser(description=main.__doc__,
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
     parser.add_argument('dir',   type=str, help='folder with case*/mctal.root files')
     parser.add_argument("-mctal",type=str, help='mctal.root file names', default="mctal.root")
     parser.add_argument("-inp",  type=str, help='MCNP input file names (assumed to be in the same folder as mctal.root)', default="inp")
+    parser.add_argument("-par",type=str, help='space-separated list of incident and scored particles', default="n p e |")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
 
     args = parser.parse_args()
 
     assert os.path.isdir(args.dir), "%s is not a folder or does not exist" % args.dir
 
-    m = readData('n', os.path.join(args.dir, "case*", args.mctal)) # matrix
-
     h0 = getH0(args)
 
-    hT = ROOT.TH2D(m.T)
-    hT.SetNameTitle("T", m.particle)
+    particles = args.par.split()
 
-    hR = ROOT.TH2D(m.R)
-    hR.SetNameTitle("R", m.particle)
+    m = readData(os.path.join(args.dir, "case*", args.mctal), particles) # dic of matrices
+
+    T = []
+    R = []
+
+    for p0 in particles:
+        for p in particles:
+            hT = ROOT.TH2D(m[p0][p].T)
+            hT.SetNameTitle(p0+"T"+p, "T: %s #rightarrow %s" % (p0, p))
+            T.append(hT)
+
+            hR = ROOT.TH2D(m[p0][p].R)
+            hR.SetNameTitle(p0+"R"+p, "R: %s #rightarrow %s" % (p0, p))
+            R.append(hR)
 
     fout = ROOT.TFile(args.dir+".root", "recreate")
-    hT.Write()
-    hR.Write()
     h0.Write()
+    for t in T:
+        t.Write()
+    for r in R:
+        r.Write()
     fout.Close()
 
 
