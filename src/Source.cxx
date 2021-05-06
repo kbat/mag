@@ -1,5 +1,5 @@
-#include <Source.h>
 #include <iostream>
+#include <Source.h>
 
 Source::Source(const TH2D* h) :
   hist(h)
