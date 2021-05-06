@@ -22,7 +22,7 @@ def getH0(args):
     return h0
 
 def main():
-    """Convert mctal.root files into transport matrices
+    """Convert mctal.root files into transport matrices for the given material
 
     """
 
@@ -32,11 +32,12 @@ def main():
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
-    parser.add_argument('dir',   type=str, help='folder with case*/mctal.root files')
+    parser.add_argument('dir',   type=str, help='Folder name with case*/mctal.root files. It is assumed that the data in this folder is related to the same material but different incident energies and direction cosines.')
     parser.add_argument("-mctal",type=str, help='mctal.root file names', default="mctal.root")
-    parser.add_argument("-inp",  type=str, help='MCNP input file names (assumed to be in the same folder as mctal.root)', default="inp")
-    parser.add_argument("-par",type=str, help='space-separated list of incident and scored particles', default="n p e |")
-    parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
+    parser.add_argument("-inp",  type=str, help='MCNP input file names (assumed to be in the same folder as mctal.root).', default="inp")
+    parser.add_argument("-par",type=str, help='Space-separated list of incident and scored particles.', default="n p e |")
+    parser.add_argument("-o",  type=str, dest='output', help='Output file name. If not given, the folder name "dir"+.root will be used.', default=None)
+    parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='Explain what is being done.')
 
     args = parser.parse_args()
 
@@ -53,6 +54,9 @@ def main():
 
     for p0 in particles:
         for p in particles:
+            if args.verbose:
+                print("%s -> %s" % (p0, p))
+
             hT = ROOT.TH2D(m[p0][p].T)
             hT.SetNameTitle(p0+"T"+p, "T: %s #rightarrow %s" % (p0, p))
             T.append(hT)
@@ -61,7 +65,12 @@ def main():
             hR.SetNameTitle(p0+"R"+p, "R: %s #rightarrow %s" % (p0, p))
             R.append(hR)
 
-    fout = ROOT.TFile(args.dir+".root", "recreate")
+    # save matrices
+    fname = args.output
+    if fname is None:
+        fname = args.dir+".root"
+
+    fout = ROOT.TFile(fname, "recreate")
     h0.Write()
     for t in T:
         t.Write()
