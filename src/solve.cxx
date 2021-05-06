@@ -131,7 +131,7 @@ int main(int argc, const char **argv)
 
   *res->GetS() *= *T1;
 
-  TH2D *h = res->FillHist();
+  std::shared_ptr<TH2D> h = res->FillHist();
 
   h->SaveAs("res.root");
 

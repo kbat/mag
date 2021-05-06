@@ -22,17 +22,18 @@ std::vector<double> Source::buildRow()
   return vec; // todo: how to avoid creating a new vector?
 }
 
-TH2D* Source::FillHist()
+std::shared_ptr<TH2D> Source::FillHist()
 {
-  TH2D *h = dynamic_cast<TH2D*>(hist->Clone("h"));
+  std::shared_ptr<TH2D> h = std::make_shared<TH2D>(*hist);
   h->Reset();
+  h->SetName("h");
 
   const Int_t nx = h->GetNbinsX();
   const Int_t ny = h->GetNbinsY();
 
   for (Int_t j=0; j<ny; ++j)
     for (Int_t i=0; i<nx; ++i)
-      h->SetBinContent(i,j, (*S)[i+j*nx]);
+      h->SetBinContent(i+1,j+1, (*S)[i+j*nx]);
 
   return h;
 }

@@ -14,7 +14,7 @@ class Source {
  public:
   Source(const TH2D* h);
   TVectorD *GetS() { return S; }
-  TH2D* FillHist();
+  std::shared_ptr<TH2D> FillHist();
 };
 
 #endif
