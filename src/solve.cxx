@@ -81,37 +81,34 @@ void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
 
 int main(int argc, const char **argv)
 {
-  Material *mat = new Material("Poly", "Poly.root");
+  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root");
 
-  std::shared_ptr<TH2D> sdef = mat->getSDEF();
-
-  const std::shared_ptr<TMatrixD> T = mat->get("eTe");
-  const std::shared_ptr<TMatrixD> R = mat->get("eRe");
-
-  std::shared_ptr<TMatrixD> T1 = std::make_shared<TMatrixD>(*T);
-  std::shared_ptr<TMatrixD> R1 = std::make_shared<TMatrixD>(*R);
+  std::vector<std::shared_ptr<Material>> mat;
+  for (size_t i=0; i<50; ++i)
+    mat.push_back(poly);
 
   // const double E0 = 53.2785;
   // const double mu0 = 0.95;
   const double E0 = 707.732;
   const double mu0 = 0.05;
 
+  auto sdef = mat[0]->getSDEF();
   sdef->Fill(E0, mu0);
 
-  std::unique_ptr<Source> s =   std::make_unique<Source>(sdef.get());
-  std::unique_ptr<Source> res = std::make_unique<Source>(sdef.get()); // todo: use copy constructor here
+  const char p0 = 'e'; // incident particle
+  auto particles = mat[0]->getParticles();
 
-  for (size_t i=0; i<50-1; ++i) {
-    T1 = GetNextT(T, T1, R, R1);
-    R1 = GetNextR(T, T1, R, R1);
+  auto res = std::make_shared<Source>(sdef.get()); // result
+
+  // first layer
+  std::map<char, std::shared_ptr<Source> > source1;
+
+  for (auto p : particles)
+    source1.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
+
+  for (size_t i=0; i<50; ++i) {
+    *res *= *mat[i]->get("eTe");
   }
-
-  std::cout << "Result rows: " << res->GetNrows() << std::endl;
-  std::cout << "Matrix: " << T1->GetNrows() << " x " << T1->GetNcols() << std::endl;
-
-  SaveMatrices(T1, R1);
-
-  *res *= *T1;
 
   std::shared_ptr<TH2D> h = res->Histogram();
 
