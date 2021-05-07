@@ -100,12 +100,54 @@ int main(int argc, const char **argv)
 
   auto res = std::make_shared<Source>(sdef.get()); // result
 
-  // first layer
+  size_t layer=0;
+  // LAYER 0
+  // incident particle is e, but we still need individual sources for each particle,
+  // they will be used at sources for the next layer
   std::map<char, std::shared_ptr<Source> > source1;
 
-  for (auto p : particles)
+  for (auto p : particles) {
     source1.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
+    *source1[p] *= *mat[layer]->getT(p0, p);
+  }
 
+  // Now source1 contains spectra of individual particles leaving first layer
+
+  // LAYER 1
+  layer++;
+  // the code below really needs to be checked !!!
+
+  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
+
+  for (auto i : particles) {  // incident
+    for (auto j : particles) { // scored
+      spectra2[i].insert(std::make_pair(j, std::make_shared<Source>(*source1[i])));
+    }
+  }
+
+  for (auto i : particles) {  // incident
+    for (auto j : particles) { // scored
+      *spectra2[i][j] *= *mat[layer]->getT(i,j);
+      }
+  }
+
+  std::map<char, std::shared_ptr<Source> > source2;
+ TODO: sum of individual spectra
+
+  // LAYER 3
+
+
+
+  // std::map<char, std::shared_ptr<Source> > spectra2;
+  // for (auto i : particles) {
+  //   auto s = std::make_shared<Source>
+  //   for (auto j : particles) {
+  //   }
+  //   spectra2.insert(std::make_pair(p, std::make_shared<Source>(*source1[p])));
+  // }
+
+
+  /////////
   for (size_t i=0; i<50; ++i) {
     *res *= *mat[i]->get("eTe");
   }
