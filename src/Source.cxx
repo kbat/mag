@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Source.h>
+#include "Source.h"
 
 Source::Source(const TH2D* h) :
   hist(h)
@@ -8,6 +8,14 @@ Source::Source(const TH2D* h) :
 
   std::vector<double> s = buildRow();
   vec = std::make_shared<TVectorD>(s.size(), s.data());
+}
+
+Source::Source(const Source& A) :
+  hist(A.hist),
+  vec(A.vec)
+{
+  // Copy constructor
+  std::cout << "Source: Copy constructor" << std::endl;
 }
 
 std::vector<double> Source::buildRow()
@@ -44,11 +52,23 @@ std::shared_ptr<TH2D> Source::Histogram() const
   return h;
 }
 
-TVectorD &Source::operator*=(const TMatrixD &source)
+Source& Source::operator=(const Source& A)
+{
+  // Assignment operator
+  std::cout << "Source: Assignment operator" << std::endl;
+  if (this != &A)
+    {
+      hist = A.hist;
+      vec  = A.vec;
+    }
+  return *this; // return result by reference
+}
+
+TVectorD &Source::operator*=(const TMatrixD &m)
 {
   // Multiplication assignment operator
 
-  *vec *= source;
+  *vec *= m;
   return *vec;
 }
 
@@ -57,5 +77,13 @@ TVectorD &Source::operator+=(const TVectorD &source)
   // Addition assignment operator
 
   *vec += source;
+  return *vec;
+}
+
+TVectorD &Source::operator+=(const Source &s)
+{
+  // Addition assignment operator
+
+  *vec += *s.vec;
   return *vec;
 }
