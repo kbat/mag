@@ -7,11 +7,9 @@ Material::Material(const std::string& name,
 		   const std::string& fname) :
   name(name)
 {
+  // Constructor
+
   setParticles(fname);
-  size_t n = particles.size();
-  n *= n;
-  T.reserve(n);
-  R.reserve(n);
 
   TFile file(fname.data());
   TIter next(file.GetListOfKeys());
@@ -24,13 +22,11 @@ Material::Material(const std::string& name,
       if (hname == "sdef")
 	sdef = std::make_shared<TH2D>(*h);
       else {
-	std::pair<std::string, std::shared_ptr<TMatrixD> > m;
-	m.first = hname;
-	m.second = h2m(h);
+	auto m = std::make_pair(hname, h2m(h));
 	if (hname[1] == 'T')
-	  T.push_back(m);
+	  T.insert(m);
 	else if (hname[1] == 'R')
-	  R.push_back(m);
+	  R.insert(m);
 	else
 	  std::cerr << "Unknown histogram: " << hname << std::endl;
       }
@@ -51,10 +47,10 @@ void Material::setParticles(const std::string& fname)
     if (strcmp(key->GetName(), "sdef") != 0)
       particles.insert(key->GetName()[0]);
 
-  // for (std::set<char>::iterator it=particles.begin();
-  //      it!=particles.end(); ++it)
-  //   std::cout << ' ' << *it;
+  // for (auto p : particles)
+  //   std::cout << p << " ";
   // std::cout<<std::endl;
+
   file.Close();
 }
 
@@ -77,18 +73,9 @@ std::shared_ptr<TMatrixD> Material::get(const std::string& name) const
 {
   // Return matrix with the given name
 
-  std::vector<std::pair<std::string, std::shared_ptr<TMatrixD> > > m =
-    (name[1] == 'T') ? T : R;
+  auto M = (name[1] == 'T') ? T : R;
 
-  for (std::vector<std::pair<std::string,
-	 std::shared_ptr<TMatrixD> > >::const_iterator it=m.begin();
-       it!=m.end(); ++it)
-    if (it->first == name)
-      return it->second;
-
-  std::cerr << "Matrix " << name << " not found" << std::endl;
-
-  return nullptr;
+  return M[name];
 }
 
 std::shared_ptr<TMatrixD> Material::getT(const char pIn,
