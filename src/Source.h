@@ -17,6 +17,7 @@ class Source {
   inline Int_t GetNrows() const { return vec->GetNrows(); }
 
   TVectorD &operator*=(const TMatrixD &source);
+  TVectorD &operator+=(const TVectorD &source);
 };
 
 #endif
