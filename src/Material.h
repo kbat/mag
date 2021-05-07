@@ -2,7 +2,6 @@
 #define Material_h
 
 #include <set>
-#include <vector>
 #include <TMatrixD.h>
 #include <TH2D.h>
 #include <TFile.h>
@@ -18,7 +17,6 @@ class Material
   std::map<std::string, std::shared_ptr<TMatrixD> > R;
   std::shared_ptr<TH2D> sdef; ///! [empty] sdef histogram
 
-  void setParticles(const std::string&);
   std::shared_ptr<TMatrixD> h2m(const TH2D *h) const;
  public:
   Material(const std::string&, const std::string&);

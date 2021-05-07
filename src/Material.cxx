@@ -9,8 +9,6 @@ Material::Material(const std::string& name,
 {
   // Constructor
 
-  setParticles(fname);
-
   TFile file(fname.data());
   TIter next(file.GetListOfKeys());
 
@@ -22,6 +20,8 @@ Material::Material(const std::string& name,
       if (hname == "sdef")
 	sdef = std::make_shared<TH2D>(*h);
       else {
+	particles.insert(hname[0]);
+
 	auto m = std::make_pair(hname, h2m(h));
 	if (hname[1] == 'T')
 	  T.insert(m);
@@ -35,23 +35,9 @@ Material::Material(const std::string& name,
   }
   // sdef->Print();
   // std::cout << n << " " << T.size() << " " << R.size() << std::endl;
-}
-
-
-void Material::setParticles(const std::string& fname)
-{
-  TFile file(fname.data());
-  TKey *key;
-  TIter next(file.GetListOfKeys());
-  while ((key = (TKey*)next()))
-    if (strcmp(key->GetName(), "sdef") != 0)
-      particles.insert(key->GetName()[0]);
-
   // for (auto p : particles)
   //   std::cout << p << " ";
   // std::cout<<std::endl;
-
-  file.Close();
 }
 
 std::shared_ptr<TMatrixD> Material::h2m(const TH2D *h) const
@@ -61,7 +47,8 @@ std::shared_ptr<TMatrixD> Material::h2m(const TH2D *h) const
   const Int_t nx = h->GetNbinsX();
   const Int_t ny = h->GetNbinsY();
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(nx, ny);
+  auto m = std::make_shared<TMatrixD>(nx, ny);
+
   for (Int_t i=0; i<nx; ++i)
     for (Int_t j=0; j<ny; ++j)
       (*m)[i][j] = h->GetBinContent(i+1, j+1);
