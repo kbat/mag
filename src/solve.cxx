@@ -82,6 +82,7 @@ void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
 int main(int argc, const char **argv)
 {
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root");
+  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root");
 
   std::vector<std::shared_ptr<Material>> mat;
   for (size_t i=0; i<50; ++i)
@@ -111,7 +112,7 @@ int main(int argc, const char **argv)
     *source1[p] *= *mat[layer]->getT(p0, p);
   }
 
-  // Now source1 contains spectra of individual particles leaving first layer
+  // Now source1 contains spectra of individual particles leaving the first layer
 
   // LAYER 1
   layer++;
@@ -119,18 +120,20 @@ int main(int argc, const char **argv)
 
   std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
 
+  // define all combinations of spectra after the 2nd layer
+  // but before we do transport we just copy data from spectra1
   for (auto i : particles) {  // incident
     for (auto j : particles) { // scored
       spectra2[i].insert(std::make_pair(j, std::make_shared<Source>(*source1[i])));
     }
   }
-
+  // transport through the 2nd layer (combine both series of loops in the future)
   for (auto i : particles) {  // incident
     for (auto j : particles) { // scored
       *spectra2[i][j] *= *mat[layer]->getT(i,j);
       }
   }
-
+  // add up spectra of each secondary particle produced by different incidents
   std::map<char, std::shared_ptr<Source> > source2;
   for (auto i : particles) {
     source2[i] = std::make_shared<Source>(*spectra2[i][i]);
