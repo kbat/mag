@@ -132,11 +132,16 @@ int main(int argc, const char **argv)
   }
 
   std::map<char, std::shared_ptr<Source> > source2;
- TODO: sum of individual spectra
+  for (auto i : particles) {
+    source2[i] = std::make_shared<Source>(*spectra2[i][i]);
+    for (auto j : particles) {
+      if (i!=j)
+	*source2[i] += *spectra2[j][i];
+    }
+  }
 
   // LAYER 3
-
-
+  layer++;
 
   // std::map<char, std::shared_ptr<Source> > spectra2;
   // for (auto i : particles) {
