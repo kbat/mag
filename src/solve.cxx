@@ -86,7 +86,7 @@ int main(int argc, const char **argv)
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root");
   auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root");
 
-  size_t nLayers = 50;
+  size_t nLayers = 10;
   std::vector<std::shared_ptr<Material>> mat;
 
   // tests
@@ -109,15 +109,16 @@ int main(int argc, const char **argv)
 
   // const double E0 = 53.2785;
   // const double mu0 = 0.95;
-  const double E0 = 707.732;
-  const double mu0 = 0.05;
+  const double E0 = 2e3;
+  const double mu0 = 0.99;
 
   auto sdef = mat[0]->getSDEF();
   if (!test)
     sdef->Fill(E0, mu0);
 
-  const char p0 = 'e'; // incident particle
-  auto particles = mat[0]->getParticles();
+  const char p0 = 'n'; // incident particle
+  //  auto particles = mat[0]->getParticles();
+  auto particles = std::set<char>{'n'};
 
   // auto res = std::make_shared<Source>(sdef.get()); // result
 
@@ -156,13 +157,13 @@ int main(int argc, const char **argv)
       }
     }
 
-    std::cout << "before transport" << std::endl;
-    for (auto i : particles)
-      for (auto j : particles) {
-	std::cout << i << " -> " << j << std::endl;
-	spectra2[i][j]->GetVector()->Print();
-	mat[layer]->getT(i,j)->Print();
-      }
+    // std::cout << "before transport" << std::endl;
+    // for (auto i : particles)
+    //   for (auto j : particles) {
+    // 	std::cout << i << " -> " << j << std::endl;
+    // 	spectra2[i][j]->GetVector()->Print();
+    // 	mat[layer]->getT(i,j)->Print();
+    //   }
 
     // transport through the 2nd layer (combine both series of loops in the future)
     for (auto i : particles) {  // incident
@@ -171,13 +172,13 @@ int main(int argc, const char **argv)
       }
     }
 
-    std::cout << "after transport" << std::endl;
-    for (auto i : particles)
-      for (auto j : particles) {
-	std::cout << i << " -> " << j << std::endl;
-	spectra2[i][j]->GetVector()->Print();
-	mat[layer]->getT(i,j)->Print();
-      }
+    // std::cout << "after transport" << std::endl;
+    // for (auto i : particles)
+    //   for (auto j : particles) {
+    // 	std::cout << i << " -> " << j << std::endl;
+    // 	spectra2[i][j]->GetVector()->Print();
+    // 	mat[layer]->getT(i,j)->Print();
+    //   }
 
 
     spectra1.clear();
@@ -196,7 +197,7 @@ int main(int argc, const char **argv)
   }
   std::cout << "after loop" << std::endl;
 
-  auto res = spectra1['e']; // 'n' TODO
+  auto res = spectra1['n']; // 'n' TODO
 
   //  spectra1 is my result
 
