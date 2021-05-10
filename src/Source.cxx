@@ -67,8 +67,22 @@ Source& Source::operator=(const Source& A)
 TVectorD &Source::operator*=(const TMatrixD &m)
 {
   // Multiplication assignment operator
+  // reimplemented since in ROOT a *= b return b*a but not a*b
+  // it's slow, will replace it with Eigen matrixes
 
-  *vec *= m;
+  const size_t n = vec->GetNrows();
+  std::shared_ptr<TVectorD> vec1 = std::make_shared<TVectorD>(n);
+
+  for (size_t i=0; i<n; ++i) {
+    double sum=0.0;
+    for (size_t j=0; j<n; ++j) {
+      sum += (*vec)[j]*m[j][i];
+      //      std::cout << (*vec)[j] << " * " << m[j][i] << std::endl;
+    }
+    (*vec1)[i] = sum;
+  }
+  vec = vec1;
+
   return *vec;
 }
 

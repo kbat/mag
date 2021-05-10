@@ -47,11 +47,13 @@ std::shared_ptr<TMatrixD> Material::h2m(const TH2D *h) const
   const Int_t nx = h->GetNbinsX();
   const Int_t ny = h->GetNbinsY();
 
+  assert(nx==ny && "nx != ny");
+
   auto m = std::make_shared<TMatrixD>(nx, ny);
 
   for (Int_t i=0; i<nx; ++i)
     for (Int_t j=0; j<ny; ++j)
-      (*m)[i][j] = h->GetBinContent(i+1, j+1);
+      (*m)[i][j] = h->GetBinContent(j+1, i+1);
 
   return m;
 }

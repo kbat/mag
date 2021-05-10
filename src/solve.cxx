@@ -5,6 +5,7 @@
 #include <TH2D.h>
 #include <TFile.h>
 
+
 #include "Material.h"
 #include "Source.h"
 
@@ -83,10 +84,28 @@ int main(int argc, const char **argv)
 {
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root");
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root");
+  auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root");
 
+  size_t nLayers = 50;
   std::vector<std::shared_ptr<Material>> mat;
-  for (size_t i=0; i<50; ++i)
-    mat.push_back(poly);
+
+  // tests
+  size_t test = 0;
+  if (argc==3) { // test nLayers
+    if (!strcmp(argv[1], "test1")) {
+      test = 1;
+      nLayers = atoi(argv[2]);
+      for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest1);
+    } else {
+      std::cerr << "usage: " << argv[0] << " test nLayers" << std::endl;
+      return 1;
+    }
+  }
+  else {
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(poly);
+  }
 
   // const double E0 = 53.2785;
   // const double mu0 = 0.95;
@@ -94,71 +113,106 @@ int main(int argc, const char **argv)
   const double mu0 = 0.05;
 
   auto sdef = mat[0]->getSDEF();
-  sdef->Fill(E0, mu0);
+  if (!test)
+    sdef->Fill(E0, mu0);
 
   const char p0 = 'e'; // incident particle
   auto particles = mat[0]->getParticles();
 
-  auto res = std::make_shared<Source>(sdef.get()); // result
+  // auto res = std::make_shared<Source>(sdef.get()); // result
 
   size_t layer=0;
   // LAYER 0
   // incident particle is e, but we still need individual sources for each particle,
   // they will be used at sources for the next layer
-  std::map<char, std::shared_ptr<Source> > source1;
+  std::map<char, std::shared_ptr<Source> > spectra1;
 
   for (auto p : particles) {
-    source1.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
-    *source1[p] *= *mat[layer]->getT(p0, p);
+    std::cout << p0 << " -> " << p << std::endl;
+    spectra1.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
+    spectra1[p]->GetVector()->Print();
+    mat[layer]->getT(p0,p)->Print();
+    *spectra1[p] *= *mat[layer]->getT(p0, p);
   }
+  //  spectra1['e']->GetVector()->Print();
 
-  // Now source1 contains spectra of individual particles leaving the first layer
+  // other LAYERs
+  std::cout << "before loop" << std::endl;
 
-  // LAYER 1
-  layer++;
-  // the code below really needs to be checked !!!
+  // Now spectra1 contains spectra of individual particles leaving the first layer
 
   std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
+  //  std::map<char, std::shared_ptr<Source> > source2;
+  for (size_t layer=1; layer<nLayers; ++layer) {
+    // the code below really needs to be checked !!!
 
-  // define all combinations of spectra after the 2nd layer
-  // but before we do transport we just copy data from spectra1
-  for (auto i : particles) {  // incident
-    for (auto j : particles) { // scored
-      spectra2[i].insert(std::make_pair(j, std::make_shared<Source>(*source1[i])));
-    }
-  }
-  // transport through the 2nd layer (combine both series of loops in the future)
-  for (auto i : particles) {  // incident
-    for (auto j : particles) { // scored
-      *spectra2[i][j] *= *mat[layer]->getT(i,j);
+    spectra2.clear();
+
+    // define all combinations of spectra after the 2nd layer
+    // but before we do transport we just copy data from spectra1
+    for (auto i : particles) {  // incident
+      for (auto j : particles) { // scored
+	spectra2[i].insert(std::make_pair(j, std::make_shared<Source>(*spectra1[i])));
       }
-  }
-  // add up spectra of each secondary particle produced by different incidents
-  std::map<char, std::shared_ptr<Source> > source2;
-  for (auto i : particles) {
-    source2[i] = std::make_shared<Source>(*spectra2[i][i]);
-    for (auto j : particles) {
-      if (i!=j)
-	*source2[i] += *spectra2[j][i];
     }
-  }
 
-  // LAYER 3
-  layer++;
+    std::cout << "before transport" << std::endl;
+    for (auto i : particles)
+      for (auto j : particles) {
+	std::cout << i << " -> " << j << std::endl;
+	spectra2[i][j]->GetVector()->Print();
+	mat[layer]->getT(i,j)->Print();
+      }
+
+    // transport through the 2nd layer (combine both series of loops in the future)
+    for (auto i : particles) {  // incident
+      for (auto j : particles) { // scored
+	*spectra2[i][j] *= *mat[layer]->getT(i,j);
+      }
+    }
+
+    std::cout << "after transport" << std::endl;
+    for (auto i : particles)
+      for (auto j : particles) {
+	std::cout << i << " -> " << j << std::endl;
+	spectra2[i][j]->GetVector()->Print();
+	mat[layer]->getT(i,j)->Print();
+      }
+
+
+    spectra1.clear();
+    // add up spectra of each secondary particle produced by different incidents
+    for (auto i : particles) {
+      std::cout << i << std::endl;
+      spectra1[i] = std::make_shared<Source>(*spectra2[i][i]);
+      for (auto j : particles) {
+	if (i!=j) {
+	  *spectra1[i] += *spectra2[j][i];
+	  std::cout << " " << j << std::endl;
+	}
+      }
+    }
+    //    std::cout << spectra1['n']->GetVector()->Sum() << std::endl;
+  }
+  std::cout << "after loop" << std::endl;
+
+  auto res = spectra1['e']; // 'n' TODO
+
+  //  spectra1 is my result
 
   // std::map<char, std::shared_ptr<Source> > spectra2;
   // for (auto i : particles) {
   //   auto s = std::make_shared<Source>
   //   for (auto j : particles) {
   //   }
-  //   spectra2.insert(std::make_pair(p, std::make_shared<Source>(*source1[p])));
+  //   spectra2.insert(std::make_pair(p, std::make_shared<Source>(*spectra1[p])));
   // }
 
 
   /////////
-  for (size_t i=0; i<50; ++i) {
-    *res *= *mat[i]->get("eTe");
-  }
+  // for (size_t i=0; i<50; ++i) {
+  //   *res *= *mat[i]->get("eTe");
+  // }
 
   std::shared_ptr<TH2D> h = res->Histogram();
 

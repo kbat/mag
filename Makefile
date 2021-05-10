@@ -9,17 +9,20 @@ ROOTCONFIG := root-config
 ROOTCFLAGS := $(shell $(ROOTCONFIG) --cflags)
 ROOTGLIBS  := $(shell $(ROOTCONFIG) --glibs)
 ROOTLIBS   := $(shell $(ROOTCONFIG) --libs)
+
+EIGENINC   := /usr/include/eigen3
+
 GCC         = g++ -std=c++17
 
 CXXFLAGS := -g -Ofast -fno-math-errno -Wall
 
 obj/%.o: src/%.cxx src/%.h
 	@echo "Compiling $@"
-	@$(GCC) -c $(CXXFLAGS) -Isrc/ $< $(ROOTCFLAGS) -o $@
+	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
 obj/solve.o: src/solve.cxx obj/Source.o obj/Material.o
 	@echo "Compiling $@"
-	@$(GCC) -c $(CXXFLAGS) -Isrc/ $< $(ROOTCFLAGS) -o $@
+	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
 gam-solve: obj/solve.o obj/Source.o obj/Material.o
 	@echo "Linking $@"
