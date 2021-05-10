@@ -42,6 +42,7 @@ void res()
   c1->cd(2);
   TH1D *hRatio = dynamic_cast<TH1D*>(hMC->Clone("hRatio"));
   hRatio->Divide(hGAM);
+  hRatio->SetTitle("MC/GAM");
   hRatio->Draw("hist,e");
   gPad->SetLogx();
 

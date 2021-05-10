@@ -31,6 +31,7 @@ int test1(const char *fname="test1.root")
 
   TH2D sdef("sdef", "sdef;Energy;#mu", nx, 0, nx, ny, 0, 1);
   sdef.SetBinContent(1,1,1);
+  sdef.SetBinContent(1,2,3);
 
   const Int_t n = nx*ny;
   TH2D nTn("nTn", "nTn", n, 0, n, n, 0, n);
@@ -57,13 +58,15 @@ int test1(const char *fname="test1.root")
 
   // 1 layer
   system("cd ../../ && ./gam-solve test1 1");
-
-  cmp("../../res.root", 1, 1, 2);
+  cmp("../../res.root", 1, 10, 14);
 
   // 2 layers
   system("cd ../../ && ./gam-solve test1 2");
+  cmp("../../res.root", 2, 52, 76);
 
-  cmp("../../res.root", 2, 7, 10);
+  // 3 layers
+  system("cd ../../ && ./gam-solve test1 3");
+  cmp("../../res.root", 3, 280, 408);
 
   return 1;
 }
