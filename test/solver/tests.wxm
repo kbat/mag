@@ -117,6 +117,90 @@ sdef2n.nTe+sdef2e.eTe;
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: title   start ]
+Test 3: three particle types
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: comment start ]
+sdef and transmission matrices
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef : matrix([1,5,3,7])$
+nTn : matrix([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])$
+nTe : matrix([2,3,4,5],[6,7,8,9],[10,11,12,13],[14,15,16,17])$
+nTp : matrix([3,4,5,6],[7,8,9,10],[11,12,13,14],[15,16,17,18])$
+eTn : matrix([4,5,6,7],[8,9,10,11],[12,13,14,15],[16,17,18,19])$
+eTe : matrix([5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20])$
+eTp : matrix([6,7,8,9],[10,11,12,13],[14,15,16,17],[18,19,20,21])$
+pTn : matrix([7,8,9,10],[11,12,13,14],[15,16,17,18],[19,20,21,22])$
+pTe : matrix([8,9,10,11],[12,13,14,15],[16,17,18,19],[20,21,22,23])$
+pTp : matrix([9,10,11,12],[13,14,15,16],[17,18,19,20],[21,22,23,24])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Spectra after the 1st layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Spectra after the 2nd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2n: sdef.nTn.nTn + sdef.nTe.eTn + sdef.nTp.pTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2e: sdef.nTn.nTe + sdef.nTe.eTe + sdef.nTp.pTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2p: sdef.nTn.nTp+sdef.nTe.eTp+sdef.nTp.pTp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Spectra after the 3rd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2n.nTn + sdef2e.eTn + sdef2p.pTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2n.nTe + sdef2e.eTe + sdef2p.pTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef2n.nTp + sdef2e.eTp + sdef2p.pTp;
+/* [wxMaxima: input   end   ] */
+
+
 
 /* Old versions of Maxima abort on loading files that end in a comment. */
 "Created with wxMaxima 20.12.1"$

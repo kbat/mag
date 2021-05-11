@@ -87,6 +87,7 @@ int main(int argc, const char **argv)
 
   auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root");
   auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root");
+  auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root");
 
   size_t nLayers = 10;
   std::vector<std::shared_ptr<Material>> mat;
@@ -104,6 +105,11 @@ int main(int argc, const char **argv)
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest2);
+    } else if (!strcmp(argv[1], "test3")) {
+      test = 3;
+      nLayers = atoi(argv[2]);
+      for (size_t i=0; i<nLayers; ++i)
+	mat.push_back(mTest3);
     } else {
       std::cerr << "usage: " << argv[0] << " test[12] nLayers" << std::endl;
       return 1;
