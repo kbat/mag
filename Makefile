@@ -20,11 +20,11 @@ obj/%.o: src/%.cxx src/%.h
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-obj/solve.o: src/solve.cxx obj/Source.o obj/Material.o
+obj/solve.o: src/solve.cxx obj/Source.o obj/Material.o obj/Solver.o
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-gam-solve: obj/solve.o obj/Source.o obj/Material.o
+gam-solve: obj/solve.o obj/Source.o obj/Material.o obj/Solver.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -o $@
 
