@@ -125,9 +125,6 @@ int main(int argc, const char **argv)
 
   const char p0 = 'n'; // incident particle
   auto particles = mat[0]->getParticles();
-  //auto particles = std::set<char>{'n'};
-
-  // auto res = std::make_shared<Source>(sdef.get()); // result
 
   size_t layer=0;
   // LAYER 0
@@ -136,78 +133,40 @@ int main(int argc, const char **argv)
   std::map<char, std::shared_ptr<Source> > spectra1;
 
   for (auto p : particles) {
-    std::cout << p0 << " -> " << p << std::endl;
     spectra1.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
-    spectra1[p]->GetVector()->Print();
-    mat[layer]->getT(p0,p)->Print();
     *spectra1[p] *= *mat[layer]->getT(p0, p);
   }
 
-  std::cout << "spectra after 1st layer:" << std::endl;
-  for (auto p : particles) {
-    std::cout << p << std::endl;
-    spectra1[p]->GetVector()->Print();
-  }
-
-  // other LAYERs
-  std::cout << "BEFORE LOOP" << std::endl;
-
   // Now spectra1 contains spectra of individual particles leaving the first layer
-
   std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
-  //  std::map<char, std::shared_ptr<Source> > source2;
+
   for (size_t layer=1; layer<nLayers; ++layer) {
     spectra2.clear();
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from spectra1
     // because they will be the corresponding sdefs
-    for (auto i : particles) {  // incident
-      for (auto j : particles) { // scored
-	spectra2[i].insert(std::make_pair(j, std::make_shared<Source>(*spectra1[i])));
-      }
-    }
-
-    std::cout << "incident spectra before transport" << std::endl;
-    for (auto i : particles)
-      for (auto j : particles) {
-    	std::cout << i << " -> " << j << std::endl;
-    	spectra2[i][j]->GetVector()->Print();
-      }
+    for (auto i : particles)   // incident
+      for (auto j : particles)  // scored
+	spectra2[i].insert(std::make_pair(j,
+					  std::make_shared<Source>(*spectra1[i])));
 
     // transport through the 2nd layer (combine both series of loops in the future)
-    std::cout << "transport matrices" << std::endl;
-    for (auto i : particles) {  // incident
-      for (auto j : particles) { // scored
+    for (auto i : particles)   // incident
+      for (auto j : particles)  // scored
 	*spectra2[i][j] *= *mat[layer]->getT(i,j);
-    	std::cout << i << " -> " << j << std::endl;
-	mat[layer]->getT(i,j)->Print();
-      }
-    }
-
-    std::cout << "spectra after transport" << std::endl;
-    for (auto i : particles)
-      for (auto j : particles) {
-    	std::cout << i << " -> " << j << std::endl;
-    	spectra2[i][j]->GetVector()->Print();
-      }
-
 
     spectra1.clear();
+
     // add up spectra of each secondary particle produced by different incidents
     for (auto i : particles) {
-      std::cout << i << std::endl;
       spectra1[i] = std::make_shared<Source>(*spectra2[i][i]);
-      for (auto j : particles) {
-	if (i!=j) {
+      for (auto j : particles)
+	if (i!=j)
 	  *spectra1[i] += *spectra2[j][i];
-	  std::cout << " " << j << std::endl;
-	}
-      }
     }
-    //    std::cout << spectra1['n']->GetVector()->Sum() << std::endl;
   }
-  std::cout << "after loop" << std::endl;
+
 
   TFile fout("res.root", "recreate");
 

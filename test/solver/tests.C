@@ -139,6 +139,6 @@ int test2(const char *fname="test1.root")
 
 void tests()
 {
-  //test1("test1.root");
+  test1("test1.root");
   test2("test2.root");
 }
