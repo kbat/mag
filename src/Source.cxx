@@ -15,7 +15,7 @@ Source::Source(const Source& A) :
   vec(A.vec)
 {
   // Copy constructor
-  std::cout << "Source: Copy constructor" << std::endl;
+  //  std::cout << "Source: Copy constructor" << std::endl;
 }
 
 std::vector<double> Source::buildRow()
@@ -34,13 +34,13 @@ std::vector<double> Source::buildRow()
   return vec;
 }
 
-std::shared_ptr<TH2D> Source::Histogram() const
+std::shared_ptr<TH2D> Source::Histogram(const std::string& name) const
 {
   // Fills TH2 based on TVectorD
 
   std::shared_ptr<TH2D> h = std::make_shared<TH2D>(*hist);
   h->Reset();
-  h->SetName("h");
+  h->SetName(name.data());
 
   const Int_t nx = h->GetNbinsX();
   const Int_t ny = h->GetNbinsY();
