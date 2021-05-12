@@ -4,8 +4,9 @@
 #include <TKey.h>
 
 Material::Material(const std::string& name,
-		   const std::string& fname) :
-  name(name)
+		   const std::string& fname,
+		   const double& den) :
+  name(name), den(den)
 {
   // Constructor
 

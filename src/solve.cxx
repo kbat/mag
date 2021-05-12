@@ -82,12 +82,12 @@ void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
 
 int main(int argc, const char **argv)
 {
-  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root");
-  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root");
+  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 0.91);
+  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 2.33578);
 
-  auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root");
-  auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root");
-  auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root");
+  auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
+  auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
+  auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
 
   size_t nLayers = 3;
   std::vector<std::shared_ptr<Material>> mat;
@@ -114,26 +114,28 @@ int main(int argc, const char **argv)
       std::cerr << "usage: " << argv[0] << " test[12] nLayers" << std::endl;
       return 1;
     }
-  }
-  else {
-    for (size_t i=0; i<nLayers; ++i)
-      mat.push_back(poly);
+    auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
+    solver->run(nLayers);
+    solver->save("res.root");
+    return 0;
   }
 
-  // const double E0 = 53.2785;
-  // const double mu0 = 0.95;
+  for (size_t i=0; i<nLayers; ++i)
+    mat.push_back(poly);
+
   const double E0 = 2e3;
   const double mu0 = 0.99;
 
   auto sdef = mat[0]->getSDEF();
-  if (!test)
-    sdef->Fill(E0, mu0);
+  sdef->Fill(E0, mu0);
 
   const char p0 = 'n'; // incident particle
 
   auto solver = std::make_shared<Solver>(p0, sdef, mat);
   solver->run(nLayers);
   solver->save("res.root");
+
+  std::cout << solver->getNeutronFTD(60) << std::endl;
 
   return 0;
 }
