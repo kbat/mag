@@ -15,6 +15,8 @@ class Solver {
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
   std::map<char, std::shared_ptr<Source> > run(const size_t);
   void save(const std::string&);
+  double getNeutronFTD(const double) const;
+  double getPhotonFTD(const double) const;
 };
 
 
