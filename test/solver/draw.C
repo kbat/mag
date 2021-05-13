@@ -2,7 +2,7 @@ void draw1()
 {
   TFile *f = new TFile("test1.root");
   TH2D *sdef = f->Get<TH2D>("sdef");
-  TH2D *eTe = f->Get<TH2D>("eTe");
+  TH2D *nTn = f->Get<TH2D>("nTn");
 
   TCanvas *c1 = new TCanvas;
   c1->Divide(2,2);
@@ -11,7 +11,7 @@ void draw1()
   sdef->Draw("col,text");
 
   c1->cd(2);
-  eTe->Draw("col,text");
+  nTn->Draw("col,text");
 }
 
 void draw2()
@@ -80,11 +80,33 @@ void draw3()
   //  eTe->Draw("col,text");
 }
 
+void draw4()
+{
+  TFile *f = new TFile("test1.root");
+  TH2D *sdef = f->Get<TH2D>("sdef");
+  TH2D *nTn = f->Get<TH2D>("nTn");
+  TH2D *nRn = f->Get<TH2D>("nRn");
+
+  TCanvas *c1 = new TCanvas;
+  c1->Divide(2,2);
+
+  c1->cd(1);
+  sdef->Draw("col,text");
+
+  c1->cd(2);
+  nTn->Draw("col,text");
+
+  c1->cd(3);
+  nRn->Draw("col,text");
+}
+
+
 void draw()
 {
   gStyle->SetOptStat(0);
   //  gStyle->SetMarkerSize(5);
   //  draw1();
   // draw2();
-  draw3();
+  //  draw3();
+  draw4();
 }

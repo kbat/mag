@@ -201,6 +201,23 @@ sdef2n.nTp + sdef2e.eTp + sdef2p.pTp;
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: title   start ]
+Test 4: reflection matrix with single particle
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+nTn : matrix([1,2], [3,4]);
+nRn: matrix([11,12], [13,14]);
+sdef: matrix([1, 3]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.(nTn.nTn+nTn.nRn.nRn.nTn);
+/* [wxMaxima: input   end   ] */
+
+
 
 /* Old versions of Maxima abort on loading files that end in a comment. */
 "Created with wxMaxima 20.12.1"$

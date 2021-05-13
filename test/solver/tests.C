@@ -50,6 +50,7 @@ int test1(const char *fname="test1.root")
   /*
     1x2 source transporting 1 particle type.
     Only transmission matrices tested.
+    Reflection matrix: see test4
    */
   const Int_t nx = 1;
   const Int_t ny = 2;
@@ -62,11 +63,14 @@ int test1(const char *fname="test1.root")
 
   const Int_t n = nx*ny;
   TH2D nTn("nTn", "nTn", n, 0, n, n, 0, n);
+  TH2D nRn("nRn", "nRn", n, 0, n, n, 0, n);
 
-  Int_t k=0;
+  Int_t k=1;
   for (Int_t j=1; j<=n; ++j)
     for (Int_t i=1; i<=n; ++i) {
-      nTn.SetBinContent(i,j,++k);
+      nTn.SetBinContent(i,j,k);
+      nRn.SetBinContent(i,j,k+10);
+      k++;
     }
   // nTn.SetBinContent(1,1,1);
   // nTn.SetBinContent(2,1,1);
@@ -244,9 +248,23 @@ int test3(const char *fname="test1.root")
   return 0;
 }
 
+int test4(const char *fname="test1.root")
+{
+  // test4 is test1 with reflection matrix
+
+  // No sence to make this test with 1 layer, so start with 2:
+
+  // 2 layers
+  system("cd ../../ && ./gam-solve test4 2");
+  cmp2("test4", "../../res.root", "n", 2, 31156, 46428);
+
+  return 0;
+}
+
 void tests()
 {
   // test1("test1.root");
   // test2("test2.root");
-  test3("test3.root");
+  // test3("test3.root");
+  test4("test1.root");
 }

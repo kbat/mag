@@ -85,7 +85,8 @@ int main(int argc, const char **argv)
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 0.91);
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 2.33578);
 
-  size_t nLayers = 50;
+  size_t nLayers = argc == 2 ? atoi(argv[1]) : 10;
+  //  std::cout << "nLayers: " << nLayers << std::endl;
   const char p0 = 'n'; // incident particle
   const double E0 = 2e3;
   const double mu0 = 0.99;
@@ -94,10 +95,11 @@ int main(int argc, const char **argv)
 
   // tests
   if (argc==3) { // test nLayers
-    std::cout << "test" << std::endl;
+    //    std::cout << "test" << std::endl;
     auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
     auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
     auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
+    size_t ro=0; // reflection order
     if (!strcmp(argv[1], "test1")) {
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
@@ -110,18 +112,23 @@ int main(int argc, const char **argv)
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest3);
+    } else if (!strcmp(argv[1], "test4")) {
+      nLayers = atoi(argv[2]);
+      ro = 1;
+      for (size_t i=0; i<nLayers; ++i)
+	mat.push_back(mTest1);
     } else {
-      std::cerr << "usage: " << argv[0] << " test[12] nLayers" << std::endl;
+      std::cerr << "usage: " << argv[0] << " test[1234] nLayers" << std::endl;
       return 1;
     }
     auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
-    solver->run(0);
+    solver->run(ro);
     solver->save("res.root");
     return 0;
   }
 
   for (size_t i=0; i<nLayers; ++i)
-    mat.push_back(poly);
+    mat.push_back(concrete);
 
   auto sdef = mat[0]->getSDEF();
   sdef->Fill(E0, mu0);
@@ -131,9 +138,9 @@ int main(int argc, const char **argv)
   solver->run();
   solver->save("res.root");
 
-  static std::set<char> ftd {'n', 'p', 'e', '|'};
-  for (auto p : ftd)
-    std::cout << p << " " << solver->getDose(p) << std::endl;
+  // static std::set<char> ftd {'n', 'p', 'e', '|'};
+  // for (auto p : ftd)
+  //   std::cout << p << " " << solver->getDose(p) << std::endl;
 
   std::cout << "total: " << solver->getDose() << std::endl;
 

@@ -50,19 +50,35 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       for (auto j : particles) // scored
 	*spectra2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
 
-    // // reflections
-    // if (ro>=1) {
-    //   for (auto i : particles)   // incident
-    // 	for (auto j : particles) {  // scored
-    // 	  for (auto k : particles) {
-    // 	    *reflected[i][j][k] *= *mat[layer]->getR(i,j);
-    // 	    *reflected[i][j][k] *= *mat[layer-1]->getR(j,k);
-    // 	    *reflected[i][j][k] *= *mat[layer]->getT(j,k);
+    // reflections
+    spectra2['n']['n']->GetVector()->Print();
 
-    // 	    *spectra2[i][k] += *reflected[i][j][k];
-    // 	  }
-    // 	}
-    // }
+    if (ro>=1) {
+      for (auto i : particles)   // incident
+    	for (auto j : particles) {  // scored
+    	  for (auto k : particles) {
+	    std::cout << "initial" << std::endl;
+	    reflected[i][j][k]->GetVector()->Print();
+
+	    std::cout << "reflected by the current layer" << std::endl;
+    	    *reflected[i][j][k] *= *mat[layer]->getR(i,j);
+	    reflected[i][j][k]->GetVector()->Print();
+
+	    std::cout << "reflected by the previous layer (source for the current one)" << std::endl;
+    	    *reflected[i][j][k] *= *mat[layer-1]->getR(j,k);
+	    reflected[i][j][k]->GetVector()->Print();
+
+	    std::cout << "transported by the current layer" << std::endl;
+    	    *reflected[i][j][k] *= *mat[layer]->getT(j,k);
+	    reflected[i][j][k]->GetVector()->Print();
+
+	    std::cout << "added to originally transported" << std::endl;
+    	    *spectra2[i][k] += *reflected[i][j][k];
+	    spectra2[i][j]->GetVector()->Print();
+    	  }
+    	}
+    }
+    spectra2['n']['n']->GetVector()->Print();
 
     result.clear();
 
