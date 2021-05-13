@@ -11,6 +11,7 @@ class Solver {
   std::vector<std::shared_ptr<Material>> mat; ///< vector of materials
   const std::set<char> particles; ///< set of transported particles
   std::map<char, std::shared_ptr<Source> > result;
+  size_t getFTDbin(const double, const std::vector<float>& ebins) const;
  public:
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
   std::map<char, std::shared_ptr<Source> > run(const size_t);
