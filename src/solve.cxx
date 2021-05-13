@@ -111,7 +111,7 @@ int main(int argc, const char **argv)
       return 1;
     }
     auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
-    solver->run(nLayers);
+    solver->run();
     solver->save("res.root");
     return 0;
   }
@@ -128,7 +128,7 @@ int main(int argc, const char **argv)
   const char p0 = 'n'; // incident particle
 
   auto solver = std::make_shared<Solver>(p0, sdef, mat);
-  solver->run(nLayers);
+  solver->run();
   solver->save("res.root");
 
   std::cout << solver->getDose() << std::endl;

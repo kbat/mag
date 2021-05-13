@@ -9,12 +9,13 @@ class Solver {
   const char p0;                  ///< incident particle
   std::shared_ptr<TH2D> sdef;     ///< source definition
   std::vector<std::shared_ptr<Material>> mat; ///< vector of materials
+  const size_t nLayers;           ///< number of material layers
   const std::set<char> particles; ///< set of transported particles
   std::map<char, std::shared_ptr<Source> > result;
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
  public:
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
-  std::map<char, std::shared_ptr<Source> > run(const size_t);
+  std::map<char, std::shared_ptr<Source> > run();
   void save(const std::string&) const;
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;

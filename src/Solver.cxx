@@ -5,13 +5,13 @@
 Solver::Solver(const char p0,
 	       std::shared_ptr<TH2D> sdef,
 	       std::vector<std::shared_ptr<Material>>& mat) :
-  p0(p0), sdef(sdef), mat(mat),
+  p0(p0), sdef(sdef), mat(mat), nLayers(mat.size()),
   particles(mat[0]->getParticles())
 {
   return;
 }
 
-std::map<char, std::shared_ptr<Source> > Solver::run(const size_t nLayers)
+std::map<char, std::shared_ptr<Source> > Solver::run()
 {
   size_t layer=0;
 
