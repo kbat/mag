@@ -156,6 +156,33 @@ double Solver::getProtonFTD(const double E) const
   return data[j];
 }
 
+double Solver::getElectronFTD(const double E) const
+{
+  // Return the flux-to-dose proton ICRP 2010 conversion factors in
+  // uSv/hour per electron/cm2/sec Reference: Table A1.3 page 63
+  // This is a link to draft, the document was not released yet
+  // https://www.icrp.org/docs/ICRU%20and%20ICRP%20Draft%20Joint%20Report%20Operational%20Quantities%20for%20External%20Radiation%20Exposure.pdf
+  // The values from the table were divided by 277 in order to
+  // convert from electron fluence per ambient dose to uSv/h per electron/cm2/sec
+  // E : energy [MeV]
+
+  static std::vector<float> ebins{0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1, 0.15,
+				  0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.5, 2, 3, 4, 5, 6, 8, 10,
+				  15, 20, 30, 40, 50, 60, 80, 100, 150, 200, 300, 400, 500, 600,
+				  800, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 8000, 10000};
+  static std::vector<float> data{0.00010, 0.00015, 0.00019, 0.00029, 0.00039, 0.00049, 0.00059,
+				 0.00079, 0.00099, 0.00151, 0.00205, 0.00321, 0.00448, 0.00588,
+				 0.00740, 0.01458, 0.02563, 0.05415, 0.08087, 0.13032, 0.17401,
+				 0.21408, 0.25487, 0.35343, 0.45126, 0.67870, 0.85199, 1.09025,
+				 1.18773, 1.21661, 1.24188, 1.29242, 1.32130, 1.36823, 1.40072,
+				 1.48375, 1.57040, 1.62094, 1.67509, 1.76173, 1.83394, 1.89531,
+				 2.05054, 2.19495, 2.30325, 2.38628, 2.46570, 2.58484, 2.67870};
+
+  const size_t j = getFTDbin(E, ebins);
+
+  return data[j];
+}
+
 double Solver::getFTD(const char p, const double E) const
 {
   // Return flux to dose conversion factor for the particle of the given energy
@@ -165,6 +192,8 @@ double Solver::getFTD(const char p, const double E) const
     return getNeutronFTD(E);
   else if (p == 'p')
     return getPhotonFTD(E);
+  else if (p == 'e')
+    return getElectronFTD(E);
   else if (p == 'h')
     return getProtonFTD(E);
   else {
@@ -178,8 +207,7 @@ double Solver::getDose() const
   // Return dose rate [uSv/h per primary particle normalisation]
 
   double D = 0.0;
-  static std::set<char> ftd {'n', 'p', 'h'}; // particles with flux-to-dose conversion factors available
-
+  static std::set<char> ftd {'n', 'p', 'e', 'h'}; // particles with flux-to-dose conversion factors available
   for (auto i : particles) {
     if (ftd.count(i)) {
       TH1D *h = result.at(i)->Histogram(std::string(1, i))->ProjectionX();

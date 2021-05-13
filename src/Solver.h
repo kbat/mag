@@ -20,6 +20,7 @@ class Solver {
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;
   double getProtonFTD(const double) const;
+  double getElectronFTD(const double) const;
   double getFTD(const char, const double) const;
   double getDose() const;
 };
