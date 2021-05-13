@@ -56,12 +56,12 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t nLayers)
   return result;
 }
 
-void Solver::save(const std::string& fname)
+void Solver::save(const std::string& fname) const
 {
   TFile fout(fname.data(), "recreate");
 
   for (auto p : particles)
-    result[p]->Histogram(std::string(1, p))->Write();
+    result.at(p)->Histogram(std::string(1, p))->Write();
 
   fout.Close();
 
@@ -173,20 +173,20 @@ double Solver::getFTD(const char p, const double E) const
   return 0.0;
 }
 
-double Solver::getDose()
+double Solver::getDose() const
 {
-  // Return dose rate
+  // Return dose rate [uSv/h per primary particle normalisation]
 
   double D = 0.0;
   static std::set<char> ftd {'n', 'p', 'h'}; // particles with flux-to-dose conversion factors available
 
   for (auto i : particles) {
     if (ftd.count(i)) {
-      TH1D *h = result[i]->Histogram(std::string(1, i))->ProjectionX();
+      TH1D *h = result.at(i)->Histogram(std::string(1, i))->ProjectionX();
       const Int_t nbins = h->GetNbinsX();
 
       for (Int_t bin=1; bin<=nbins; ++bin)
-	D += getFTD(i,h->GetXaxis()->GetBinUpEdge(bin))*h->GetBinContent(bin);
+      	D += getFTD(i,h->GetXaxis()->GetBinUpEdge(bin))*h->GetBinContent(bin);
 
       delete h;
     }

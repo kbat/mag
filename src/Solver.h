@@ -15,12 +15,12 @@ class Solver {
  public:
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
   std::map<char, std::shared_ptr<Source> > run(const size_t);
-  void save(const std::string&);
+  void save(const std::string&) const;
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;
   double getProtonFTD(const double) const;
   double getFTD(const char, const double) const;
-  double getDose();
+  double getDose() const;
 };
 
 

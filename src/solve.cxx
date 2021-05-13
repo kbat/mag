@@ -93,20 +93,16 @@ int main(int argc, const char **argv)
   std::vector<std::shared_ptr<Material>> mat;
 
   // tests
-  size_t test = 0;
   if (argc==3) { // test nLayers
     if (!strcmp(argv[1], "test1")) {
-      test = 1;
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest1);
     } else if (!strcmp(argv[1], "test2")) {
-      test = 2;
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest2);
     } else if (!strcmp(argv[1], "test3")) {
-      test = 3;
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest3);
@@ -135,7 +131,7 @@ int main(int argc, const char **argv)
   solver->run(nLayers);
   solver->save("res.root");
 
-  std::cout << solver->getNeutronFTD(60) << std::endl;
+  std::cout << solver->getDose() << std::endl;
 
   return 0;
 }
