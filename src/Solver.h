@@ -24,6 +24,7 @@ class Solver {
   double getMuonFTD(const double) const;
   double getFTD(const char, const double) const;
   double getDose() const;
+  double getDose(const char) const;
 };
 
 

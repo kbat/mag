@@ -238,19 +238,34 @@ double Solver::getFTD(const char p, const double E) const
 double Solver::getDose() const
 {
   // Return dose rate [uSv/h per primary particle normalisation]
+  // due to all supported particles
 
   double D = 0.0;
-  static std::set<char> ftd {'n', 'p', 'e', 'h'}; // particles with flux-to-dose conversion factors available
-  for (auto i : particles) {
-    if (ftd.count(i)) {
-      TH1D *h = result.at(i)->Histogram(std::string(1, i))->ProjectionX();
-      const Int_t nbins = h->GetNbinsX();
+  // particles with flux-to-dose conversion factors available:
+  static std::set<char> ftd {'n', 'p', 'e', '|', 'h'};
 
-      for (Int_t bin=1; bin<=nbins; ++bin)
-      	D += getFTD(i,h->GetXaxis()->GetBinUpEdge(bin))*h->GetBinContent(bin);
+  for (auto i : particles)
+    if (ftd.count(i))
+      D += getDose(i);
 
-      delete h;
-    }
-  }
+  return D;
+}
+
+double Solver::getDose(const char p) const
+{
+  // Return dose rate contribution from the specified particle p
+  // [uSv/h per primary particle normalisation]
+  // p : MCNP particle ID
+
+  double D = 0.0;
+
+  TH1D *h = result.at(p)->Histogram(std::string(1, p))->ProjectionX();
+  const Int_t nbins = h->GetNbinsX();
+
+  for (Int_t bin=1; bin<=nbins; ++bin)
+    D += getFTD(p,h->GetXaxis()->GetBinUpEdge(bin))*h->GetBinContent(bin);
+
+  delete h;
+
   return D;
 }
