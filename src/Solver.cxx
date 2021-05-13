@@ -13,7 +13,7 @@ Solver::Solver(const char p0,
 
 std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 {
-  // ro : reflection order to take into account [only ro<=2 implemented]
+  // ro : reflection order to take into account [only ro<=1 implemented]
 
   size_t layer=0;
 
@@ -27,12 +27,12 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
   }
 
   // Now result contains spectra of individual particles leaving the first layer
-  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2, reflected1, reflected2;
+  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
+  std::map<char, std::map<char, std::map<char, std::shared_ptr<Source> > > > reflected;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
     spectra2.clear();
-    reflected1.clear();
-    reflected2.clear();
+    reflected.clear();
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
@@ -41,33 +41,28 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       for (auto j : particles) {  // scored
 	spectra2[i].insert(std::make_pair(j,
 					  std::make_shared<Source>(*result[i])));
-	reflected1[i].insert(std::make_pair(j,
-					  std::make_shared<Source>(*result[i])));
+	for (auto k : particles)  // reflected
+	  reflected[i][j][k] = std::make_shared<Source>(*result[i]);
       }
 
     // transport through the 2nd layer (combine both series of loops in the future)
     for (auto i : particles)   // incident
-      for (auto j : particles) {  // scored
+      for (auto j : particles) // scored
 	*spectra2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
 
-	if (ro>=1) { // first order reflection
-	  *reflected1[i][j] *= *mat[layer]->getR(i,j); // reflected by the current layer
-	  *reflected1[i][j] *= *mat[layer-1]->getR(i,j); // reflected by the previous layer
-	  if (ro>=2)
-	    reflected2[i][j] = std::make_shared<Source>(*reflected1[i][j]);
-	  *reflected1[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+    // // reflections
+    // if (ro>=1) {
+    //   for (auto i : particles)   // incident
+    // 	for (auto j : particles) {  // scored
+    // 	  for (auto k : particles) {
+    // 	    *reflected[i][j][k] *= *mat[layer]->getR(i,j);
+    // 	    *reflected[i][j][k] *= *mat[layer-1]->getR(j,k);
+    // 	    *reflected[i][j][k] *= *mat[layer]->getT(j,k);
 
-	  *spectra2[i][j] += *reflected1[i][j];
-	}
-
-	if (ro>=2) { // second order reflection
-	  *reflected2[i][j] *= *mat[layer]->getR(i,j); // reflected by the current layer
-	  *reflected2[i][j] *= *mat[layer-1]->getR(i,j); // reflected by the previous layer
-	  *reflected2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
-
-	  *spectra2[i][j] += *reflected2[i][j];
-	}
-      }
+    // 	    *spectra2[i][k] += *reflected[i][j][k];
+    // 	  }
+    // 	}
+    // }
 
     result.clear();
 
@@ -239,8 +234,6 @@ double Solver::getMuonFTD(const double E) const
   return data[j];
 }
 
-
-
 double Solver::getFTD(const char p, const double E) const
 {
   // Return flux to dose conversion factor for the particle of the given energy
@@ -283,6 +276,8 @@ double Solver::getDose(const char p) const
   // Return dose rate contribution from the specified particle p
   // [uSv/h per primary particle normalisation]
   // p : MCNP particle ID
+
+  //result.at(p)->Histogram(std::string(1, p))->Integral();
 
   double D = 0.0;
 

@@ -17,7 +17,7 @@ class Solver {
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
  public:
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
-  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
+  //  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
   std::map<char, std::shared_ptr<Source> > run(const size_t ro=2);
   void save(const std::string&) const;
   double getNeutronFTD(const double) const;
