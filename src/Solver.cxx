@@ -155,3 +155,41 @@ double Solver::getProtonFTD(const double E) const
 
   return data[j];
 }
+
+double Solver::getFTD(const char p, const double E) const
+{
+  // Return flux to dose conversion factor for the particle of the given energy
+  // p : MCNP particle ID
+  // E : energy [MeV]
+  if (p == 'n')
+    return getNeutronFTD(E);
+  else if (p == 'p')
+    return getPhotonFTD(E);
+  else if (p == 'h')
+    return getProtonFTD(E);
+  else {
+    std::cerr << "getFTD: particle " << p << " not supported" << std::endl;
+  }
+  return 0.0;
+}
+
+double Solver::getDose()
+{
+  // Return dose rate
+
+  double D = 0.0;
+  static std::set<char> ftd {'n', 'p', 'h'}; // particles with flux-to-dose conversion factors available
+
+  for (auto i : particles) {
+    if (ftd.count(i)) {
+      TH1D *h = result[i]->Histogram(std::string(1, i))->ProjectionX();
+      const Int_t nbins = h->GetNbinsX();
+
+      for (Int_t bin=1; bin<=nbins; ++bin)
+	D += getFTD(i,h->GetXaxis()->GetBinUpEdge(bin))*h->GetBinContent(bin);
+
+      delete h;
+    }
+  }
+  return D;
+}

@@ -12,8 +12,6 @@ class Source {
  private:
   const TH2D* hist;
   std::shared_ptr<TVectorD> vec;
-  //  std::shared_ptr<TVectorD> vec1;
-
   std::vector<double> buildRow();
  public:
   Source(const TH2D* h);
