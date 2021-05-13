@@ -11,36 +11,63 @@ Solver::Solver(const char p0,
   return;
 }
 
-std::map<char, std::shared_ptr<Source> > Solver::run()
+std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 {
+  // ro : reflection order to take into account [only ro<=2 implemented]
+
   size_t layer=0;
 
   // LAYER 0
   // incident particle is e, but we still need individual sources for each particle,
   // they will be used at sources for the next layer
+
   for (auto p : particles) {
     result.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
     *result[p] *= *mat[layer]->getT(p0, p);
   }
 
   // Now result contains spectra of individual particles leaving the first layer
-  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
+  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2, reflected1, reflected2;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
     spectra2.clear();
+    reflected1.clear();
+    reflected2.clear();
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
     // because they will be the corresponding sdefs
     for (auto i : particles)   // incident
-      for (auto j : particles)  // scored
+      for (auto j : particles) {  // scored
 	spectra2[i].insert(std::make_pair(j,
 					  std::make_shared<Source>(*result[i])));
+	reflected1[i].insert(std::make_pair(j,
+					  std::make_shared<Source>(*result[i])));
+      }
 
     // transport through the 2nd layer (combine both series of loops in the future)
     for (auto i : particles)   // incident
-      for (auto j : particles)  // scored
-	*spectra2[i][j] *= *mat[layer]->getT(i,j);
+      for (auto j : particles) {  // scored
+	*spectra2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+
+	if (ro>=1) { // first order reflection
+	  *reflected1[i][j] *= *mat[layer]->getR(i,j); // reflected by the current layer
+	  *reflected1[i][j] *= *mat[layer-1]->getR(i,j); // reflected by the previous layer
+	  if (ro>=2)
+	    reflected2[i][j] = std::make_shared<Source>(*reflected1[i][j]);
+	  *reflected1[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+
+	  *spectra2[i][j] += *reflected1[i][j];
+	}
+
+	if (ro>=2) { // second order reflection
+	  *reflected2[i][j] *= *mat[layer]->getR(i,j); // reflected by the current layer
+	  *reflected2[i][j] *= *mat[layer-1]->getR(i,j); // reflected by the previous layer
+	  *reflected2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+
+	  *spectra2[i][j] += *reflected2[i][j];
+	}
+      }
 
     result.clear();
 

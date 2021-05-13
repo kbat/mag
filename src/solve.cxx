@@ -85,15 +85,19 @@ int main(int argc, const char **argv)
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 0.91);
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 2.33578);
 
-  auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
-  auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
-  auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
+  size_t nLayers = 50;
+  const char p0 = 'n'; // incident particle
+  const double E0 = 2e3;
+  const double mu0 = 0.99;
 
-  size_t nLayers = 3;
   std::vector<std::shared_ptr<Material>> mat;
 
   // tests
   if (argc==3) { // test nLayers
+    std::cout << "test" << std::endl;
+    auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
+    auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
+    auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
     if (!strcmp(argv[1], "test1")) {
       nLayers = atoi(argv[2]);
       for (size_t i=0; i<nLayers; ++i)
@@ -111,7 +115,7 @@ int main(int argc, const char **argv)
       return 1;
     }
     auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
-    solver->run();
+    solver->run(0);
     solver->save("res.root");
     return 0;
   }
@@ -119,19 +123,19 @@ int main(int argc, const char **argv)
   for (size_t i=0; i<nLayers; ++i)
     mat.push_back(poly);
 
-  const double E0 = 2e3;
-  const double mu0 = 0.99;
-
   auto sdef = mat[0]->getSDEF();
   sdef->Fill(E0, mu0);
 
-  const char p0 = 'n'; // incident particle
 
   auto solver = std::make_shared<Solver>(p0, sdef, mat);
   solver->run();
   solver->save("res.root");
 
-  std::cout << solver->getDose() << std::endl;
+  static std::set<char> ftd {'n', 'p', 'e', '|'};
+  for (auto p : ftd)
+    std::cout << p << " " << solver->getDose(p) << std::endl;
+
+  std::cout << "total: " << solver->getDose() << std::endl;
 
   return 0;
 }
