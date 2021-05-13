@@ -17,6 +17,7 @@ class Solver {
   void save(const std::string&);
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;
+  double getProtonFTD(const double) const;
 };
 
 
