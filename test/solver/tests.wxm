@@ -213,8 +213,50 @@ sdef: matrix([1, 3]);
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: comment start ]
+Neutron spect
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after the 2nd layer is a sum of transmitted and reflected+transmitted parts
+   [wxMaxima: comment end   ] */
+
+
 /* [wxMaxima: input   start ] */
-sdef.(nTn.nTn+nTn.nRn.nRn.nTn);
+sdef2: sdef.(nTn.nTn+nTn.nRn.nRn.nTn);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after the 3rd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3: sdef2.(nTn+nRn.nRn.nTn);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after 4 layers
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3.(nTn+nRn.nRn.nTn);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: title   start ]
+Test 5: reflection matrices with 2 particles
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+nTe : matrix([2,3], [4,5]);
+eTn : matrix([3,4], [5,6]);
+eTe : matrix([4,5], [6,7]);
 /* [wxMaxima: input   end   ] */
 
 

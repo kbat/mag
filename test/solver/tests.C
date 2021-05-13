@@ -258,6 +258,14 @@ int test4(const char *fname="test1.root")
   system("cd ../../ && ./gam-solve test4 2");
   cmp2("test4", "../../res.root", "n", 2, 31156, 46428);
 
+  // 3 layers
+  system("cd ../../ && ./gam-solve test4 3");
+  cmp2("test4", "../../res.root", "n", 3, 100958120, 150444472);
+
+  // 4 layers
+  system("cd ../../ && ./gam-solve test4 4");
+  cmp2("test4", "../../res.root", "n", 4, 327143814608, 487498959984);
+
   return 0;
 }
 

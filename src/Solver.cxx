@@ -31,6 +31,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
   std::map<char, std::map<char, std::map<char, std::shared_ptr<Source> > > > reflected;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
+    std::cout << "LAYER " << layer << std::endl;
     spectra2.clear();
     reflected.clear();
 
@@ -51,6 +52,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	*spectra2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
 
     // reflections
+    std::cout << "Transmitted through the current layer" << std::endl;
     spectra2['n']['n']->GetVector()->Print();
 
     if (ro>=1) {
@@ -89,6 +91,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	if (i!=j)
 	  *result[i] += *spectra2[j][i];
     }
+    std::cout << "Result:" << std::endl;
+    result['n']->GetVector()->Print();
   }
 
   return result;
