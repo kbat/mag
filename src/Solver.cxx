@@ -159,7 +159,8 @@ double Solver::getProtonFTD(const double E) const
 double Solver::getElectronFTD(const double E) const
 {
   // Return the flux-to-dose proton ICRP 2010 conversion factors in
-  // uSv/hour per electron/cm2/sec Reference: Table A1.3 page 63
+  // uSv/hour per electron/cm2/sec Reference: Table A1.3 page 63 in
+  // ICRP report OPERATIONAL QUANTITIES FOR EXTERNAL RADIATION EXPOSURE
   // This is a link to draft, the document was not released yet
   // https://www.icrp.org/docs/ICRU%20and%20ICRP%20Draft%20Joint%20Report%20Operational%20Quantities%20for%20External%20Radiation%20Exposure.pdf
   // The values from the table were divided by 277 in order to
@@ -183,6 +184,36 @@ double Solver::getElectronFTD(const double E) const
   return data[j];
 }
 
+double Solver::getMuonFTD(const double E) const
+{
+  // Return the flux-to-dose proton ICRP 2010 conversion factors in
+  // uSv/hour per mu-/cm2/sec Reference: Table A1.6 on page 69 in
+  // ICRP report OPERATIONAL QUANTITIES FOR EXTERNAL RADIATION EXPOSURE
+  // This is a link to draft, the document was not released yet
+  // https://www.icrp.org/docs/ICRU%20and%20ICRP%20Draft%20Joint%20Report%20Operational%20Quantities%20for%20External%20Radiation%20Exposure.pdf
+  // The values from the table were divided by 277 in order to
+  // convert from mu- fluence per ambient dose to uSv/h per mu-/cm2/sec
+  // mu+ factors are slightly different (table A.1.7), but here we assume them to be the same as mu-
+  // E : energy [MeV]
+
+  static std::vector<float> ebins{1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100,
+				  150, 200, 300, 400, 500, 600, 800, 1000, 1500, 2000, 3000, 4000,
+				  5000, 6000, 8000, 10000};
+
+
+  static std::vector<float> data{0.64982, 0.64982, 0.66426, 0.67870, 0.69675, 0.74007, 0.87365,
+				 1.05776, 1.19856, 1.49458, 1.67870, 2.37184, 2.65343, 2.72563,
+				 2.79783, 1.82310, 1.57040, 1.28159, 1.20217, 1.16245, 1.16245,
+				 1.16968, 1.18412, 1.20217, 1.23466, 1.22022, 1.23105, 1.24188,
+				 1.25271, 1.25632, 1.25271, 1.25993, 1.25993};
+
+  const size_t j = getFTDbin(E, ebins);
+
+  return data[j];
+}
+
+
+
 double Solver::getFTD(const char p, const double E) const
 {
   // Return flux to dose conversion factor for the particle of the given energy
@@ -194,6 +225,8 @@ double Solver::getFTD(const char p, const double E) const
     return getPhotonFTD(E);
   else if (p == 'e')
     return getElectronFTD(E);
+  else if (p == '|')
+    return getMuonFTD(E);
   else if (p == 'h')
     return getProtonFTD(E);
   else {
