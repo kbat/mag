@@ -52,6 +52,8 @@ int test1(const char *fname="test1.root")
     Only transmission matrices tested.
     Reflection matrix: see test4
    */
+  Int_t sum = 0;
+
   const Int_t nx = 1;
   const Int_t ny = 2;
 
@@ -89,17 +91,20 @@ int test1(const char *fname="test1.root")
 
   // 1 layer
   system("cd ../../ && ./gam-solve test1 1");
-  cmp2("test1", "../../res.root", "n", 1, 10, 14);
+  sum += cmp2("test1", "../../res.root", "n", 1, 10, 14);
 
   // 2 layers
   system("cd ../../ && ./gam-solve test1 2");
-  cmp2("test1", "../../res.root", "n", 2, 52, 76);
+  sum += cmp2("test1", "../../res.root", "n", 2, 52, 76);
 
   // 3 layers
   system("cd ../../ && ./gam-solve test1 3");
-  cmp2("test1", "../../res.root", "n", 3, 280, 408);
+  sum += cmp2("test1", "../../res.root", "n", 3, 280, 408);
 
-  return 0;
+  if (sum!=0)
+    std::cerr << "Test 1 failed" << std::endl;
+
+  return sum;
 }
 
 int test2(const char *fname="test2.root")
@@ -109,6 +114,8 @@ int test2(const char *fname="test2.root")
     Only transmission matrices tested.
     T and R matrices with 2 particles are tested in test5
    */
+  Int_t sum = 0;
+
   const Int_t nx = 1;
   const Int_t ny = 2;
 
@@ -150,20 +157,23 @@ int test2(const char *fname="test2.root")
 
   // 1 layer
   system("cd ../../ && ./gam-solve test2 1");
-  cmp2("test2n", "../../res.root", "n", 1, 10, 14);
-  cmp2("test2e", "../../res.root", "e", 1, 14, 18);
+  sum += cmp2("test2n", "../../res.root", "n", 1, 10, 14);
+  sum +=   cmp2("test2e", "../../res.root", "e", 1, 14, 18);
 
   // 2 layers
   system("cd ../../ && ./gam-solve test2 2");
-  cmp2("test2n", "../../res.root", "n", 2, 184, 240);
-  cmp2("test2e", "../../res.root", "e", 2, 240, 296);
+  sum +=   cmp2("test2n", "../../res.root", "n", 2, 184, 240);
+  sum +=   cmp2("test2e", "../../res.root", "e", 2, 240, 296);
 
   // 3 layers
   system("cd ../../ && ./gam-solve test2 3");
-  cmp2("test2n", "../../res.root", "n", 3, 3104, 4064);
-  cmp2("test2e", "../../res.root", "e", 3, 4064, 5024);
+  sum +=   cmp2("test2n", "../../res.root", "n", 3, 3104, 4064);
+  sum +=   cmp2("test2e", "../../res.root", "e", 3, 4064, 5024);
 
-  return 0;
+  if (sum!=0)
+    std::cerr << "Test 2 failed" << std::endl;
+
+  return sum;
 }
 
 int test3(const char *fname="test3.root")
@@ -172,6 +182,8 @@ int test3(const char *fname="test3.root")
     2x2 source transporting 3 particle types: n, p and e
     Only transmission matrices tested.
    */
+  Int_t sum = 0;
+
   const Int_t nx = 2;
   const Int_t ny = 2;
 
@@ -230,44 +242,52 @@ int test3(const char *fname="test3.root")
 
   // 1 layer
   system("cd ../../ && ./gam-solve test3 1");
-  cmp4("test3n", "../../res.root", "n", 1, 144, 160, 176, 192);
-  cmp4("test3e", "../../res.root", "e", 1, 160, 176, 192, 208);
-  cmp4("test3p", "../../res.root", "p", 1, 176, 192, 208, 224);
+  sum +=   cmp4("test3n", "../../res.root", "n", 1, 144, 160, 176, 192);
+  sum +=   cmp4("test3e", "../../res.root", "e", 1, 160, 176, 192, 208);
+  sum +=   cmp4("test3p", "../../res.root", "p", 1, 176, 192, 208, 224);
 
   // 2 layers
   system("cd ../../ && ./gam-solve test3 2");
-  cmp4("test3n", "../../res.root", "n", 2, 23424, 25632, 27840, 30048);
-  cmp4("test3e", "../../res.root", "e", 2, 25632, 27840, 30048, 32256);
-  cmp4("test3p", "../../res.root", "p", 2, 27840, 30048, 32256, 34464);
+  sum +=   cmp4("test3n", "../../res.root", "n", 2, 23424, 25632, 27840, 30048);
+  sum +=   cmp4("test3e", "../../res.root", "e", 2, 25632, 27840, 30048, 32256);
+  sum +=   cmp4("test3p", "../../res.root", "p", 2, 27840, 30048, 32256, 34464);
 
   // 3 layers
   system("cd ../../ && ./gam-solve test3 3");
-  cmp4("test3n", "../../res.root", "n", 3, 3658752, 4006080, 4353408, 4700736);
-  cmp4("test3e", "../../res.root", "e", 3, 4006080, 4353408, 4700736, 5048064);
-  cmp4("test3p", "../../res.root", "p", 3, 4353408, 4700736, 5048064, 5395392);
+  sum +=   cmp4("test3n", "../../res.root", "n", 3, 3658752, 4006080, 4353408, 4700736);
+  sum +=   cmp4("test3e", "../../res.root", "e", 3, 4006080, 4353408, 4700736, 5048064);
+  sum +=   cmp4("test3p", "../../res.root", "p", 3, 4353408, 4700736, 5048064, 5395392);
 
-  return 0;
+  if (sum!=0)
+    std::cerr << "Test 3 failed" << std::endl;
+
+  return sum;
 }
 
 int test4(const char *fname="test4.root")
 {
   // test4 is test1 with reflection matrix
 
+  Int_t sum = 0;
+
   // No sence to make this test with 1 layer, so start with 2:
 
   // 2 layers
   system("cd ../../ && ./gam-solve test4 2");
-  cmp2("test4", "../../res.root", "n", 2, 31156, 46428);
+  sum += cmp2("test4", "../../res.root", "n", 2, 31156, 46428);
 
   // 3 layers
   system("cd ../../ && ./gam-solve test4 3");
-  cmp2("test4", "../../res.root", "n", 3, 100958120, 150444472);
+  sum += cmp2("test4", "../../res.root", "n", 3, 100958120, 150444472);
 
   // 4 layers
   system("cd ../../ && ./gam-solve test4 4");
-  cmp2("test4", "../../res.root", "n", 4, 327143814608, 487498959984);
+  sum += cmp2("test4", "../../res.root", "n", 4, 327143814608, 487498959984);
 
-  return 0;
+  if (sum!=0)
+    std::cerr << "Test 4 failed" << std::endl;
+
+  return sum;
 }
 
 int test5(const char *fname="test5.root")
@@ -276,6 +296,7 @@ int test5(const char *fname="test5.root")
     1x2 source transporting 2 particle types: n and e
     Both transmission and reflection matrices tested.
    */
+  Int_t sum = 0;
   const Int_t nx = 1;
   const Int_t ny = 2;
 
@@ -322,27 +343,36 @@ int test5(const char *fname="test5.root")
 
   // 1 layer
   system("cd ../../ && ./gam-solve test5 1");
-  cmp2("test5n", "../../res.root", "n", 1, 10, 14);
-  cmp2("test5e", "../../res.root", "e", 1, 14, 18);
+  sum += cmp2("test5n", "../../res.root", "n", 1, 10, 14);
+  sum += cmp2("test5e", "../../res.root", "e", 1, 14, 18);
 
   // 2 layers
   system("cd ../../ && ./gam-solve test5 2");
-  cmp2("test5n", "../../res.root", "n", 2, 11452.48, 14951.36);
-  cmp2("test5e", "../../res.root", "e", 2, 14951.36, 18450.24);
+  sum += cmp2("test5n", "../../res.root", "n", 2, 11452.48, 14951.36);
+  sum += cmp2("test5e", "../../res.root", "e", 2, 14951.36, 18450.24);
 
   // 3 layers
   system("cd ../../ && ./gam-solve test5 3");
-  cmp2("test5n", "../../res.root", "n", 3, 1.20698305024e+7, 1.57588614656e+7);
-  cmp2("test5e", "../../res.root", "e", 3, 1.57588614656e+7, 1.94478924288e+7);
+  sum += cmp2("test5n", "../../res.root", "n", 3, 1.20698305024e+7, 1.57588614656e+7);
+  sum += cmp2("test5e", "../../res.root", "e", 3, 1.57588614656e+7, 1.94478924288e+7);
 
-  return 0;
+  if (sum!=0)
+    std::cerr << "Test 5 failed" << std::endl;
+
+  return sum;
 }
 
-void tests()
+int tests()
 {
-  // test1("test1.root");
-  // test2("test2.root");
-  // test3("test3.root");
-  // test4("test1.root");
-  test5("test5.root");
+  Int_t sum = 0;
+  sum += test1("test1.root");
+  sum += test2("test2.root");
+  sum += test3("test3.root");
+  sum += test4("test1.root");
+  sum += test5("test5.root");
+
+  if (sum == 0)
+    std::cout << "All tests passed" << std::endl;
+
+  return sum;
 }
