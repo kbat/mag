@@ -25,10 +25,13 @@ class Source {
   TVectorD &operator+=(const TVectorD&);
   TVectorD &operator+=(const Source&);
   friend Source operator+(Source lhs, const Source& rhs) { lhs += rhs; return rhs; }
+  friend std::ostream &operator<<(std::ostream &os, Source const &m) {
+    const Int_t n = m.GetVector()->GetNrows();
+    for (Int_t i=0; i<n; i++)
+      os << " " << (*m.GetVector())[i];
+    return os;
+  };
 };
 
-/* std::ostream &operator<<(std::ostream &os, Source const &m) { */
-/*   return os << "source"; */
-/* }; */
 
 #endif
