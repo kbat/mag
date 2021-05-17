@@ -100,6 +100,29 @@ void draw4()
   nRn->Draw("col,text");
 }
 
+void draw5()
+{
+  TFile *f = new TFile("test5.root");
+  TH2D *sdef = f->Get<TH2D>("sdef");
+
+  TCanvas *c1 = new TCanvas;
+  c1->Divide(4,3);
+
+  Int_t pad = 1;
+
+  TIter next(f->GetListOfKeys());
+
+  while (TKey *key = (TKey*)next()) {
+    TObject *obj = f->Get(key->GetName());
+    if (obj->InheritsFrom("TH2D")) {
+      TH2D *h = dynamic_cast<TH2D*>(obj);
+      h->SetMarkerSize(4);
+      c1->cd(pad++);
+      h->Draw("col,text");
+    }
+  }
+}
+
 
 void draw()
 {
@@ -108,5 +131,6 @@ void draw()
   //  draw1();
   // draw2();
   //  draw3();
-  draw4();
+  //  draw4();
+  draw5();
 }

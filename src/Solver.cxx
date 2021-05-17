@@ -27,72 +27,107 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
   }
 
   // Now result contains spectra of individual particles leaving the first layer
-  std::map<char, std::map<char, std::shared_ptr<Source> > > spectra2;
-  std::map<char, std::map<char, std::map<char, std::shared_ptr<Source> > > > reflected;
+  // transmitted[i][j]: transmitted spectra from incident particle i to j
+  std::map<char, std::map<char, std::shared_ptr<Source> > > transmitted;
+  std::map<char, std::map<char, std::shared_ptr<Source> > > R;
+  std::map<char, std::shared_ptr<Source> >  RB;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
     std::cout << "LAYER " << layer << std::endl;
-    spectra2.clear();
-    reflected.clear();
+    transmitted.clear();
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
     // because they will be the corresponding sdefs
     for (auto i : particles)   // incident
-      for (auto j : particles) {  // scored
-	spectra2[i].insert(std::make_pair(j,
+      for (auto j : particles) {// scored
+	transmitted[i].insert(std::make_pair(j,
 					  std::make_shared<Source>(*result[i])));
-	for (auto k : particles)  // reflected
-	  reflected[i][j][k] = std::make_shared<Source>(*result[i]);
+	*transmitted[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
       }
 
-    // transport through the 2nd layer (combine both series of loops in the future)
-    for (auto i : particles)   // incident
-      for (auto j : particles) // scored
-	*spectra2[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
-
     // reflections
-    std::cout << "Transmitted through the current layer" << std::endl;
-    spectra2['n']['n']->GetVector()->Print();
+    //    std::cout << "Transmitted through the current layer" << std::endl;
+    //    transmitted['n']['n']->GetVector()->Print();
 
     if (ro>=1) {
+      R.clear();
+      RB.clear();
       for (auto i : particles)   // incident
-    	for (auto j : particles) {  // scored
-    	  for (auto k : particles) {
-	    std::cout << "initial" << std::endl;
-	    reflected[i][j][k]->GetVector()->Print();
+	for (auto j : particles) { // scored
+	  R[i][j] = std::make_shared<Source>(*result[i]);
+	  *R[i][j] *= *mat[layer]->getR(i,j); // reflected back by the current layer
+	  // *R[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+	}
 
-	    std::cout << "reflected by the current layer" << std::endl;
-    	    *reflected[i][j][k] *= *mat[layer]->getR(i,j);
-	    reflected[i][j][k]->GetVector()->Print();
+      // sum up
+      for (auto i : particles) {
+	RB[i] = std::make_shared<Source>(*R[i][i]);
+	for (auto j : particles) {
+	  if (i!=j)
+	    *RB[i] += *R[j][i];
+	}
+      }
+      for (auto i : particles)
+	std::cout << "Reflected back " << i << " " << *RB[i] << std::endl;
 
-	    std::cout << "reflected by the previous layer (source for the current one)" << std::endl;
-    	    *reflected[i][j][k] *= *mat[layer-1]->getR(j,k);
-	    reflected[i][j][k]->GetVector()->Print();
+      // reflecting forward
+      R.clear();
+      for (auto i : particles)
+	for (auto j : particles) {
+	  R[i][j] = std::make_shared<Source>(*RB[i]);
+	  *R[i][j] *= *mat[layer-1]->getR(i,j);
+	}
 
-	    std::cout << "transported by the current layer" << std::endl;
-    	    *reflected[i][j][k] *= *mat[layer]->getT(j,k);
-	    reflected[i][j][k]->GetVector()->Print();
+      // sum up
+      RB.clear();
+      for (auto i : particles) {
+	RB[i] = std::make_shared<Source>(*R[i][i]);
+	for (auto j : particles) {
+	  if (i!=j)
+	    *RB[i] += *R[j][i];
+	}
+      }
+      for (auto i : particles)
+	std::cout << "Reflected forward " << i << " " << *RB[i] << std::endl;
 
-	    std::cout << "added to originally transported" << std::endl;
-    	    *spectra2[i][k] += *reflected[i][j][k];
-	    spectra2[i][j]->GetVector()->Print();
-    	  }
-    	}
+
+      // transmitted through the current layer
+      R.clear();
+      for (auto i : particles)
+	for (auto j : particles) {
+	  R[i][j] = std::make_shared<Source>(*RB[i]);
+	  *R[i][j] *= *mat[layer]->getT(i,j);
+	}
+      // sum up
+      RB.clear();
+      for (auto i : particles) {
+	RB[i] = std::make_shared<Source>(*R[i][i]);
+	for (auto j : particles) {
+	  if (i!=j)
+	    *RB[i] += *R[j][i];
+	}
+      }
+      for (auto i : particles)
+	std::cout << "Transmitted through the current layer " << i << " " << *RB[i] << std::endl;
+
     }
-    spectra2['n']['n']->GetVector()->Print();
 
     result.clear();
 
     // add up spectra of each secondary particle produced by different incidents
     for (auto i : particles) {
-      result[i] = std::make_shared<Source>(*spectra2[i][i]);
+      result[i] = std::make_shared<Source>(*transmitted[i][i]);
       for (auto j : particles)
 	if (i!=j)
-	  *result[i] += *spectra2[j][i];
+	  *result[i] += *transmitted[j][i];
     }
-    std::cout << "Result:" << std::endl;
-    result['n']->GetVector()->Print();
+
+    if (ro>=1) {
+      for (auto i : particles) {
+	*result[i] += *RB[i];
+      }
+    }
   }
 
   return result;
@@ -285,8 +320,12 @@ double Solver::getDose() const
   static std::set<char> ftd {'n', 'p', 'e', '|', 'h'};
 
   for (auto i : particles)
-    if (ftd.count(i))
-      D += getDose(i);
+    if (ftd.count(i)) {
+      double d = getDose(i);
+      D += d;
+      std::cout << " " << i << ": " << d << "\t";
+    }
+  std::cout << std::endl;
 
   return D;
 }
@@ -297,7 +336,7 @@ double Solver::getDose(const char p) const
   // [uSv/h per primary particle normalisation]
   // p : MCNP particle ID
 
-  //result.at(p)->Histogram(std::string(1, p))->Integral();
+  //  return result.at(p)->Histogram(std::string(1, p))->Integral();
 
   double D = 0.0;
 

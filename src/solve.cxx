@@ -99,6 +99,7 @@ int main(int argc, const char **argv)
     auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
     auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
     auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
+    auto mTest5    = std::make_shared<Material>("Test", "test/solver/test5.root", 1);
     size_t ro=0; // reflection order
     if (!strcmp(argv[1], "test1")) {
       nLayers = atoi(argv[2]);
@@ -117,8 +118,13 @@ int main(int argc, const char **argv)
       ro = 1;
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest1);
+    } else if (!strcmp(argv[1], "test5")) {
+      nLayers = atoi(argv[2]);
+      ro = 1;
+      for (size_t i=0; i<nLayers; ++i)
+	mat.push_back(mTest5);
     } else {
-      std::cerr << "usage: " << argv[0] << " test[1234] nLayers" << std::endl;
+      std::cerr << "usage: " << argv[0] << " test[12345] nLayers" << std::endl;
       return 1;
     }
     auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
@@ -142,7 +148,7 @@ int main(int argc, const char **argv)
   // for (auto p : ftd)
   //   std::cout << p << " " << solver->getDose(p) << std::endl;
 
-  std::cout << "total: " << solver->getDose() << std::endl;
+  std::cerr << "total: " << solver->getDose() << std::endl;
 
   return 0;
 }
