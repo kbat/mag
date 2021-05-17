@@ -387,6 +387,146 @@ sdef3e+sdef3Re_tot;
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: title   start ]
+Test6: three particle types, both R and T
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef : matrix([1,5,3,7])$
+nTn : matrix([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])$
+nTe : matrix([2,3,4,5],[6,7,8,9],[10,11,12,13],[14,15,16,17])$
+nTp : matrix([3,4,5,6],[7,8,9,10],[11,12,13,14],[15,16,17,18])$
+eTn : matrix([4,5,6,7],[8,9,10,11],[12,13,14,15],[16,17,18,19])$
+eTe : matrix([5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20])$
+eTp : matrix([6,7,8,9],[10,11,12,13],[14,15,16,17],[18,19,20,21])$
+pTn : matrix([7,8,9,10],[11,12,13,14],[15,16,17,18],[19,20,21,22])$
+pTe : matrix([8,9,10,11],[12,13,14,15],[16,17,18,19],[20,21,22,23])$
+pTp : matrix([9,10,11,12],[13,14,15,16],[17,18,19,20],[21,22,23,24])$
+nRn: matrix([0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8], [0.9, 1.0, 1.1, 1.2], [1.3, 1.4, 1.5, 1.6])$
+nRe: matrix([1.1, 1.2, 1.3, 1.4], [1.5, 1.6, 1.7, 1.8], [1.9, 2.0, 2.1, 2.2], [2.3, 2.4, 2.5, 2.6])$
+nRp: matrix([2.1, 2.2, 2.3, 2.4], [2.5, 2.6, 2.7, 2.8], [2.9, 3.0, 3.1, 3.2], [3.3, 3.4, 3.5, 3.6])$
+eRn: matrix([3.1, 3.2, 3.3, 3.4], [3.5, 3.6, 3.7, 3.8], [3.9, 4.0, 4.1, 4.2], [4.3, 4.4, 4.5, 4.6])$
+eRe: matrix([4.1, 4.2, 4.3, 4.4], [4.5, 4.6, 4.7, 4.8], [4.9, 5.0, 5.1, 5.2], [5.3, 5.4, 5.5, 5.6])$
+eRp: matrix([5.1, 5.2, 5.3, 5.4], [5.5, 5.6, 5.7, 5.8], [5.9, 6.0, 6.1, 6.2], [6.3, 6.4, 6.5, 6.6])$
+pRn: matrix([6.1, 6.2, 6.3, 6.4], [6.5, 6.6, 6.7, 6.8], [6.9, 7.0, 7.1, 7.2], [7.3, 7.4, 7.5, 7.6])$
+pRe: matrix([7.1, 7.2, 7.3, 7.4], [7.5, 7.6, 7.7, 7.8], [7.9, 8.0, 8.1, 8.2], [8.3, 8.4, 8.5, 8.6])$
+pRp: matrix([8.1, 8.2, 8.3, 8.4], [8.5, 8.6, 8.7, 8.8], [8.9, 9.0, 9.1, 9.2], [9.3, 9.4, 9.5, 9.6])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+layer1: directry transmitted (reflection not possible since there is no material in the back)
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef1n: sdef.nTn;
+sdef1e: sdef.nTe;
+sdef1p: sdef.nTp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+layer2: directly transmitted
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2n: sdef1n.nTn + sdef1e.eTn + sdef1p.pTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2p: sdef1n.nTp + sdef1e.eTp + sdef1p.pTp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2e: sdef1n.nTe + sdef1e.eTe + sdef1p.pTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+layer2: reflected back to layer 1
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rb2n: sdef1n.nRn+sdef1e.eRn+sdef1p.pRn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rb2p: sdef1n.nRp+sdef1e.eRp+sdef1p.pRp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rb2e: sdef1n.nRe+sdef1e.eRe+sdef1p.pRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+layer2: reflected forward from layer 1
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rf2n: rb2n.nRn+rb2p.pRn+rb2e.eRn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rf2p: rb2n.nRp + rb2p.pRp + rb2e.eRp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rf2e: rb2n.nRe+rb2p.pRe+rb2e.eRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+layer2: reflected particles transmitted
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rft2n: rf2n.nTn + rf2p.pTn + rf2e.eTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rft2p: rf2n.nTp + rf2p.pTp + rf2e.eTp;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rft2e: rf2n.nTe + rf2p.pTe + rf2e.eTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+sum of directly transmitted and reflected
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2n + rft2n;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2p + rft2p;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2e + rft2e;
+/* [wxMaxima: input   end   ] */
+
+
 
 /* Old versions of Maxima abort on loading files that end in a comment. */
 "Created with wxMaxima 20.12.1"$

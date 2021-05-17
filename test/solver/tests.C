@@ -209,8 +209,6 @@ int test3(const char *fname="test3.root")
   TH2D pTe("pTe", "pTe", n, 0, n, n, 0, n);
   TH2D pTp("pTp", "pTp", n, 0, n, n, 0, n);
 
-
-
   Int_t k=1;
   for (Int_t j=1; j<=n; ++j)
     for (Int_t i=1; i<=n; ++i) {
@@ -362,6 +360,100 @@ int test5(const char *fname="test5.root")
   return sum;
 }
 
+int test6(const char *fname="test6.root")
+{
+  /*
+    2x2 source transporting 3 particle types: n, p and e
+    both R and T matrices tested
+   */
+  Int_t sum = 0;
+
+  const Int_t nx = 2;
+  const Int_t ny = 2;
+
+  TFile f(fname, "recreate");
+
+  TH2D sdef("sdef", "sdef;Energy;#mu", nx, 0, nx, ny, 0, 1);
+  sdef.SetBinContent(1,1,1);
+  sdef.SetBinContent(1,2,3);
+  sdef.SetBinContent(2,1,5);
+  sdef.SetBinContent(2,2,7);
+
+
+  const Int_t n = nx*ny;
+
+  TH2D nTn("nTn", "nTn", n, 0, n, n, 0, n);
+  TH2D nTe("nTe", "nTe", n, 0, n, n, 0, n);
+  TH2D nTp("nTp", "nTp", n, 0, n, n, 0, n);
+
+  TH2D eTn("eTn", "eTn", n, 0, n, n, 0, n);
+  TH2D eTe("eTe", "eTe", n, 0, n, n, 0, n);
+  TH2D eTp("eTp", "eTp", n, 0, n, n, 0, n);
+
+  TH2D pTn("pTn", "pTn", n, 0, n, n, 0, n);
+  TH2D pTe("pTe", "pTe", n, 0, n, n, 0, n);
+  TH2D pTp("pTp", "pTp", n, 0, n, n, 0, n);
+
+  TH2D nRn("nRn", "nRn", n, 0, n, n, 0, n);
+  TH2D nRe("nRe", "nRe", n, 0, n, n, 0, n);
+  TH2D nRp("nRp", "nRp", n, 0, n, n, 0, n);
+
+  TH2D eRn("eRn", "eRn", n, 0, n, n, 0, n);
+  TH2D eRe("eRe", "eRe", n, 0, n, n, 0, n);
+  TH2D eRp("eRp", "eRp", n, 0, n, n, 0, n);
+
+  TH2D pRn("pRn", "pRn", n, 0, n, n, 0, n);
+  TH2D pRe("pRe", "pRe", n, 0, n, n, 0, n);
+  TH2D pRp("pRp", "pRp", n, 0, n, n, 0, n);
+
+  Int_t k=1;
+  for (Int_t j=1; j<=n; ++j)
+    for (Int_t i=1; i<=n; ++i) {
+      nTn.SetBinContent(i,j,k);
+      nTe.SetBinContent(i,j,k+1);
+      nTp.SetBinContent(i,j,k+2);
+
+      eTn.SetBinContent(i,j,k+3);
+      eTe.SetBinContent(i,j,k+4);
+      eTp.SetBinContent(i,j,k+5);
+
+      pTn.SetBinContent(i,j,k+6);
+      pTe.SetBinContent(i,j,k+7);
+      pTp.SetBinContent(i,j,k+8);
+
+      nRn.SetBinContent(i,j,k/10.0);
+      nRe.SetBinContent(i,j,k/10.0+1);
+      nRp.SetBinContent(i,j,k/10.0+2);
+
+      eRn.SetBinContent(i,j,k/10.0+3);
+      eRe.SetBinContent(i,j,k/10.0+4);
+      eRp.SetBinContent(i,j,k/10.0+5);
+
+      pRn.SetBinContent(i,j,k/10.0+6);
+      pRe.SetBinContent(i,j,k/10.0+7);
+      pRp.SetBinContent(i,j,k/10.0+8);
+
+      k++;
+    }
+  f.Write();
+  f.Close();
+
+
+  // 1 layer
+  system("cd ../../ && ./gam-solve test6 1");
+  sum += cmp4("test6n", "../../res.root", "n", 1, 144, 160, 176, 192);
+  sum += cmp4("test6e", "../../res.root", "e", 1, 160, 176, 192, 208);
+  sum += cmp4("test6p", "../../res.root", "p", 1, 176, 192, 208, 224);
+
+  system("cd ../../ && ./gam-solve test6 2");
+  sum += cmp4("test6n", "../../res.root", "n", 2, 8.871198719999999e7, 9.718025472e7, 1.0564852224e8, 1.141167897599999e8);
+  sum += cmp4("test6p", "../../res.root", "p", 2, 1.0564852224e8, 1.141167897599999e8, 1.2258505728e8, 1.310533248e8);
+  sum += cmp4("test6e", "../../res.root", "e", 2, 9.718025472e7, 1.0564852224e8, 1.141167897599999e8, 1.2258505728e8);
+
+  return sum;
+}
+
+
 int tests()
 {
   Int_t sum = 0;
@@ -370,6 +462,7 @@ int tests()
   sum += test3("test3.root");
   sum += test4("test1.root");
   sum += test5("test5.root");
+  sum += test6("test6.root");
 
   if (sum == 0)
     std::cout << "All tests passed" << std::endl;

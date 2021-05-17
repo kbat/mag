@@ -123,6 +123,29 @@ void draw5()
   }
 }
 
+void draw6()
+{
+  TFile *f = new TFile("test6.root");
+  TH2D *sdef = f->Get<TH2D>("sdef");
+
+  TCanvas *c1 = new TCanvas;
+  c1->Divide(5,4);
+
+  Int_t pad = 1;
+
+  TIter next(f->GetListOfKeys());
+
+  while (TKey *key = (TKey*)next()) {
+    TObject *obj = f->Get(key->GetName());
+    if (obj->InheritsFrom("TH2D")) {
+      TH2D *h = dynamic_cast<TH2D*>(obj);
+      h->SetMarkerSize(4);
+      c1->cd(pad++);
+      h->Draw("col,text");
+    }
+  }
+}
+
 
 void draw()
 {
@@ -132,5 +155,6 @@ void draw()
   // draw2();
   //  draw3();
   //  draw4();
-  draw5();
+  // draw5();
+  draw6();
 }

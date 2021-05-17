@@ -100,6 +100,7 @@ int main(int argc, const char **argv)
     auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
     auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
     auto mTest5    = std::make_shared<Material>("Test", "test/solver/test5.root", 1);
+    auto mTest6    = std::make_shared<Material>("Test", "test/solver/test6.root", 1);
     size_t ro=0; // reflection order
     if (!strcmp(argv[1], "test1")) {
       nLayers = atoi(argv[2]);
@@ -123,8 +124,13 @@ int main(int argc, const char **argv)
       ro = 1;
       for (size_t i=0; i<nLayers; ++i)
 	mat.push_back(mTest5);
+    } else if (!strcmp(argv[1], "test6")) {
+      nLayers = atoi(argv[2]);
+      ro = 1;
+      for (size_t i=0; i<nLayers; ++i)
+	mat.push_back(mTest6);
     } else {
-      std::cerr << "usage: " << argv[0] << " test[12345] nLayers" << std::endl;
+      std::cerr << "usage: " << argv[0] << " test[123456] nLayers" << std::endl;
       return 1;
     }
     auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
@@ -134,19 +140,19 @@ int main(int argc, const char **argv)
   }
 
   for (size_t i=0; i<nLayers; ++i)
-    mat.push_back(concrete);
+    mat.push_back(poly);
 
   auto sdef = mat[0]->getSDEF();
   sdef->Fill(E0, mu0);
 
 
   auto solver = std::make_shared<Solver>(p0, sdef, mat);
-  solver->run();
+  solver->run(1);
   solver->save("res.root");
 
-  // static std::set<char> ftd {'n', 'p', 'e', '|'};
-  // for (auto p : ftd)
-  //   std::cout << p << " " << solver->getDose(p) << std::endl;
+  static std::set<char> ftd {'n', 'p', 'e', '|'};
+  for (auto p : ftd)
+    std::cout << p << " " << solver->getDose(p) << std::endl;
 
   std::cerr << "total: " << solver->getDose() << std::endl;
 
