@@ -47,9 +47,6 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       }
 
     // reflections
-    //    std::cout << "Transmitted through the current layer" << std::endl;
-    //    transmitted['n']['n']->GetVector()->Print();
-
     if (ro>=1) {
       R.clear();
       RB.clear();
@@ -109,7 +106,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	}
       }
       for (auto i : particles)
-	std::cout << "Transmitted through the current layer " << i << " " << *RB[i] << std::endl;
+	std::cout << "Reflected-and-then-Transmitted through the current layer " << std::fixed << i << " " << *RB[i] << std::endl;
 
     }
 
@@ -121,6 +118,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       for (auto j : particles)
 	if (i!=j)
 	  *result[i] += *transmitted[j][i];
+
+      std::cout << "Directly transmitted: " << i << " " << *result[i] << std::endl;
     }
 
     if (ro>=1) {

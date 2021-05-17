@@ -330,19 +330,19 @@ int test5(const char *fname="test5.root")
   cmp2("test5n", "../../res.root", "n", 2, 11452.48, 14951.36);
   cmp2("test5e", "../../res.root", "e", 2, 14951.36, 18450.24);
 
-  // // 3 layers
-  // system("cd ../../ && ./gam-solve test2 3");
-  // cmp2("test5n", "../../res.root", "n", 3, 3104, 4064);
-  // cmp2("test5e", "../../res.root", "e", 3, 4064, 5024);
+  // 3 layers
+  system("cd ../../ && ./gam-solve test5 3");
+  cmp2("test5n", "../../res.root", "n", 3, 1.20698305024e+7, 1.57588614656e+7);
+  cmp2("test5e", "../../res.root", "e", 3, 1.57588614656e+7, 1.94478924288e+7);
 
   return 0;
 }
 
 void tests()
 {
-  test1("test1.root");
-  test2("test2.root");
-  test3("test3.root");
-  test4("test1.root");
+  // test1("test1.root");
+  // test2("test2.root");
+  // test3("test3.root");
+  // test4("test1.root");
   test5("test5.root");
 }

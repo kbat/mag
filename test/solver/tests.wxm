@@ -273,7 +273,7 @@ sdef1e : sdef.nTe;
 
 
 /* [wxMaxima: comment start ]
-Transmitted spectra after the 2nd layer
+Directly Transmitted spectra after the 2nd layer
    [wxMaxima: comment end   ] */
 
 
@@ -295,7 +295,7 @@ sdefRe : sdef1n.nRe + sdef1e.eRe;
 
 
 /* [wxMaxima: comment start ]
-Transmitted through the 1st layer
+Transmitted through the previous (1st) layer
    [wxMaxima: comment end   ] */
 
 
@@ -322,8 +322,68 @@ Both transmitted and reflected contributions
 
 
 /* [wxMaxima: input   start ] */
-sdef2n + sdef2Rn;
-sdef2e + sdef2Re;
+sdef2n_tot: sdef2n + sdef2Rn;
+sdef2e_tot: sdef2e + sdef2Re;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Spectra after the 3rd layer
+Directly Transmitted spectra after the 3rd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3n: sdef2n_tot.nTn + sdef2e_tot.eTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3e: sdef2n_tot.nTe + sdef2e_tot.eTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Reflected back
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdefRn: sdef2n_tot.nRn + sdef2e_tot.eRn;
+sdefRe: sdef2n_tot.nRe + sdef2e_tot.eRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Transmitted through the previous (2nd) layer (reflected forward)
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3Rn: sdefRn.nRn + sdefRe.eRn;
+sdef3Re: sdefRn.nRe + sdefRe.eRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Transmitted through the 3rd layer (contribution from the transmitted part)
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3Rn_tot: sdef3Rn.nTn + sdef3Re.eTn;
+sdef3Re_tot: sdef3Rn.nTe + sdef3Re.eTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Both transmitted and reflected contributions
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef3n+sdef3Rn_tot;
+sdef3e+sdef3Re_tot;
 /* [wxMaxima: input   end   ] */
 
 
