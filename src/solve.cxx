@@ -82,11 +82,11 @@ void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
 
 int main(int argc, const char **argv)
 {
-  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 0.91);
-  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 2.33578);
-  auto b4c = std::make_shared<Material>("B4C", "B4C.root", 2.50608);
-  auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 7.96703);
-  auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 19.413);
+  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 48, 0.91);
+  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578);
+  auto b4c = std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608);
+  auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
+  auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
 
   size_t nLayers = argc == 2 ? atoi(argv[1]) : 10;
   //  std::cout << "nLayers: " << nLayers << std::endl;
@@ -99,11 +99,11 @@ int main(int argc, const char **argv)
   // tests
   if (argc==3) { // test nLayers
     //    std::cout << "test" << std::endl;
-    auto mTest1    = std::make_shared<Material>("Test", "test/solver/test1.root", 1);
-    auto mTest2    = std::make_shared<Material>("Test", "test/solver/test2.root", 1);
-    auto mTest3    = std::make_shared<Material>("Test", "test/solver/test3.root", 1);
-    auto mTest5    = std::make_shared<Material>("Test", "test/solver/test5.root", 1);
-    auto mTest6    = std::make_shared<Material>("Test", "test/solver/test6.root", 1);
+    auto mTest1 = std::make_shared<Material>("Test", "test/solver/test1.root", 1, 1);
+    auto mTest2 = std::make_shared<Material>("Test", "test/solver/test2.root", 2, 1);
+    auto mTest3 = std::make_shared<Material>("Test", "test/solver/test3.root", 3, 1);
+    auto mTest5 = std::make_shared<Material>("Test", "test/solver/test5.root", 4, 1);
+    auto mTest6 = std::make_shared<Material>("Test", "test/solver/test6.root", 5, 1);
     size_t ro=0; // reflection order
     if (!strcmp(argv[1], "test1")) {
       nLayers = atoi(argv[2]);

@@ -5,8 +5,9 @@
 
 Material::Material(const std::string& name,
 		   const std::string& fname,
+		   const size_t id,
 		   const double& den) :
-  name(name), den(den)
+  name(name), id(id), den(den)
 {
   // Constructor
 
