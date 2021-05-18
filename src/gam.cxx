@@ -22,14 +22,14 @@ int main(int argc, const char **argv)
   const double E0 = 3e3;
   const double mu0 = 1.0;
 
-  std::map<std::string, std::shared_ptr<Material> > mat;
-  mat.insert(std::make_pair("Poly", poly));
-  //  mat.insert(std::make_pair("Concrete", concrete));
-  mat.insert(std::make_pair("B4C", b4c));
-  mat.insert(std::make_pair("Steel", steel));
-  mat.insert(std::make_pair("W", W));
+  std::set<std::shared_ptr<Material> > mat;
+  mat.insert(poly);
+  //  mat.insert(concrete);
+  mat.insert(b4c);
+  mat.insert(steel);
+  mat.insert(W);
 
-  auto sdef = mat["Poly"]->getSDEF();
+  auto sdef = (*mat.begin())->getSDEF();
   sdef->Fill(E0, mu0);
 
   auto opt = std::make_shared<Optimiser>(p0, sdef, mat, nLayers);

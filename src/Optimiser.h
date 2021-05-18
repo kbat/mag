@@ -6,12 +6,13 @@
 
 class Optimiser {
  private:
-  std::map<std::string, std::shared_ptr<Material> > mat; //< library of materials
+  std::set<std::shared_ptr<Material> > mat; //< library of materials
   const size_t nLayers; //< number of layers
   std::vector<std::shared_ptr<Material>> result; //< optimised vector of materials
+  bool checkSum(const std::map<std::string, double>&);
  public:
   Optimiser(const char, std::shared_ptr<TH2D>,
-	    std::map<std::string, std::shared_ptr<Material> >&,
+	    std::set<std::shared_ptr<Material> >&,
 	    const size_t);
   std::vector<std::shared_ptr<Material>> run(const std::map<std::string, double>&);
   double getMass() const;
