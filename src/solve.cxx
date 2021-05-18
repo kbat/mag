@@ -84,6 +84,9 @@ int main(int argc, const char **argv)
 {
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 0.91);
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 2.33578);
+  auto b4c = std::make_shared<Material>("B4C", "B4C.root", 2.50608);
+  auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 7.96703);
+  auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 19.413);
 
   size_t nLayers = argc == 2 ? atoi(argv[1]) : 10;
   //  std::cout << "nLayers: " << nLayers << std::endl;
