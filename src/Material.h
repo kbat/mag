@@ -28,7 +28,8 @@ class Material
   inline std::shared_ptr<TH2D> getSDEF() const { return sdef; }
   inline std::set<char> getParticles() const { return particles; }
   void print() const;
-  double getDensity() const { return den; }
+  inline size_t getID() const { return id; }
+  inline double getDensity() const { return den; }
 };
 
 #endif
