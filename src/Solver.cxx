@@ -33,7 +33,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
   std::map<char, std::shared_ptr<Source> >  RB;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
-    std::cout << "LAYER " << layer << std::endl;
+    //    std::cout << "LAYER " << layer << std::endl;
     transmitted.clear();
 
     // define all combinations of spectra after the 2nd layer
@@ -65,8 +65,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	    *RB[i] += *R[j][i];
 	}
       }
-      for (auto i : particles)
-	std::cout << "Reflected back " << i << " " << *RB[i] << std::endl;
+      // for (auto i : particles)
+      // 	std::cout << "Reflected back " << i << " " << *RB[i] << std::endl;
 
       // reflecting forward
       R.clear();
@@ -85,8 +85,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	    *RB[i] += *R[j][i];
 	}
       }
-      for (auto i : particles)
-	std::cout << "Reflected forward " << i << " " << *RB[i] << std::endl;
+      // for (auto i : particles)
+      // 	std::cout << "Reflected forward " << i << " " << *RB[i] << std::endl;
 
 
       // transmitted through the current layer
@@ -105,8 +105,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	    *RB[i] += *R[j][i];
 	}
       }
-      for (auto i : particles)
-	std::cout << "Reflected-and-then-Transmitted through the current layer " << std::fixed << i << " " << *RB[i] << std::endl;
+      // for (auto i : particles)
+      // 	std::cout << "Reflected-and-then-Transmitted through the current layer " << i << " " << *RB[i] << std::endl;
 
     }
 
@@ -119,7 +119,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	if (i!=j)
 	  *result[i] += *transmitted[j][i];
 
-      std::cout << "Directly transmitted: " << i << " " << *result[i] << std::endl;
+      //std::cout << "Directly transmitted: " << i << " " << *result[i] << std::endl;
     }
 
     if (ro>=1) {
@@ -322,9 +322,7 @@ double Solver::getDose() const
     if (ftd.count(i)) {
       double d = getDose(i);
       D += d;
-      std::cout << " " << i << ": " << d << "\t";
     }
-  std::cout << std::endl;
 
   return D;
 }
