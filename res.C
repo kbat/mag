@@ -18,7 +18,13 @@ void res()
   }
   f->Close();
 
-  f = new TFile("Poly/case753/mctal.root");
+  //  f = new TFile("Poly/case753/mctal.root"); // OK
+  //  f = new TFile("Poly/case753/2cm/mctal.root");
+  //  f = new TFile("Poly/case753/2cm/mctal-5min.root");
+  //  f = new TFile("Poly/case753/10cm/mctal.root");
+  f = new TFile("Poly/case753/100cm/mctal.root");
+  //  f = new TFile("Concrete/case753/10cm/mctal.root");
+  //  f = new TFile("Concrete/case753/mctal.root");
   for (auto p : particles) {
     THnSparseF *f1 = f->Get<THnSparseF>(tally.at(p).data());
     f1->GetAxis(0)->SetRange(2,2);
@@ -58,6 +64,6 @@ void res()
     gPad->SetLogx();
     pad++;
   }
-
+  c1->cd();
   c1->Print("res.pdf");
 }

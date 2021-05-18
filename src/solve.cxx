@@ -152,7 +152,7 @@ int main(int argc, const char **argv)
 
   static std::set<char> ftd {'n', 'p', 'e', '|'};
   for (auto p : ftd)
-    std::cout << p << " " << solver->getDose(p) << std::endl;
+    std::cout << p << " " << solver->getDose(p) << "\t";
 
   std::cerr << "total: " << solver->getDose() << std::endl;
 
