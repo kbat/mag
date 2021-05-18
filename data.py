@@ -179,6 +179,7 @@ def readData(files, particles, inpname='inp'):
             m[p0][p] = Matrix(p)
 
     for mctal in glob(files):
+        print(mctal)
         inp = mctal.replace(basename(mctal), inpname)
         p0  = getParCL(inp, "Incident particle:", 3)
         E0  = getParCL(inp, "Energy:")
