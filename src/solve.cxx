@@ -9,76 +9,76 @@
 #include "Source.h"
 #include "Solver.h"
 
-std::shared_ptr<TMatrixD> GetReflectionsT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-					  const size_t order=1)
-{
-  assert(order==1 && "Orders > 1 not supported yet");
+// std::shared_ptr<TMatrixD> GetReflectionsT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
+// 					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
+// 					  const size_t order=1)
+// {
+//   assert(order==1 && "Orders > 1 not supported yet");
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn); // todo: check if not cloned
+//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn); // todo: check if not cloned
 
-  *m *= *R;
-  *m *= *Rn;
-  *m *= *T;
+//   *m *= *R;
+//   *m *= *Rn;
+//   *m *= *T;
 
-  return m;
-}
+//   return m;
+// }
 
-std::shared_ptr<TMatrixD> GetReflectionsR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-					  const size_t order=1)
-{
-  assert(order==1 && "Orders > 1 not supported yet");
+// std::shared_ptr<TMatrixD> GetReflectionsR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
+// 					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
+// 					  const size_t order=1)
+// {
+//   assert(order==1 && "Orders > 1 not supported yet");
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*T);
+//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*T);
 
-  *m *= *Rn;
-  *m *= *T;
+//   *m *= *Rn;
+//   *m *= *T;
 
-  return m;
-}
+//   return m;
+// }
 
-std::shared_ptr<TMatrixD> GetNextT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-				   const size_t order=1)
-{
-  // Calculate next iteration T matrix
+// std::shared_ptr<TMatrixD> GetNextT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
+// 				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
+// 				   const size_t order=1)
+// {
+//   // Calculate next iteration T matrix
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn);
+//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn);
 
-  *m *= *T;
-  *m += *GetReflectionsT(T, Tn, R, Rn, order);
+//   *m *= *T;
+//   *m += *GetReflectionsT(T, Tn, R, Rn, order);
 
-  return m;
-}
+//   return m;
+// }
 
-std::shared_ptr<TMatrixD> GetNextR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-				   const size_t order=1)
-{
-  // Calculate next iteration R matrix
+// std::shared_ptr<TMatrixD> GetNextR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
+// 				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
+// 				   const size_t order=1)
+// {
+//   // Calculate next iteration R matrix
 
-  std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*R);
+//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*R);
 
-  *m += *GetReflectionsR(T, Tn, R, Rn, order);
+//   *m += *GetReflectionsR(T, Tn, R, Rn, order);
 
-  return m;
-}
+//   return m;
+// }
 
-void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
-		  const char* fname="RT-cxx.root")
-{
-  TFile fout(fname, "recreate");
+// void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
+// 		  const char* fname="RT-cxx.root")
+// {
+//   TFile fout(fname, "recreate");
 
-  std::shared_ptr<TH2D> hT = std::make_shared<TH2D>(*T.get());
-  hT->SetName("T");
-  std::shared_ptr<TH2D> hR = std::make_shared<TH2D>(*R.get());
-  hR->SetName("R");
+//   std::shared_ptr<TH2D> hT = std::make_shared<TH2D>(*T.get());
+//   hT->SetName("T");
+//   std::shared_ptr<TH2D> hR = std::make_shared<TH2D>(*R.get());
+//   hR->SetName("R");
 
-  hT->Write();
-  hR->Write();
-  fout.Close();
-}
+//   hT->Write();
+//   hR->Write();
+//   fout.Close();
+// }
 
 int main(int argc, const char **argv)
 {
