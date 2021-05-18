@@ -11,6 +11,60 @@ Solver::Solver(const char p0,
   return;
 }
 
+std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
+{
+  // Implements the first-order reflection:
+  // reflect backwards from the current layer into the previous one;
+  // then reflect forward towards the current layer and transmit
+  // through the current layer
+
+  std::map<char, std::map<char, std::shared_ptr<Source> > > R;
+  std::map<char, std::shared_ptr<Source> >  tmp;
+
+  // sum up contributions to i from different incident particles j
+  auto sum = [&] {
+	       tmp.clear(); // really needed?
+	       for (auto i : particles) {
+		 tmp[i] = std::make_shared<Source>(*R[i][i]);
+		 for (auto j : particles) {
+		   if (i!=j)
+		     *tmp[i] += *R[j][i];
+		 }
+	       }
+	     };
+
+  // reflecting back
+  for (auto i : particles)   // incident
+    for (auto j : particles) { // scored
+      R[i][j] = std::make_shared<Source>(*result[i]);
+      *R[i][j] *= *mat[layer]->getR(i,j); // reflected back by the current layer
+    }
+
+  sum();
+
+  // reflecting forward
+  R.clear();
+  for (auto i : particles)
+    for (auto j : particles) {
+      R[i][j] = std::make_shared<Source>(*tmp[i]);
+      *R[i][j] *= *mat[layer-1]->getR(i,j);
+    }
+
+  sum();
+
+  // transmitting through the current layer
+  R.clear();
+  for (auto i : particles)
+    for (auto j : particles) {
+      R[i][j] = std::make_shared<Source>(*tmp[i]);
+      *R[i][j] *= *mat[layer]->getT(i,j);
+    }
+
+  sum();
+
+  return tmp; // std::move?
+}
+
 std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 {
   // ro : reflection order to take into account [only ro<=1 implemented]
@@ -28,13 +82,10 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 
   // Now result contains spectra of individual particles leaving the first layer
   // transmitted[i][j]: transmitted spectra from incident particle i to j
-  std::map<char, std::map<char, std::shared_ptr<Source> > > transmitted;
-  std::map<char, std::map<char, std::shared_ptr<Source> > > R;
-  std::map<char, std::shared_ptr<Source> >  RB;
+  std::map<char, std::shared_ptr<Source> > reflected;
 
   for (size_t layer=1; layer<nLayers; ++layer) {
-    //    std::cout << "LAYER " << layer << std::endl;
-    transmitted.clear();
+    std::map<char, std::map<char, std::shared_ptr<Source> > > transmitted;
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
@@ -42,91 +93,26 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
     for (auto i : particles)   // incident
       for (auto j : particles) {// scored
 	transmitted[i].insert(std::make_pair(j,
-					  std::make_shared<Source>(*result[i])));
+					     std::make_shared<Source>(*result[i])));
 	*transmitted[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
       }
 
     // reflections
-    if (ro>=1) {
-      R.clear();
-      RB.clear();
-      for (auto i : particles)   // incident
-	for (auto j : particles) { // scored
-	  R[i][j] = std::make_shared<Source>(*result[i]);
-	  *R[i][j] *= *mat[layer]->getR(i,j); // reflected back by the current layer
-	  // *R[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
-	}
-
-      // sum up
-      for (auto i : particles) {
-	RB[i] = std::make_shared<Source>(*R[i][i]);
-	for (auto j : particles) {
-	  if (i!=j)
-	    *RB[i] += *R[j][i];
-	}
-      }
-      // for (auto i : particles)
-      // 	std::cout << "Reflected back " << i << " " << *RB[i] << std::endl;
-
-      // reflecting forward
-      R.clear();
-      for (auto i : particles)
-	for (auto j : particles) {
-	  R[i][j] = std::make_shared<Source>(*RB[i]);
-	  *R[i][j] *= *mat[layer-1]->getR(i,j);
-	}
-
-      // sum up
-      RB.clear();
-      for (auto i : particles) {
-	RB[i] = std::make_shared<Source>(*R[i][i]);
-	for (auto j : particles) {
-	  if (i!=j)
-	    *RB[i] += *R[j][i];
-	}
-      }
-      // for (auto i : particles)
-      // 	std::cout << "Reflected forward " << i << " " << *RB[i] << std::endl;
-
-
-      // transmitted through the current layer
-      R.clear();
-      for (auto i : particles)
-	for (auto j : particles) {
-	  R[i][j] = std::make_shared<Source>(*RB[i]);
-	  *R[i][j] *= *mat[layer]->getT(i,j);
-	}
-      // sum up
-      RB.clear();
-      for (auto i : particles) {
-	RB[i] = std::make_shared<Source>(*R[i][i]);
-	for (auto j : particles) {
-	  if (i!=j)
-	    *RB[i] += *R[j][i];
-	}
-      }
-      // for (auto i : particles)
-      // 	std::cout << "Reflected-and-then-Transmitted through the current layer " << i << " " << *RB[i] << std::endl;
-
-    }
-
-    result.clear();
+    if (ro>=1)
+      reflected = reflect(layer);
 
     // add up spectra of each secondary particle produced by different incidents
+    result.clear();
     for (auto i : particles) {
       result[i] = std::make_shared<Source>(*transmitted[i][i]);
       for (auto j : particles)
 	if (i!=j)
 	  *result[i] += *transmitted[j][i];
-
-      //std::cout << "Directly transmitted: " << i << " " << *result[i] << std::endl;
     }
 
-    if (ro>=1) {
-      for (auto i : particles) {
-	*result[i] += *RB[i];
-      }
-    }
+    if (ro>=1)
+      for (auto i : particles)
+	*result[i] += *reflected[i];
   }
 
   return result;

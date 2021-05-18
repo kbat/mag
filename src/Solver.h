@@ -15,10 +15,11 @@ class Solver {
   const std::set<char> particles; ///< set of transported particles
   std::map<char, std::shared_ptr<Source> > result;
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
+  std::map<char, std::shared_ptr<Source> > reflect(const size_t layer);
  public:
   Solver(const char, std::shared_ptr<TH2D>, std::vector<std::shared_ptr<Material>> &);
   //  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
-  std::map<char, std::shared_ptr<Source> > run(const size_t ro=2);
+  std::map<char, std::shared_ptr<Source> > run(const size_t ro=1);
   void save(const std::string&) const;
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;
