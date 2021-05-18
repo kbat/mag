@@ -13,7 +13,7 @@ class Optimiser {
   Optimiser(const char, std::shared_ptr<TH2D>,
 	    std::map<std::string, std::shared_ptr<Material> >&,
 	    const size_t);
-  void run(std::map<std::string, double>&);
+  std::vector<std::shared_ptr<Material>> run(const std::map<std::string, double>&);
   double getMass() const;
 };
 

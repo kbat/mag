@@ -17,7 +17,7 @@ int main(int argc, const char **argv)
   auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 150;
+  const size_t nLayers = 10;//150;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 1.0;
@@ -36,10 +36,13 @@ int main(int argc, const char **argv)
   std::cout << opt->getMass() << std::endl;
 
   std::map<std::string, double > prob;
-  prob.insert(std::make_pair("Poly", 0.5));
-  prob.insert(std::make_pair("B4C", 0.1));
-  prob.insert(std::make_pair("Steel", 0.1));
+  prob.insert(std::make_pair("Poly", 0.11));
+  prob.insert(std::make_pair("B4C", 0.2));
+  prob.insert(std::make_pair("Steel", 0.09));
+  prob.insert(std::make_pair("W", 0.6));
 
-  opt->run(prob);
+  auto result = opt->run(prob);
+  for (auto r : result)
+    r->print();
 
 }
