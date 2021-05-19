@@ -1,6 +1,6 @@
 #include <iostream>
 #include <numeric>
-#include<random>
+#include <random>
 
 #include "Optimiser.h"
 
@@ -30,6 +30,22 @@ bool Optimiser::checkSum(const std::map<std::string, double>& prob)
   return std::abs(sum-1.0<epsilon);
 }
 
+bool Optimiser::checkMat(const std::map<std::string, double>& prob)
+{
+  // Check if materal names in the 'prob' map match to the 'mat' set
+
+  for (auto p : prob) {
+    auto m = std::find_if(mat.begin(), mat.end(),
+  			  [&p](std::shared_ptr<Material> mm)
+  			  {return mm->getName() == p.first;});
+    if (m == mat.end()) {
+      std::cerr << "Material " << p.first << " not found in the 'mat' set" << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
 
 std::vector<std::shared_ptr<Material>>
 Optimiser::run(const std::map<std::string, double>& prob)
@@ -40,31 +56,40 @@ Optimiser::run(const std::map<std::string, double>& prob)
   assert(mat.size() == prob.size() &&
 	 "Wrong length of material probabilities vector: ");
   assert(checkSum(prob) && "Probabilities must sum up to 1.0");
+  assert(checkMat(prob) && "Materials specified in 'prob' do not match the 'mat' set");
 
-  // // auxiliary map with cumulative distributions of probabilities
-  // // in order to sample probabilities
-  // std::map<std::string, double> cumulative;
-  // double prev = 0.0;
-  // for (auto m : prob) {
-  //   prev += m.second;
-  //   cumulative.insert(std::make_pair(m.first, prev));
-  // }
+  // auxiliary map with cumulative distributions of probabilities
+  // in order to sample probabilities
+  std::map<std::string, double> cumulative;
+  double prev = 0.0;
+  for (auto m : prob) {
+    prev += m.second;
+    cumulative.insert(std::make_pair(m.first, prev));
+  }
 
-  std::vector<std::shared_ptr<Material>> vec;
-  // std::uniform_real_distribution<float> ugen(0.0f, 1.0f);
+  std::vector<std::shared_ptr<Material>> layers;
 
-  // for (size_t i=0; i<nLayers; ++i) {
-  //   auto p = dist(eng, Distribution::param_type{0.0, 1.0});
-  //   for (auto m : cumulative) {
-  //     if (p<m.second) {
-  // 	vec.push_back(mat[m.first]);
-  // 	break;
-  //     }
-  //   }
-  // }
-  // std::cout << vec.size() << std::endl;
+  for (size_t i=0; i<nLayers; ++i) {
+    auto p = dist(eng, Distribution::param_type{0.0, 1.0});
+    for (auto mp : cumulative) { // mp: material name, probability
+      if (p<mp.second) {
+	auto m = std::find_if(mat.begin(), mat.end(),
+			      [&mp](std::shared_ptr<Material> mm)
+			      {return mm->getName() == mp.first;});
+	if (m == mat.end()) {
+	  std::cerr << mp.first << " not found in the 'mat' set" << std::endl;
+	  exit(1);
+	}
 
-  return vec;
+	layers.push_back(*m);
+  	break;
+      }
+    }
+  }
+
+  assert(layers.size() == nLayers);
+
+  return layers;
 }
 
 double Optimiser::getMass() const

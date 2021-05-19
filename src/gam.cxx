@@ -38,8 +38,8 @@ int main(int argc, const char **argv)
   std::map<std::string, double > prob;
   prob.insert(std::make_pair("Poly", 0.11));
   prob.insert(std::make_pair("B4C", 0.2));
-  prob.insert(std::make_pair("Steel", 0.09));
-  prob.insert(std::make_pair("W", 0.6));
+  prob.insert(std::make_pair("Stainless304", 0.09));
+  prob.insert(std::make_pair("Tungsten", 0.6));
 
   auto result = opt->run(prob);
   for (auto r : result)
