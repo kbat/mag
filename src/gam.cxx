@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
   auto W1 = std::make_shared<Material>("Tungsten1", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 10;//150;
+  const size_t nLayers = 150;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // must be < 1
@@ -35,12 +35,12 @@ int main(int argc, const char **argv)
 
   auto opt = std::make_shared<Optimiser>(p0, sdef, mat, nLayers);
 
-  std::map<std::shared_ptr<Material>, double > prob;
-  prob.insert(std::make_pair(poly, 0.11));
-  prob.insert(std::make_pair(b4c, 0.2));
-  prob.insert(std::make_pair(steel, 0.09));
-  prob.insert(std::make_pair(W, 0.6));
-  //prob.insert(std::make_pair(W1, 0.6));
+  // std::map<std::shared_ptr<Material>, double > prob;
+  // prob.insert(std::make_pair(poly, 0.11));
+  // prob.insert(std::make_pair(b4c, 0.2));
+  // prob.insert(std::make_pair(steel, 0.09));
+  // prob.insert(std::make_pair(W, 0.6));
+  // //prob.insert(std::make_pair(W1, 0.6));
 
   auto result = opt->run(1); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
