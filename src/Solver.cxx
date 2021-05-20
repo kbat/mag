@@ -1,4 +1,5 @@
 #include <iostream>
+#include <numeric>
 
 #include "Solver.h"
 
@@ -332,4 +333,13 @@ double Solver::getDose(const char p) const
   delete h;
 
   return D;
+}
+
+double Solver::getMass() const
+{
+  // Return sum of densities of all materials in the vector
+
+  return std::accumulate(mat.begin(), mat.end(), 0.0,
+			 [](double prev, const auto m)
+			 { return prev+m->getDensity(); });
 }

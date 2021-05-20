@@ -93,15 +93,6 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob)
   return layers;
 }
 
-double Optimiser::getMass() const
-{
-  // Return sum of densities of all materials in the vector
-
-  return std::accumulate(result.begin(), result.end(), 0.0,
-			 [](double prev, const auto m)
-			 { return prev+m->getDensity(); });
-}
-
 std::vector<std::shared_ptr<Material>>
 Optimiser::run(const size_t ro, const std::map<std::shared_ptr<Material>, double>& prob)
 {

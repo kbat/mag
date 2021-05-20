@@ -23,7 +23,6 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>>
     run(const size_t, const std::map<std::shared_ptr<Material>, double>&);
   std::vector<std::shared_ptr<Material>> run(const size_t);
-  double getMass() const;
   inline double getDose() const {return dose; }
 };
 

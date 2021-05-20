@@ -44,8 +44,9 @@ int main(int argc, const char **argv)
 
   auto result = opt->run(1); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
+  std::cout << opt->getDose() << "\t";
   for (auto l : result)
     std::cout << l->getID() << " ";
-  std::cout << opt->getDose() << std::endl;
+  std::cout << std::endl;
 
 }
