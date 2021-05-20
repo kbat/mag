@@ -12,6 +12,9 @@ class Optimiser {
   const size_t nLayers; //< number of layers
   size_t RO;     //< Reflection Order
   size_t genSize;     //< number of solutions in a single generation
+  double doseWeight;  //< dose weight in objective function
+  double massWeight;  //< mass weight in objective function
+  double compWeight;  //< complexity weight in objective function
   bool checkSum(const std::map<std::shared_ptr<Material>, double>&);
   bool checkMat(const std::map<std::shared_ptr<Material>, double>&);
   std::vector<std::shared_ptr<Material>>
@@ -27,6 +30,9 @@ class Optimiser {
   void run(size_t);
   inline void setReflectionOrder(size_t ro) { RO = ro; }
   inline void setGenSize(size_t n) { genSize = n; }
+  inline void setDoseWeight(double w) { doseWeight = w; }
+  inline void setMassWeight(double w) { massWeight = w; }
+  inline void setComplexityWeight(double w) { compWeight = w; }
   double getObjectiveFunction(const std::shared_ptr<Solver>&) const;
 };
 

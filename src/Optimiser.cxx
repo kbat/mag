@@ -17,6 +17,9 @@ Optimiser::Optimiser(const char p0,
 {
   RO = 1;
   genSize = 50;
+  doseWeight = 1.0;
+  massWeight = 0.0;
+  compWeight = 0.0;
 
   return;
 }
@@ -179,7 +182,5 @@ double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
   const double mass = s->getMass();
   const size_t comp = s->getComplexity();
 
-  //  std::cout << dose << " " << mass << " " << comp << std::endl;
-
-  return dose;
+  return dose*doseWeight + mass*massWeight + comp*compWeight;
 }

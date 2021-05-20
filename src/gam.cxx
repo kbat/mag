@@ -36,6 +36,9 @@ int main(int argc, const char **argv)
   auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
   opt->setReflectionOrder(0);
   opt->setGenSize(20);
+  opt->setDoseWeight(1.0);
+  opt->setMassWeight(0.1);
+  opt->setComplexityWeight(0.1);
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
