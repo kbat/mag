@@ -42,6 +42,7 @@ int main(int argc, const char **argv)
   opt->setComplexityWeight(0.0);
 
   opt->setInheritedFraction(0.1); // 0.05
+  opt->setPMutation(0.3); // 0.3
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
@@ -50,7 +51,7 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  opt->run(10); //, prob);
+  opt->run(2); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
   // for (auto l : result)

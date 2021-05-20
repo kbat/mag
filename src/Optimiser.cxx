@@ -23,6 +23,7 @@ Optimiser::Optimiser(const char p0,
   massWeight = 0.0;
   compWeight = 0.0;
   inheritedFraction = 0.05;
+  pMutation = 0.3;
 
   return;
 }
@@ -156,55 +157,69 @@ void Optimiser::run(size_t ngen)
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
-  // run
   const size_t ncores = std::thread::hardware_concurrency();
-  std::vector<std::thread> threads;
 
-  auto start = std::chrono::system_clock::now();
+  for (size_t gen=1; gen<=ngen; ++gen) {
+    std::cout << "Generation: " << gen << std::endl;
+    // run
+    std::vector<std::thread> threads;
 
-  auto f = [&](std::shared_ptr<Solver> s){s->run(RO);};
+    auto start = std::chrono::system_clock::now();
 
-  // TODO: how to use not more than ncores ???
-  std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ threads.emplace_back(f,s); });
+    auto f = [&](std::shared_ptr<Solver> s){s->run(RO);};
 
-  std::for_each(threads.begin(), threads.end(), [&](auto &t){ t.join();});
+    // TODO: how to use not more than ncores ???
+    std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ threads.emplace_back(f,s); });
 
-  std::sort(solutions.begin(), solutions.end(),
-	    [&](const auto &l, const auto &r){
-	      return (getObjectiveFunction(l)<getObjectiveFunction(r));
-	    });
+    std::for_each(threads.begin(), threads.end(), [&](auto &t){ t.join();});
 
-  // print
-  std::for_each(solutions.begin(), solutions.end(),
-		[&](auto &s){
-		  std::cout << getObjectiveFunction(s) << "\t" << s->getDose() << "\t"
-			    << s->getMass() << "\t" << s->getComplexity() << "\t";
-		  auto mat = s->getLayers();
-		  std::for_each(mat.begin(), mat.end(),
-				[](auto &m){std::cout << m->getID() << " ";});
-		  std::cout << std::endl;
-		});
+    std::sort(solutions.begin(), solutions.end(),
+	      [&](const auto &l, const auto &r){
+		return (getObjectiveFunction(l)<getObjectiveFunction(r));
+	      });
 
-  auto stop  = std::chrono::system_clock::now();
-  std::chrono::duration<double> dur = stop-start;
-  std::cout << dur.count() << " sec" << std::endl;
+    // print
+    std::for_each(solutions.begin(), solutions.end(),
+		  [&](auto &s){
+		    std::cout << getObjectiveFunction(s) << "\t" << s->getDose() << "\t"
+			      << s->getMass() << "\t" << s->getComplexity() << "\t";
+		    auto mat = s->getLayers();
+		    std::for_each(mat.begin(), mat.end(),
+				  [](auto &m){std::cout << m->getID() << " ";});
+		    std::cout << std::endl;
+		  });
 
-  // leave only directly inherited solutions
-  size_t nInherited = genSize*inheritedFraction;
-  if (nInherited==0)
-    nInherited = 1;
-  //  solutions.erase(solutions.begin()+nInherited, solutions.end());
+    auto stop  = std::chrono::system_clock::now();
+    std::chrono::duration<double> dur = stop-start;
+    std::cout << dur.count() << " sec" << std::endl;
 
-  // TODO: print and check
-  std::vector<std::shared_ptr<Solver>> inherited;
-  inherited.reserve(nInherited);
-  for (size_t i=0; i<nInherited; ++i)
-    inherited.push_back(solutions[i]);
+    // leave only directly inherited solutions
+    size_t nInherited = genSize*inheritedFraction;
+    if (nInherited==0)
+      nInherited = 1;
+    //  solutions.erase(solutions.begin()+nInherited, solutions.end());
 
-  std::cout << solutions.size() << " = " << inherited.size() << " + ";
+    std::cout << solutions.size() << std::endl;
 
-  solutions.erase(solutions.begin(), solutions.begin()+nInherited);
-  std::cout << solutions.size() << std::endl;
+    // TODO: print and check
+    std::vector<std::shared_ptr<Solver>> failed; // i.e. not inherited -> crossover or mutation
+    auto it = std::next(solutions.begin(), nInherited);
+    std::move(it, solutions.end(), std::back_inserter(failed));
+    solutions.erase(it, solutions.end());
+
+    for (auto f in failed) {
+      auto p = dist(eng, Distribution::param_type{0.0, 1.0});
+      if (p<pMutation)
+	solutions += mutate(f);
+      else
+	solutions += crossover(f);
+    }
+
+    mutate(solutions);
+    crossover(solutions);
+
+    std::cout << solutions.size() << " = " << failed.size() << std::endl;
+  }
 }
 
 double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
