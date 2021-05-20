@@ -14,7 +14,7 @@ EIGENINC   := /usr/include/eigen3
 
 GCC         = g++ -std=c++17
 
-CXXFLAGS := -g -Ofast -fno-math-errno -Wall
+CXXFLAGS := -g -Ofast -fno-math-errno -Wall -lpthread
 
 obj/%.o: src/%.cxx src/%.h
 	@echo "Compiling $@"

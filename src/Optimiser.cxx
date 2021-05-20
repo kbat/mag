@@ -1,6 +1,8 @@
 #include <iostream>
 #include <numeric>
 #include <random>
+#include <thread>
+#include <chrono>
 
 #include "Solver.h"
 #include "Optimiser.h"
@@ -154,23 +156,38 @@ void Optimiser::run(size_t ngen)
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
-  std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ s->run(RO); });
+  // run
+  const size_t ncores = std::thread::hardware_concurrency(); // number of cores
+  std::vector<std::thread> threads;
+
+  auto start = std::chrono::system_clock::now();
+
+  auto f = [&](std::shared_ptr<Solver> s){s->run(RO);};
+
+  // TODO: how to use not more than ncores ???
+  std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ threads.emplace_back(f,s); });
+
+  std::for_each(threads.begin(), threads.end(), [&](auto &t){ t.join();});
 
   std::sort(solutions.begin(), solutions.end(),
 	    [&](const auto &l, const auto &r){
 	      return (getObjectiveFunction(l)<getObjectiveFunction(r));
 	    });
 
+  // print
   std::for_each(solutions.begin(), solutions.end(),
 		[&](auto &s){
-		  std::cout << getObjectiveFunction(s) << "\t" << s->getMass() << "\t" << s->getComplexity() << "\t";
+		  std::cout << getObjectiveFunction(s) << "\t" << s->getDose() << "\t"
+			    << s->getMass() << "\t" << s->getComplexity() << "\t";
 		  auto mat = s->getLayers();
 		  std::for_each(mat.begin(), mat.end(),
 				[](auto &m){std::cout << m->getID() << " ";});
 		  std::cout << std::endl;
 		});
 
-  std::cout << solutions.size() << std::endl;
+  auto stop  = std::chrono::system_clock::now();
+  std::chrono::duration<double> dur = stop-start;
+  std::cout << dur.count() << " sec" << std::endl;
 
 }
 
