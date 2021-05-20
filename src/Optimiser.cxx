@@ -13,7 +13,7 @@ Optimiser::Optimiser(const char p0,
 		     std::shared_ptr<TH2D> sdef,
 		     std::set<std::shared_ptr<Material>>& mat,
 		     const size_t nLayers) :
-  p0(p0), sdef(sdef), mat(mat), nLayers(nLayers)
+  p0(p0), sdef(sdef), mat(mat), nLayers(nLayers), RO(1)
 {
   return;
 }
@@ -93,21 +93,21 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob)
 }
 
 std::vector<std::shared_ptr<Material>>
-Optimiser::run(const size_t ro, const std::map<std::shared_ptr<Material>, double>& prob)
+Optimiser::run(const std::map<std::shared_ptr<Material>, double>& prob)
 {
   // Run calculation with the given probabilities for different materials in the layers
 
   std::vector<std::shared_ptr<Material>> layers = getLayers(prob);
 
   auto solver = std::make_shared<Solver>(p0, sdef, layers);
-  solver->run(ro);
+  solver->run(RO);
 
   getObjectiveFunction(solver);
 
   return layers;
 }
 
-std::vector<std::shared_ptr<Material>> Optimiser::run(const size_t ro)
+std::vector<std::shared_ptr<Material>> Optimiser::run()
 {
   // Run calculation with uniform probabilities for different materials in the layers
 
@@ -126,7 +126,7 @@ std::vector<std::shared_ptr<Material>> Optimiser::run(const size_t ro)
 		 std::inserter(prob, prob.end()),
 		 std::make_pair<std::shared_ptr<Material> const&, double const&>);
 
-  return run(ro, prob);
+  return run(prob);
 }
 
 double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
@@ -137,7 +137,7 @@ double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
   const double mass = s->getMass();
   const size_t comp = s->getComplexity();
 
-  std::cout << dose << " " << mass << " " << comp << std::endl;
+  //  std::cout << dose << " " << mass << " " << comp << std::endl;
 
   return dose;
 }

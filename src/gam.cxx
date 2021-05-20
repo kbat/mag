@@ -34,6 +34,7 @@ int main(int argc, const char **argv)
   sdef->Fill(E0, mu0);
 
   auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
+  opt->setReflectionOrder(0);
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
@@ -42,7 +43,7 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  auto result = opt->run(1); //, prob);
+  auto result = opt->run(); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
   for (auto l : result)
