@@ -343,3 +343,18 @@ double Solver::getMass() const
 			 [](double prev, const auto m)
 			 { return prev+m->getDensity(); });
 }
+
+size_t Solver::getComplexity() const
+{
+  // Return number of boundaries with different materials
+  // TODO: use stl
+
+  size_t sum = 0;
+  size_t n = mat.size();
+  for (size_t i=1; i<n; ++i) {
+    if (mat[i-1] != mat[i])
+      sum++;
+  }
+
+  return sum;
+}

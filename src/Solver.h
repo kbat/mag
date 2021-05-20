@@ -30,6 +30,7 @@ class Solver {
   double getDose() const;
   double getDose(const char) const;
   double getMass() const;
+  size_t getComplexity() const;
 };
 
 
