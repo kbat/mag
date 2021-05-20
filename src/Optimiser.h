@@ -24,7 +24,7 @@ class Optimiser {
   Optimiser(const char, std::shared_ptr<TH2D>,
 	    std::set<std::shared_ptr<Material> >&,
 	    const size_t);
-  void run();
+  void run(size_t);
   inline void setReflectionOrder(size_t ro) { RO = ro; }
   inline void setGenSize(size_t n) { genSize = n; }
   double getObjectiveFunction(const std::shared_ptr<Solver>&) const;

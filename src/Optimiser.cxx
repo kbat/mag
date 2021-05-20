@@ -111,7 +111,8 @@ std::vector<std::shared_ptr<Material>> Optimiser::getLayers()
 
   // non-normalised random uniform vector
   std::vector<double> vec(mat.size());
-  std::generate(vec.begin(), vec.end(), [&](){return dist(eng, Distribution::param_type{0.0, 1.0});});
+  std::generate(vec.begin(), vec.end(),
+		[&](){return dist(eng, Distribution::param_type{0.0, 1.0});});
   const double sum = std::accumulate(vec.begin(), vec.end(), 0.0);
 
   // random vector normalised to unity
@@ -127,24 +128,10 @@ std::vector<std::shared_ptr<Material>> Optimiser::getLayers()
   return getLayers(prob);
 }
 
-// std::vector<std::shared_ptr<Material>>
-// Optimiser::run(const std::map<std::shared_ptr<Material>, double>& prob)
-// {
-//   // Run calculation with the given probabilities for different materials in the layers
-
-//   std::vector<std::shared_ptr<Material>> layers = getLayers(prob);
-
-//   auto solver = std::make_shared<Solver>(p0, sdef, layers);
-//   solver->run(RO);
-
-//   getObjectiveFunction(solver);
-
-//   return layers;
-// }
-
-void Optimiser::run()
+void Optimiser::run(size_t ngen)
 {
   // Run calculation with uniform probabilities for different materials in the layers
+  // ngen : number of generations to run
 
   //  getLayers(*(++mat.begin()));
 
@@ -152,6 +139,7 @@ void Optimiser::run()
   std::vector<std::shared_ptr<Solver>>   solutions;
 
   // First, we create (but not run yet) solutions with homogenic materials:
+  // TODO: for_each
   for (auto m : mat) {
     layers = getLayers(m);
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
@@ -164,6 +152,20 @@ void Optimiser::run()
   }
 
   std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ s->run(RO); });
+
+  std::sort(solutions.begin(), solutions.end(),
+	    [&](const auto &l, const auto &r){
+	      return (getObjectiveFunction(l)<getObjectiveFunction(r));
+	    });
+
+  std::for_each(solutions.begin(), solutions.end(),
+		[&](auto &s){
+		  std::cout << getObjectiveFunction(s) << "\t" << s->getMass() << "\t" << s->getComplexity() << "\t";
+		  auto mat = s->getLayers();
+		  std::for_each(mat.begin(), mat.end(),
+				[](auto &m){std::cout << m->getID() << " ";});
+		  std::cout << std::endl;
+		});
 
   std::cout << solutions.size() << std::endl;
 

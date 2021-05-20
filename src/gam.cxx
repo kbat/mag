@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
   auto W1 = std::make_shared<Material>("Tungsten1", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 5;
+  const size_t nLayers = 50;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // must be < 1
@@ -35,6 +35,7 @@ int main(int argc, const char **argv)
 
   auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
   opt->setReflectionOrder(0);
+  opt->setGenSize(20);
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
@@ -43,7 +44,7 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  opt->run(); //, prob);
+  opt->run(10); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
   // for (auto l : result)

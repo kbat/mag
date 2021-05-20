@@ -9,7 +9,7 @@ Solver::Solver(const char p0,
   p0(p0), sdef(sdef), mat(mat), nLayers(mat.size()),
   particles(mat[0]->getParticles())
 {
-  return;
+  done = false;
 }
 
 std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
@@ -70,6 +70,9 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 {
   // ro : reflection order to take into account [only ro<=1 implemented]
 
+  if (done)
+    return result;
+
   size_t layer=0;
 
   // LAYER 0
@@ -115,6 +118,8 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       for (auto i : particles)
 	*result[i] += *reflected[i];
   }
+
+  done = true;
 
   return result;
 }
