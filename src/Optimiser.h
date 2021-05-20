@@ -12,8 +12,6 @@ class Optimiser {
   const size_t nLayers; //< number of layers
   bool checkSum(const std::map<std::shared_ptr<Material>, double>&);
   bool checkMat(const std::map<std::shared_ptr<Material>, double>&);
-  std::vector<std::shared_ptr<Material>> result; //< optimised vector of materials
-  double dose; // resulting dose rate
  public:
   Optimiser(const char, std::shared_ptr<TH2D>,
 	    std::set<std::shared_ptr<Material> >&,
@@ -23,7 +21,7 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>>
     run(const size_t, const std::map<std::shared_ptr<Material>, double>&);
   std::vector<std::shared_ptr<Material>> run(const size_t);
-  inline double getDose() const {return dose; }
+  double getObjectiveFunction(const std::shared_ptr<Solver>&) const;
 };
 
 

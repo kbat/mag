@@ -15,7 +15,6 @@ Optimiser::Optimiser(const char p0,
 		     const size_t nLayers) :
   p0(p0), sdef(sdef), mat(mat), nLayers(nLayers)
 {
-  dose = 0.0;
   return;
 }
 
@@ -100,10 +99,10 @@ Optimiser::run(const size_t ro, const std::map<std::shared_ptr<Material>, double
 
   std::vector<std::shared_ptr<Material>> layers = getLayers(prob);
 
-  auto solver = std::make_unique<Solver>(p0, sdef, layers);
+  auto solver = std::make_shared<Solver>(p0, sdef, layers);
   solver->run(ro);
 
-  dose = solver->getDose();;
+  getObjectiveFunction(solver);
 
   return layers;
 }
@@ -128,4 +127,17 @@ std::vector<std::shared_ptr<Material>> Optimiser::run(const size_t ro)
 		 std::make_pair<std::shared_ptr<Material> const&, double const&>);
 
   return run(ro, prob);
+}
+
+double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
+{
+  // Return objective function
+
+  const double dose = s->getDose();
+  const double mass = s->getMass();
+  const size_t comp = s->getComplexity();
+
+  std::cout << dose << " " << mass << " " << comp << std::endl;
+
+  return dose;
 }

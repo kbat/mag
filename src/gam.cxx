@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
   auto W1 = std::make_shared<Material>("Tungsten1", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 150;
+  const size_t nLayers = 5;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // must be < 1
@@ -33,7 +33,7 @@ int main(int argc, const char **argv)
   auto sdef = (*mat.begin())->getSDEF();
   sdef->Fill(E0, mu0);
 
-  auto opt = std::make_shared<Optimiser>(p0, sdef, mat, nLayers);
+  auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
@@ -44,7 +44,7 @@ int main(int argc, const char **argv)
 
   auto result = opt->run(1); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
-  std::cout << opt->getDose() << "\t";
+  //  std::cout << opt->getDose() << "\t";
   for (auto l : result)
     std::cout << l->getID() << " ";
   std::cout << std::endl;
