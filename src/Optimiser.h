@@ -15,6 +15,7 @@ class Optimiser {
   double doseWeight;  //< dose weight in objective function
   double massWeight;  //< mass weight in objective function
   double compWeight;  //< complexity weight in objective function
+  double inheritedFraction; //< fraction of solutions directly inherited to the next generation
   bool checkSum(const std::map<std::shared_ptr<Material>, double>&);
   bool checkMat(const std::map<std::shared_ptr<Material>, double>&);
   std::vector<std::shared_ptr<Material>>
@@ -33,6 +34,7 @@ class Optimiser {
   inline void setDoseWeight(double w) { doseWeight = w; }
   inline void setMassWeight(double w) { massWeight = w; }
   inline void setComplexityWeight(double w) { compWeight = w; }
+  inline void setInheritedFraction(double f) { inheritedFraction = f; }
   double getObjectiveFunction(const std::shared_ptr<Solver>&) const;
 };
 

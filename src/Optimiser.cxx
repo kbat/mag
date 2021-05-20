@@ -22,6 +22,7 @@ Optimiser::Optimiser(const char p0,
   doseWeight = 1.0;
   massWeight = 0.0;
   compWeight = 0.0;
+  inheritedFraction = 0.05;
 
   return;
 }
@@ -140,24 +141,23 @@ void Optimiser::run(size_t ngen)
 
   //  getLayers(*(++mat.begin()));
 
-  std::vector<std::shared_ptr<Material>> layers;
-  std::vector<std::shared_ptr<Solver>>   solutions;
+  std::vector<std::shared_ptr<Solver>> solutions;
 
   // First, we create (but not run yet) solutions with homogenic materials:
-  // TODO: for_each
-  for (auto m : mat) {
-    layers = getLayers(m);
-    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
-  }
+  std::for_each(mat.begin(), mat.end(),
+		[&](auto &m){
+		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
+		  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+		});
 
-  // Now we prepare the rest of the first generation
+  // Now we prepare the rest of the first generation with random materials
   for (size_t i=0; i<genSize; ++i) {
-    layers = getLayers();
+    std::vector<std::shared_ptr<Material>> layers = getLayers();
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
   // run
-  const size_t ncores = std::thread::hardware_concurrency(); // number of cores
+  const size_t ncores = std::thread::hardware_concurrency();
   std::vector<std::thread> threads;
 
   auto start = std::chrono::system_clock::now();
@@ -189,6 +189,22 @@ void Optimiser::run(size_t ngen)
   std::chrono::duration<double> dur = stop-start;
   std::cout << dur.count() << " sec" << std::endl;
 
+  // leave only directly inherited solutions
+  size_t nInherited = genSize*inheritedFraction;
+  if (nInherited==0)
+    nInherited = 1;
+  //  solutions.erase(solutions.begin()+nInherited, solutions.end());
+
+  // TODO: print and check
+  std::vector<std::shared_ptr<Solver>> inherited;
+  inherited.reserve(nInherited);
+  for (size_t i=0; i<nInherited; ++i)
+    inherited.push_back(solutions[i]);
+
+  std::cout << solutions.size() << " = " << inherited.size() << " + ";
+
+  solutions.erase(solutions.begin(), solutions.begin()+nInherited);
+  std::cout << solutions.size() << std::endl;
 }
 
 double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
