@@ -43,11 +43,11 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  auto result = opt->run(); //, prob);
+  opt->run(); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
-  for (auto l : result)
-    std::cout << l->getID() << " ";
-  std::cout << std::endl;
+  // for (auto l : result)
+  //   std::cout << l->getID() << " ";
+  // std::cout << std::endl;
 
 }
