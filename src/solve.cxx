@@ -90,9 +90,9 @@ int main(int argc, const char **argv)
 
   size_t nLayers = argc == 2 ? atoi(argv[1]) : 10;
   //  std::cout << "nLayers: " << nLayers << std::endl;
-  const char p0 = 'n'; // incident particle
-  const double E0 = 2e3;
-  const double mu0 = 0.99;
+  const char p0 = 'e'; // incident particle
+  const double E0 = 3e3;
+  const double mu0 = 0.999;
 
   std::vector<std::shared_ptr<Material>> mat;
 
@@ -143,7 +143,7 @@ int main(int argc, const char **argv)
   }
 
   for (size_t i=0; i<nLayers; ++i)
-    mat.push_back(poly);
+    mat.push_back(W);
 
   auto sdef = mat[0]->getSDEF();
   sdef->Fill(E0, mu0);
