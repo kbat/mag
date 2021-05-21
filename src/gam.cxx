@@ -16,9 +16,8 @@ int main(int argc, const char **argv)
   auto b4c = std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608);
   auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
-  auto W1 = std::make_shared<Material>("Tungsten1", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 5;
+  const size_t nLayers = 150;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // must be < 1
@@ -35,14 +34,14 @@ int main(int argc, const char **argv)
 
   auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
   opt->setReflectionOrder(0);
-  opt->setGenSize(20); // 50
+  opt->setGenSize(40); // 8*6 = 48
 
   opt->setDoseWeight(1.0);
   opt->setMassWeight(0.0);
   opt->setComplexityWeight(0.0);
 
-  opt->setInheritedFraction(0.1); // 0.05
-  opt->setPMutation(0.3); // 0.3
+  opt->setInheritedFraction(0.07); // 0.05
+  opt->setPMutation(0.1); // 0.3, but Wiki says it must be low. If it is set too high, the search will turn into a primitive random search.
 
   // std::map<std::shared_ptr<Material>, double > prob;
   // prob.insert(std::make_pair(poly, 0.11));
@@ -51,7 +50,7 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  opt->run(2); //, prob);
+  opt->run(30); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
   // for (auto l : result)

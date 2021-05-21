@@ -28,7 +28,7 @@ Optimiser::Optimiser(const char p0,
   return;
 }
 
-bool Optimiser::checkSum(const std::map<std::shared_ptr<Material>, double>& prob)
+bool Optimiser::checkSum(const std::map<std::shared_ptr<Material>, double>& prob) const
 {
   // Check if sum of probabilities add up to unity
 
@@ -40,7 +40,7 @@ bool Optimiser::checkSum(const std::map<std::shared_ptr<Material>, double>& prob
   return (std::abs(sum-1.0)<epsilon);
 }
 
-bool Optimiser::checkMat(const std::map<std::shared_ptr<Material>, double>& prob)
+bool Optimiser::checkMat(const std::map<std::shared_ptr<Material>, double>& prob) const
 {
   // Check if materals in the 'prob' map match to the 'mat' set
 
@@ -58,7 +58,7 @@ bool Optimiser::checkMat(const std::map<std::shared_ptr<Material>, double>& prob
 }
 
 std::vector<std::shared_ptr<Material>>
-Optimiser::getLayers(const std::shared_ptr<Material>& m)
+Optimiser::getLayers(const std::shared_ptr<Material>& m) const
 {
   // Return vector of layers with the same material m
 
@@ -69,7 +69,7 @@ Optimiser::getLayers(const std::shared_ptr<Material>& m)
 }
 
 std::vector<std::shared_ptr<Material>>
-Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob)
+Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob) const
 {
   // Return vector of layers given the material probabilities
 
@@ -112,7 +112,7 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob)
   return layers;
 }
 
-std::vector<std::shared_ptr<Material>> Optimiser::getLayers()
+std::vector<std::shared_ptr<Material>> Optimiser::getLayers() const
 {
   // Return vector of layers with uniform material probabilities
 
@@ -175,19 +175,32 @@ void Optimiser::run(size_t ngen)
 
     std::sort(solutions.begin(), solutions.end(),
 	      [&](const auto &l, const auto &r){
-		return (getObjectiveFunction(l)<getObjectiveFunction(r));
+		return (getFitness(l)<getFitness(r));
 	      });
 
     // print
-    std::for_each(solutions.begin(), solutions.end(),
-		  [&](auto &s){
-		    std::cout << getObjectiveFunction(s) << "\t" << s->getDose() << "\t"
-			      << s->getMass() << "\t" << s->getComplexity() << "\t";
-		    auto mat = s->getLayers();
-		    std::for_each(mat.begin(), mat.end(),
-				  [](auto &m){std::cout << m->getID() << " ";});
-		    std::cout << std::endl;
-		  });
+    // // std::min<size_t>(3, solutions.size()),
+    // std::for_each(solutions.begin(), solutions.end(),
+    // //    std::for_each_n(solutions.begin(), 3,
+    // 		  [&](auto &s){
+    // 		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
+    // 			      << s->getMass() << "\t" << s->getComplexity() << "\t";
+    // 		    auto mat = s->getLayers();
+    // 		    std::for_each(mat.begin(), mat.end(),
+    // 				  [](auto &m){std::cout << m->getID() << " ";});
+    // 		    std::cout << std::endl;
+    // 		  });
+
+    size_t n = std::min<size_t>(4, solutions.size());
+    for (size_t i=0; i<n; ++i) {
+      std::cout << getFitness(solutions[i]) << "\t" << solutions[i]->getDose() << "\t"
+		<< solutions[i]->getMass() << "\t" << solutions[i]->getComplexity() << "\t";
+      auto mat = solutions[i]->getLayers();
+      std::for_each(mat.begin(), mat.end(),
+		    [](auto &m){std::cout << m->getID() << " ";});
+      std::cout << std::endl;
+    }
+
 
     auto stop  = std::chrono::system_clock::now();
     std::chrono::duration<double> dur = stop-start;
@@ -197,38 +210,81 @@ void Optimiser::run(size_t ngen)
     size_t nInherited = genSize*inheritedFraction;
     if (nInherited==0)
       nInherited = 1;
-    //  solutions.erase(solutions.begin()+nInherited, solutions.end());
 
-    std::cout << solutions.size() << std::endl;
+    // std::cout << "solutions before mutations: " << solutions.size() << std::endl;
+    // std::cout << "nInherited: " << nInherited << std::endl;
 
     // TODO: print and check
-    std::vector<std::shared_ptr<Solver>> failed; // i.e. not inherited -> crossover or mutation
-    auto it = std::next(solutions.begin(), nInherited);
-    std::move(it, solutions.end(), std::back_inserter(failed));
-    solutions.erase(it, solutions.end());
+    if (gen!=ngen) {
+      std::vector<std::shared_ptr<Solver>> failed; // i.e. not inherited -> crossover or mutation
+      auto it = std::next(solutions.begin(), nInherited);
+      std::move(it, solutions.end(), std::back_inserter(failed));
+      solutions.erase(it, solutions.end());
 
-    for (auto f in failed) {
-      auto p = dist(eng, Distribution::param_type{0.0, 1.0});
-      if (p<pMutation)
-	solutions += mutate(f);
-      else
-	solutions += crossover(f);
+      for (std::vector<std::shared_ptr<Solver>>::const_iterator
+	     it = failed.begin(); it!=failed.end(); it++)
+	{
+	  auto p = dist(eng, Distribution::param_type{0.0, 1.0});
+	  std::vector<std::shared_ptr<Material>> layers;
+	  if (p<pMutation)
+	    layers = mutate(*it);
+	  else
+	    layers = (std::next(it) != failed.end()) ?
+	      crossover(*it, *std::next(it)) : crossover(*it, *std::prev(it));
+
+	  if (layers.size()!=0)
+	    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+	  else {
+	    std::cerr << "Error: empty  layers" << std::endl;
+	    exit(1);
+	  }
+	}
     }
-
-    mutate(solutions);
-    crossover(solutions);
-
-    std::cout << solutions.size() << " = " << failed.size() << std::endl;
   }
 }
 
-double Optimiser::getObjectiveFunction(const std::shared_ptr<Solver>& s) const
+double Optimiser::getFitness(const std::shared_ptr<Solver>& s) const
 {
-  // Return objective function
+  // Return fitness function
 
   const double dose = s->getDose();
   const double mass = s->getMass();
   const size_t comp = s->getComplexity();
 
   return dose*doseWeight + mass*massWeight + comp*compWeight;
+}
+
+std::vector<std::shared_ptr<Material>> Optimiser::mutate(const std::shared_ptr<Solver>&) const
+{
+  // Implements uniform mutation in genetic algorithm in order to introduce
+  // diversity into the sampled population
+
+  //  std::cout << "mutation" << std::endl;
+
+  // just return new random layers
+  return getLayers();
+}
+
+std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_ptr<Solver>& s1,
+							    const std::shared_ptr<Solver>& s2) const
+{
+  // Implements uniform crossover operator
+
+  //  std::cout << "crossover: " << s1 << " " << s2 << "\t";
+
+  const std::vector<std::shared_ptr<Material>> l1 = s1->getLayers();
+  const std::vector<std::shared_ptr<Material>> l2 = s2->getLayers();
+  const size_t n = l1.size();
+
+  std::vector<std::shared_ptr<Material>> layers; // TODO reserve (ant not push_back) - faster?
+
+  for (size_t i=0; i<n; ++i) {
+    auto p = dist(eng, Distribution::param_type{0.0, 1.0}); // TODO: use int between 0 and 1
+    if (p<0.5)
+      layers.push_back(l1[i]);
+    else
+      layers.push_back(l2[i]);
+  }
+
+  return layers;
 }
