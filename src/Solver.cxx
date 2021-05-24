@@ -306,6 +306,8 @@ double Solver::getDose() const
   // Return dose rate [uSv/h per primary particle normalisation]
   // due to all supported particles
 
+  //  return getDose('n');
+
   double D = 0.0;
   // particles with flux-to-dose conversion factors available:
   static std::set<char> ftd {'n', 'p', 'e', '|', 'h'};

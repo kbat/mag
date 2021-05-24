@@ -144,12 +144,29 @@ void Optimiser::run(size_t ngen)
 
   std::vector<std::shared_ptr<Solver>> solutions;
 
-  // First, we create (but not run yet) solutions with homogenic materials:
+  //  First, we create (but not run yet) solutions with homogenic materials:
   std::for_each(mat.begin(), mat.end(),
-		[&](auto &m){
-		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
-		  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
-		});
+  		[&](auto &m){
+  		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
+  		  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+  		});
+
+  // Next we shuffle combinations of two materials of complexity 2 in different proportions
+  for (size_t j=0; j<nLayers-1; ++j)
+    for (auto m1 : mat)
+      for (auto m2 : mat) {
+	std::vector<std::shared_ptr<Material>> layers;
+	for (size_t i=0; i<nLayers; ++i)
+	  if (m1!=m2)
+	    layers.push_back(i<=j ? m1 : m2);
+	if (layers.size()) {
+	  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+	  // for (auto l : layers)
+	  //   std::cout << l->getID() << " ";
+	  // std::cout << std::endl;
+	}
+      }
+
 
   // Now we prepare the rest of the first generation with random materials
   for (size_t i=0; i<genSize; ++i) {
@@ -158,6 +175,7 @@ void Optimiser::run(size_t ngen)
   }
 
   const size_t ncores = std::thread::hardware_concurrency();
+  std::cout << "ncores: " << ncores << std::endl;
 
   for (size_t gen=1; gen<=ngen; ++gen) {
     std::cout << "Generation: " << gen << std::endl;
@@ -179,28 +197,16 @@ void Optimiser::run(size_t ngen)
 	      });
 
     // print
-    // // std::min<size_t>(3, solutions.size()),
-    // std::for_each(solutions.begin(), solutions.end(),
-    // //    std::for_each_n(solutions.begin(), 3,
-    // 		  [&](auto &s){
-    // 		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
-    // 			      << s->getMass() << "\t" << s->getComplexity() << "\t";
-    // 		    auto mat = s->getLayers();
-    // 		    std::for_each(mat.begin(), mat.end(),
-    // 				  [](auto &m){std::cout << m->getID() << " ";});
-    // 		    std::cout << std::endl;
-    // 		  });
-
-    size_t n = std::min<size_t>(4, solutions.size());
-    for (size_t i=0; i<n; ++i) {
-      std::cout << getFitness(solutions[i]) << "\t" << solutions[i]->getDose() << "\t"
-		<< solutions[i]->getMass() << "\t" << solutions[i]->getComplexity() << "\t";
-      auto mat = solutions[i]->getLayers();
-      std::for_each(mat.begin(), mat.end(),
-		    [](auto &m){std::cout << m->getID() << " ";});
-      std::cout << std::endl;
-    }
-
+    const size_t n = solutions.size(); //std::min<size_t>(5, solutions.size());
+    std::for_each(solutions.begin(), std::next(solutions.begin(), n),
+    		  [&](auto &s){
+    		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
+    			      << s->getMass() << "\t" << s->getComplexity() << "\t";
+    		    auto mat = s->getLayers();
+    		    std::for_each(mat.begin(), mat.end(),
+    				  [](auto &m){std::cout << m->getID() << " ";});
+    		    std::cout << std::endl;
+    		  });
 
     auto stop  = std::chrono::system_clock::now();
     std::chrono::duration<double> dur = stop-start;
@@ -231,6 +237,8 @@ void Optimiser::run(size_t ngen)
 	  else
 	    layers = (std::next(it) != failed.end()) ?
 	      crossover(*it, *std::next(it)) : crossover(*it, *std::prev(it));
+	  // layers = (it == failed.begin()) ?
+	  //   crossover(*solutions.begin(), *it) : crossover(*it, *std::prev(it));
 
 	  if (layers.size()!=0)
 	    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
