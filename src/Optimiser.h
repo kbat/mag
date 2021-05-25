@@ -17,7 +17,7 @@ class Optimiser {
   double compWeight;  //< complexity weight in objective function
   double inheritedFraction; //< fraction of solutions directly inherited to the next generation
   double pMutation; //< mutation probability (crossover = 1 - pMutation)
-  size_t nprint;    //< number of best solutions printed at each generation
+  int    nprint;    //< number of best solutions printed at each generation
 
   bool checkSum(const std::map<std::shared_ptr<Material>, double>&) const;
   bool checkMat(const std::map<std::shared_ptr<Material>, double>&) const;
@@ -45,7 +45,7 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>> mutate(const std::shared_ptr<Solver>&) const;
   std::vector<std::shared_ptr<Material>>
     crossover(const std::shared_ptr<Solver>&, const std::shared_ptr<Solver>&) const;
-  inline void setNPrint(size_t n) { nprint =n ;}
+  inline void setNPrint(int n) { nprint =n ;}
 };
 
 

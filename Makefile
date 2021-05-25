@@ -14,7 +14,7 @@ EIGENINC   := /usr/include/eigen3
 
 GCC         = g++ -std=c++17
 
-CXXFLAGS := -g -Ofast -fno-math-errno -Wall -lpthread
+CXXFLAGS := -g -Ofast -fno-math-errno -Wall
 
 obj/%.o: src/%.cxx src/%.h
 	@echo "Compiling $@"
@@ -34,7 +34,7 @@ obj/gam.o: src/gam.cxx
 
 gam: obj/gam.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o
 	@echo "Linking $@"
-	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -o $@
+	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -ltbb -o $@
 
 
 clean:

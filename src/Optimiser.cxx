@@ -1,7 +1,8 @@
 #include <iostream>
 #include <numeric>
 #include <random>
-#include <thread>
+#include <tbb/tbb.h>
+#include <tbb/task_scheduler_init.h>
 #include <chrono>
 
 #include "Solver.h"
@@ -24,7 +25,7 @@ Optimiser::Optimiser(const char p0,
   compWeight = 0.0;
   inheritedFraction = 0.05;
   pMutation = 0.3;
-  nprint = 5;
+  nprint = -1;
 
   return;
 }
@@ -170,34 +171,31 @@ std::vector<std::shared_ptr<Material>> Optimiser::getLayers() const
 }
 
 void Optimiser::run(size_t ngen)
+/*!
+  Run calculation with uniform probabilities for different materials in the layers
+  ngen : number of generations to run
+*/
 {
-  // Run calculation with uniform probabilities for different materials in the layers
-  // ngen : number of generations to run
-
   std::vector<std::shared_ptr<Solver>> solutions;
 
-  //  First, we create (but not run yet) solutions with homogenic materials:
+  //  Solutions with homogenic materials:
   std::for_each(mat.begin(), mat.end(),
   		[&](auto &m){
   		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
   		  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   		});
 
-  // Next we shuffle combinations of two materials of complexity 2 in different proportions
+  // We shuffle combinations of two materials of complexity 2 in different proportions
   for (auto m1 : mat)
     for (auto m2 : mat)
       for (size_t j=0; j<nLayers-1; ++j) {
 	std::vector<std::shared_ptr<Material>> layers = getLayers(m1, m2, j);
-	if (layers.size()) {
+	if (layers.size())
 	  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
-	  // for (auto l : layers)
-	  //   std::cout << l->getID() << " ";
-	  // std::cout << std::endl;
-	}
       }
 
-  const size_t ncores = std::thread::hardware_concurrency();
-  std::cout << "ncores: " << ncores << std::endl;
+  const size_t ncores = tbb::task_scheduler_init::default_num_threads();
+  std::cout << "Number of cores: " << ncores << std::endl;
 
   const size_t Nconst = solutions.size();
   std::cout << "Pre-defined generation size: " << Nconst << std::endl;
@@ -208,29 +206,31 @@ void Optimiser::run(size_t ngen)
   std::cout << "Additional random population in order to fill all cores: " << n << std::endl;
   // std::cout << (Ntot+n)%ncores << std::endl;
 
-  // Now we prepare the rest of the first generation with random materials
-  const size_t nRandom = minRandomPopulation+n;
+  // Now we fill the rest of the first generation with solutions made from random materials
+  const size_t nRandom = minRandomPopulation + n;
   for (size_t i=0; i<nRandom; ++i) {
     std::vector<std::shared_ptr<Material>> layers = getLayers();
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
-  nprint == 0 ? solutions.size() : nprint;
+  nprint == -1 ? solutions.size() : nprint;
 
   for (size_t gen=1; gen<=ngen; ++gen) {
-    std::cout << "Generation: " << gen << std::endl;
-    // run
-    std::vector<std::thread> threads;
+    std::cout << "\nGeneration: " << gen << std::endl;
 
     auto start = std::chrono::system_clock::now();
 
-    auto f = [&](std::shared_ptr<Solver> s){s->run(RO);};
+    tbb::task_scheduler_init init(ncores);
+    tbb::parallel_for(tbb::blocked_range<size_t>(0,solutions.size()),
+		      [&](const tbb::blocked_range<size_t>& r) {
+			for (size_t i=r.begin(); i<r.end(); ++i)
+			  solutions[i]->run(RO);
+		      });
+    auto stop  = std::chrono::system_clock::now();
+    std::chrono::duration<double> dur = stop-start;
+    std::cout << dur.count() << " sec" << std::endl;
 
-    // TODO: how to use not more than ncores ???
-    std::for_each(solutions.begin(), solutions.end(), [&](auto &s){ threads.emplace_back(f,s); });
-
-    std::for_each(threads.begin(), threads.end(), [&](auto &t){ t.join();});
-
+    // sort solutions
     std::sort(solutions.begin(), solutions.end(),
 	      [&](const auto &l, const auto &r){
 		return (getFitness(l)<getFitness(r));
@@ -248,21 +248,15 @@ void Optimiser::run(size_t ngen)
     		    std::cout << std::endl;
     		  });
 
-    auto stop  = std::chrono::system_clock::now();
-    std::chrono::duration<double> dur = stop-start;
-    std::cout << dur.count() << " sec" << std::endl;
-
-    // leave only directly inherited solutions
-    size_t nInherited = Ntot*inheritedFraction;
-    if (nInherited==0)
-      nInherited = 1;
-
-    // std::cout << "solutions before mutations: " << solutions.size() << std::endl;
-    // std::cout << "nInherited: " << nInherited << std::endl;
-
-    // TODO: print and check
+    // leave in the solutions vector only directly inherited solutions
+    // the rest will be mutated or crossbreed
     if (gen!=ngen) {
-      std::vector<std::shared_ptr<Solver>> failed; // i.e. not inherited -> crossover or mutation
+      size_t nInherited = Ntot*inheritedFraction;
+      if (nInherited==0)
+	nInherited = 1;
+
+      // failed = not directly inherited -> crossover or mutation
+      std::vector<std::shared_ptr<Solver>> failed;
       auto it = std::next(solutions.begin(), nInherited);
       std::move(it, solutions.end(), std::back_inserter(failed));
       solutions.erase(it, solutions.end());
@@ -283,7 +277,7 @@ void Optimiser::run(size_t ngen)
 	  if (layers.size()!=0)
 	    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
 	  else {
-	    std::cerr << "Error: empty  layers" << std::endl;
+	    std::cerr << "Error: empty layers" << std::endl;
 	    exit(1);
 	  }
 	}
@@ -307,8 +301,6 @@ std::vector<std::shared_ptr<Material>> Optimiser::mutate(const std::shared_ptr<S
   // Implements uniform mutation in genetic algorithm in order to introduce
   // diversity into the sampled population
 
-  //  std::cout << "mutation" << std::endl;
-
   // just return new random layers
   return getLayers();
 }
@@ -317,8 +309,6 @@ std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_pt
 							    const std::shared_ptr<Solver>& s2) const
 {
   // Implements uniform crossover operator
-
-  //  std::cout << "crossover: " << s1 << " " << s2 << "\t";
 
   const std::vector<std::shared_ptr<Material>> l1 = s1->getLayers();
   const std::vector<std::shared_ptr<Material>> l2 = s2->getLayers();
