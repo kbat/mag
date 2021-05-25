@@ -1,6 +1,10 @@
 #include <iostream>
 #include <chrono>
 
+#include <boost/program_options.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <sys/ioctl.h>
+
 #include <TROOT.h>
 #include <TH2D.h>
 #include <TFile.h>
@@ -9,79 +13,170 @@
 #include "Source.h"
 #include "Solver.h"
 
-// std::shared_ptr<TMatrixD> GetReflectionsT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-// 					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-// 					  const size_t order=1)
-// {
-//   assert(order==1 && "Orders > 1 not supported yet");
+namespace po=boost::program_options;
 
-//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn); // todo: check if not cloned
+class Arguments
+{
+  int argc;
+  const char **argv;
+  po::variables_map vm;
+  bool help;
+public:
+  Arguments(int ac, const char **av);
+  po::variables_map GetMap() const { return &vm; }
+  bool IsHelp() const { return help; }
+  bool IsTest() const { return vm.count("test"); }
+};
 
-//   *m *= *R;
-//   *m *= *Rn;
-//   *m *= *T;
+Arguments::Arguments(int ac, const char **av) :
+  argc(ac), argv(av), help(false)
+{
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-//   return m;
-// }
+  try {
+ po::options_description hidden("Positional arguments");
+    hidden.add_options()
+      ("layers", po::value<std::string>()->default_value(""), "Description of layers");
 
-// std::shared_ptr<TMatrixD> GetReflectionsR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-// 					  std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-// 					  const size_t order=1)
-// {
-//   assert(order==1 && "Orders > 1 not supported yet");
 
-//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*T);
+    //  options(argc, argv);
+  po::options_description generic("Generic options", w.ws_col);
+    generic.add_options()
+      ("help,h", "Show this help message and exit.")
+      ("test",  po::value<std::vector<size_t> >()->multitoken(), "Test number to run")
+      ;
 
-//   *m *= *Rn;
-//   *m *= *T;
+    std::array<std::string, 4> positional_args{"layers"};
+    po::positional_options_description p;
+    for (const std::string& pa : positional_args)
+      p.add(pa.data(), 1);
 
-//   return m;
-// }
+    po::options_description all_options("Usage: gam-solve [options] [layers]");
+    all_options.add(generic).add(hidden);
 
-// std::shared_ptr<TMatrixD> GetNextT(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-// 				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-// 				   const size_t order=1)
-// {
-//   // Calculate next iteration T matrix
+    //    po::store(po::parse_command_line(argc, argv, desc), vm);
+    auto parsed = po::command_line_parser(argc, argv).options(all_options).positional(p)
+      .style(po::command_line_style::allow_short |
+             po::command_line_style::short_allow_adjacent |
+             po::command_line_style::short_allow_next |
+             po::command_line_style::allow_long |
+             po::command_line_style::long_allow_adjacent |
+             po::command_line_style::long_allow_next |
+             po::command_line_style::allow_sticky |
+             po::command_line_style::allow_dash_for_short |
+             po::command_line_style::allow_long_disguise)
+      .run();
+  // for (const std::string& pa : positional_args)
+  //     {
+  //       auto it = std::find_if(parsed.options.begin(), parsed.options.end(),
+  //                              [&pa](po::option const& o) {
+  //                                return o.string_key == pa;
+  //                              });
+  //       if ((it == parsed.options.end()) && (pa!="gfile") && (pa!="ghist") ) // gfile and ghist are optional
+  //         {
+  //           std::cerr << "Error: Missing positional argument \"" <<
+  //             pa << "\"\n" << std::endl;
+  //           help=true;
+  //           break;
+  //         }
+  //     }
 
-//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*Tn);
+    po::store(parsed, vm);
+    try {
+      po::notify(vm);
+    } catch (boost::program_options::error& e) {
+      std::cout << "Error: " << e.what() << "\n";
+      exit(1);
+    }
 
-//   *m *= *T;
-//   *m += *GetReflectionsT(T, Tn, R, Rn, order);
+    if (help || vm.count("help"))
+      {
+        help = true;
+        std::stringstream stream;
+        stream << all_options;
+        std::string helpMsg = stream.str();
+        boost::algorithm::replace_all(helpMsg, "--", "-");
+	boost::algorithm::replace_all(helpMsg, "-layers", " layers");
+        std::cout << helpMsg << std::endl;
+        return;
+      }
+  }
+  catch(std::exception& e) {
+    std::cerr << "hplot ERROR: " << e.what() << "\n";
+    exit(1);
+  }
+  catch(...) {
+    std::cerr << "Exception of unknown type!\n";
+    exit(2);
+  }
 
-//   return m;
-// }
+  return;
+}
 
-// std::shared_ptr<TMatrixD> GetNextR(std::shared_ptr<TMatrixD> T,std::shared_ptr<TMatrixD> Tn,
-// 				   std::shared_ptr<TMatrixD> R,std::shared_ptr<TMatrixD> Rn,
-// 				   const size_t order=1)
-// {
-//   // Calculate next iteration R matrix
 
-//   std::shared_ptr<TMatrixD> m = std::make_shared<TMatrixD>(*R);
+bool test(size_t n, size_t nLayers)
+/*!
+  Run some tests
+ */
+{
+  bool val(false);
 
-//   *m += *GetReflectionsR(T, Tn, R, Rn, order);
+  //  std::shared_ptr<Material> m;
+  std::vector<std::shared_ptr<Material>> mat;
 
-//   return m;
-// }
+  auto mTest1 = std::make_shared<Material>("Test", "test/solver/test1.root", 1, 1);
+  auto mTest2 = std::make_shared<Material>("Test", "test/solver/test2.root", 2, 1);
+  auto mTest3 = std::make_shared<Material>("Test", "test/solver/test3.root", 3, 1);
+  auto mTest5 = std::make_shared<Material>("Test", "test/solver/test5.root", 4, 1);
+  auto mTest6 = std::make_shared<Material>("Test", "test/solver/test6.root", 5, 1);
 
-// void SaveMatrices(std::shared_ptr<TMatrixD> T, std::shared_ptr<TMatrixD> R,
-// 		  const char* fname="RT-cxx.root")
-// {
-//   TFile fout(fname, "recreate");
+  size_t ro=0; // reflection order
+  if (n==1) {
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest1);
+  } else if (n==2) {
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest2);
+  } else if (n==3) {
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest3);
+  } else if (n==4) {
+    ro = 1;
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest1);
+  } else if (n==5) {
+    ro = 1;
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest5);
+  } else if (n==6) {
+    ro = 1;
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest6);
+  } else {
+    std::cerr << "gam-solver: test error" << std::endl;
+    return false;
+  }
+  auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
+  solver->run(ro);
+  solver->save("res.root");
 
-//   std::shared_ptr<TH2D> hT = std::make_shared<TH2D>(*T.get());
-//   hT->SetName("T");
-//   std::shared_ptr<TH2D> hR = std::make_shared<TH2D>(*R.get());
-//   hR->SetName("R");
-
-//   hT->Write();
-//   hR->Write();
-//   fout.Close();
-// }
+  return val;
+}
 
 int main(int argc, const char **argv)
 {
+  std::unique_ptr<Arguments> args = std::make_unique<Arguments>(argc, argv);
+
+  if (args->IsHelp())
+    return 0;
+
+  if (args->IsTest()) {
+    auto t = args->GetMap()["test"].as<std::vector<size_t> >();
+    return test(t[0], t[1]);
+  }
+
+
   auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 48, 0.91);
   auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578);
   auto b4c = std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608);
@@ -99,47 +194,6 @@ int main(int argc, const char **argv)
   // tests
   if (argc==3) { // test nLayers
     //    std::cout << "test" << std::endl;
-    auto mTest1 = std::make_shared<Material>("Test", "test/solver/test1.root", 1, 1);
-    auto mTest2 = std::make_shared<Material>("Test", "test/solver/test2.root", 2, 1);
-    auto mTest3 = std::make_shared<Material>("Test", "test/solver/test3.root", 3, 1);
-    auto mTest5 = std::make_shared<Material>("Test", "test/solver/test5.root", 4, 1);
-    auto mTest6 = std::make_shared<Material>("Test", "test/solver/test6.root", 5, 1);
-    size_t ro=0; // reflection order
-    if (!strcmp(argv[1], "test1")) {
-      nLayers = atoi(argv[2]);
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest1);
-    } else if (!strcmp(argv[1], "test2")) {
-      nLayers = atoi(argv[2]);
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest2);
-    } else if (!strcmp(argv[1], "test3")) {
-      nLayers = atoi(argv[2]);
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest3);
-    } else if (!strcmp(argv[1], "test4")) {
-      nLayers = atoi(argv[2]);
-      ro = 1;
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest1);
-    } else if (!strcmp(argv[1], "test5")) {
-      nLayers = atoi(argv[2]);
-      ro = 1;
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest5);
-    } else if (!strcmp(argv[1], "test6")) {
-      nLayers = atoi(argv[2]);
-      ro = 1;
-      for (size_t i=0; i<nLayers; ++i)
-	mat.push_back(mTest6);
-    } else {
-      std::cerr << "usage: " << argv[0] << " test[123456] nLayers" << std::endl;
-      return 1;
-    }
-    auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
-    solver->run(ro);
-    solver->save("res.root");
-    return 0;
   }
 
   for (size_t i=0; i<nLayers; ++i)

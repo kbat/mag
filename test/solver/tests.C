@@ -90,15 +90,15 @@ int test1(const char *fname="test1.root")
   f.Close();
 
   // 1 layer
-  system("cd ../../ && ./gam-solve test1 1");
+  system("cd ../../ && ./gam-solve -test 1 1");
   sum += cmp2("test1", "../../res.root", "n", 1, 10, 14);
 
   // 2 layers
-  system("cd ../../ && ./gam-solve test1 2");
+  system("cd ../../ && ./gam-solve -test 1 2");
   sum += cmp2("test1", "../../res.root", "n", 2, 52, 76);
 
   // 3 layers
-  system("cd ../../ && ./gam-solve test1 3");
+  system("cd ../../ && ./gam-solve -test 1 3");
   sum += cmp2("test1", "../../res.root", "n", 3, 280, 408);
 
   if (sum!=0)
@@ -156,17 +156,17 @@ int test2(const char *fname="test2.root")
   f.Close();
 
   // 1 layer
-  system("cd ../../ && ./gam-solve test2 1");
+  system("cd ../../ && ./gam-solve -test 2 1");
   sum += cmp2("test2n", "../../res.root", "n", 1, 10, 14);
   sum +=   cmp2("test2e", "../../res.root", "e", 1, 14, 18);
 
   // 2 layers
-  system("cd ../../ && ./gam-solve test2 2");
+  system("cd ../../ && ./gam-solve -test 2 2");
   sum +=   cmp2("test2n", "../../res.root", "n", 2, 184, 240);
   sum +=   cmp2("test2e", "../../res.root", "e", 2, 240, 296);
 
   // 3 layers
-  system("cd ../../ && ./gam-solve test2 3");
+  system("cd ../../ && ./gam-solve -test 2 3");
   sum +=   cmp2("test2n", "../../res.root", "n", 3, 3104, 4064);
   sum +=   cmp2("test2e", "../../res.root", "e", 3, 4064, 5024);
 
@@ -239,19 +239,19 @@ int test3(const char *fname="test3.root")
   f.Close();
 
   // 1 layer
-  system("cd ../../ && ./gam-solve test3 1");
+  system("cd ../../ && ./gam-solve -test 3 1");
   sum +=   cmp4("test3n", "../../res.root", "n", 1, 144, 160, 176, 192);
   sum +=   cmp4("test3e", "../../res.root", "e", 1, 160, 176, 192, 208);
   sum +=   cmp4("test3p", "../../res.root", "p", 1, 176, 192, 208, 224);
 
   // 2 layers
-  system("cd ../../ && ./gam-solve test3 2");
+  system("cd ../../ && ./gam-solve -test 3 2");
   sum +=   cmp4("test3n", "../../res.root", "n", 2, 23424, 25632, 27840, 30048);
   sum +=   cmp4("test3e", "../../res.root", "e", 2, 25632, 27840, 30048, 32256);
   sum +=   cmp4("test3p", "../../res.root", "p", 2, 27840, 30048, 32256, 34464);
 
   // 3 layers
-  system("cd ../../ && ./gam-solve test3 3");
+  system("cd ../../ && ./gam-solve -test 3 3");
   sum +=   cmp4("test3n", "../../res.root", "n", 3, 3658752, 4006080, 4353408, 4700736);
   sum +=   cmp4("test3e", "../../res.root", "e", 3, 4006080, 4353408, 4700736, 5048064);
   sum +=   cmp4("test3p", "../../res.root", "p", 3, 4353408, 4700736, 5048064, 5395392);
@@ -271,15 +271,15 @@ int test4(const char *fname="test4.root")
   // No sence to make this test with 1 layer, so start with 2:
 
   // 2 layers
-  system("cd ../../ && ./gam-solve test4 2");
+  system("cd ../../ && ./gam-solve -test 4 2");
   sum += cmp2("test4", "../../res.root", "n", 2, 31156, 46428);
 
   // 3 layers
-  system("cd ../../ && ./gam-solve test4 3");
+  system("cd ../../ && ./gam-solve -test 4 3");
   sum += cmp2("test4", "../../res.root", "n", 3, 100958120, 150444472);
 
   // 4 layers
-  system("cd ../../ && ./gam-solve test4 4");
+  system("cd ../../ && ./gam-solve -test 4 4");
   sum += cmp2("test4", "../../res.root", "n", 4, 327143814608, 487498959984);
 
   if (sum!=0)
@@ -340,17 +340,17 @@ int test5(const char *fname="test5.root")
   f.Close();
 
   // 1 layer
-  system("cd ../../ && ./gam-solve test5 1");
+  system("cd ../../ && ./gam-solve -test 5 1");
   sum += cmp2("test5n", "../../res.root", "n", 1, 10, 14);
   sum += cmp2("test5e", "../../res.root", "e", 1, 14, 18);
 
   // 2 layers
-  system("cd ../../ && ./gam-solve test5 2");
+  system("cd ../../ && ./gam-solve -test 5 2");
   sum += cmp2("test5n", "../../res.root", "n", 2, 11452.48, 14951.36);
   sum += cmp2("test5e", "../../res.root", "e", 2, 14951.36, 18450.24);
 
   // 3 layers
-  system("cd ../../ && ./gam-solve test5 3");
+  system("cd ../../ && ./gam-solve -test 5 3");
   sum += cmp2("test5n", "../../res.root", "n", 3, 1.20698305024e+7, 1.57588614656e+7);
   sum += cmp2("test5e", "../../res.root", "e", 3, 1.57588614656e+7, 1.94478924288e+7);
 
@@ -440,12 +440,12 @@ int test6(const char *fname="test6.root")
 
 
   // 1 layer
-  system("cd ../../ && ./gam-solve test6 1");
+  system("cd ../../ && ./gam-solve -test 6 1");
   sum += cmp4("test6n", "../../res.root", "n", 1, 144, 160, 176, 192);
   sum += cmp4("test6e", "../../res.root", "e", 1, 160, 176, 192, 208);
   sum += cmp4("test6p", "../../res.root", "p", 1, 176, 192, 208, 224);
 
-  system("cd ../../ && ./gam-solve test6 2");
+  system("cd ../../ && ./gam-solve -test 6 2");
   sum += cmp4("test6n", "../../res.root", "n", 2, 8.871198719999999e7, 9.718025472e7, 1.0564852224e8, 1.141167897599999e8);
   sum += cmp4("test6p", "../../res.root", "p", 2, 1.0564852224e8, 1.141167897599999e8, 1.2258505728e8, 1.310533248e8);
   sum += cmp4("test6e", "../../res.root", "e", 2, 9.718025472e7, 1.0564852224e8, 1.141167897599999e8, 1.2258505728e8);
