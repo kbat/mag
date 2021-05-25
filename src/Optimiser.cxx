@@ -69,6 +69,26 @@ Optimiser::getLayers(const std::shared_ptr<Material>& m) const
 }
 
 std::vector<std::shared_ptr<Material>>
+Optimiser::getLayers(const std::shared_ptr<Material>& m1,
+		     const std::shared_ptr<Material>& m2,
+		     size_t j) const
+{
+  // Return vector of layers constructed by shuffling combinations the
+  // two materials m1 and m2.  Only layers of complexity 2 are taken
+  // into account.
+  // j : number of the boundary layer between two materials
+
+  std::vector<std::shared_ptr<Material>> layers;
+
+  if (m1!=m2)
+    for (size_t i=0; i<nLayers; ++i)
+      layers.push_back(i<=j ? m1 : m2);
+
+  return layers;
+}
+
+
+std::vector<std::shared_ptr<Material>>
 Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob) const
 {
   // Return vector of layers given the material probabilities
@@ -140,8 +160,6 @@ void Optimiser::run(size_t ngen)
   // Run calculation with uniform probabilities for different materials in the layers
   // ngen : number of generations to run
 
-  //  getLayers(*(++mat.begin()));
-
   std::vector<std::shared_ptr<Solver>> solutions;
 
   //  First, we create (but not run yet) solutions with homogenic materials:
@@ -152,13 +170,10 @@ void Optimiser::run(size_t ngen)
   		});
 
   // Next we shuffle combinations of two materials of complexity 2 in different proportions
-  for (size_t j=0; j<nLayers-1; ++j)
-    for (auto m1 : mat)
-      for (auto m2 : mat) {
-	std::vector<std::shared_ptr<Material>> layers;
-	for (size_t i=0; i<nLayers; ++i)
-	  if (m1!=m2)
-	    layers.push_back(i<=j ? m1 : m2);
+  for (auto m1 : mat)
+    for (auto m2 : mat)
+      for (size_t j=0; j<nLayers-1; ++j) {
+	std::vector<std::shared_ptr<Material>> layers = getLayers(m1, m2, j);
 	if (layers.size()) {
 	  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
 	  // for (auto l : layers)
@@ -167,6 +182,14 @@ void Optimiser::run(size_t ngen)
 	}
       }
 
+  const size_t N = solutions.size()+1;
+  std::cout << "Pre-defined generation size: " << N << std::endl;
+  const size_t ncores = std::thread::hardware_concurrency();
+  std::cout << "ncores: " << ncores << std::endl;
+  const size_t n = ncores-N%ncores;
+  std::cout << "Additional random population in order to fill all cores: " << n << std::endl;
+  std::cout << (N+n)%ncores << std::endl;
+  return;
 
   // Now we prepare the rest of the first generation with random materials
   for (size_t i=0; i<genSize; ++i) {
@@ -174,8 +197,6 @@ void Optimiser::run(size_t ngen)
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
-  const size_t ncores = std::thread::hardware_concurrency();
-  std::cout << "ncores: " << ncores << std::endl;
 
   for (size_t gen=1; gen<=ngen; ++gen) {
     std::cout << "Generation: " << gen << std::endl;

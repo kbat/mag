@@ -22,6 +22,8 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>>
     getLayers(const std::shared_ptr<Material>&) const;
   std::vector<std::shared_ptr<Material>>
+    getLayers(const std::shared_ptr<Material>&,const std::shared_ptr<Material>&, size_t) const;
+  std::vector<std::shared_ptr<Material>>
     getLayers(const std::map<std::shared_ptr<Material>, double>&) const;
   std::vector<std::shared_ptr<Material>> getLayers() const;
 
