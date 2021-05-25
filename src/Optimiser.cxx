@@ -18,14 +18,28 @@ Optimiser::Optimiser(const char p0,
   p0(p0), sdef(sdef), mat(mat), nLayers(nLayers)
 {
   RO = 1;
-  genSize = 50;
+  minRandomPopulation = 0;
   doseWeight = 1.0;
   massWeight = 0.0;
   compWeight = 0.0;
   inheritedFraction = 0.05;
   pMutation = 0.3;
+  nprint = 5;
 
   return;
+}
+
+void Optimiser::setMinRandomPopulation(size_t n)
+/*!
+  Set minimal random population size. Its default value is 0 and
+  it's OK to leave it to be zero since anyway a part of population will
+  become random (with probabilty pMutation) due to mutation in each generation.
+  Use this method in order to increase the size of random population already in the first
+  generation but be aware that too large fraction of random population will lead to inefficient
+  random search.
+ */
+{
+  minRandomPopulation = n;
 }
 
 bool Optimiser::checkSum(const std::map<std::shared_ptr<Material>, double>& prob) const
@@ -182,21 +196,26 @@ void Optimiser::run(size_t ngen)
 	}
       }
 
-  const size_t N = solutions.size()+1;
-  std::cout << "Pre-defined generation size: " << N << std::endl;
   const size_t ncores = std::thread::hardware_concurrency();
   std::cout << "ncores: " << ncores << std::endl;
-  const size_t n = ncores-N%ncores;
+
+  const size_t Nconst = solutions.size();
+  std::cout << "Pre-defined generation size: " << Nconst << std::endl;
+  // std::cout << "Min random population: " << minRandomPopulation << std::endl;
+  const size_t Ntot = Nconst + minRandomPopulation;
+  // std::cout << "Total pre-defined generation size: " << N << std::endl;
+  const size_t n = (ncores-Ntot%ncores)%ncores;
   std::cout << "Additional random population in order to fill all cores: " << n << std::endl;
-  std::cout << (N+n)%ncores << std::endl;
-  return;
+  // std::cout << (Ntot+n)%ncores << std::endl;
 
   // Now we prepare the rest of the first generation with random materials
-  for (size_t i=0; i<genSize; ++i) {
+  const size_t nRandom = minRandomPopulation+n;
+  for (size_t i=0; i<nRandom; ++i) {
     std::vector<std::shared_ptr<Material>> layers = getLayers();
     solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
   }
 
+  nprint == 0 ? solutions.size() : nprint;
 
   for (size_t gen=1; gen<=ngen; ++gen) {
     std::cout << "Generation: " << gen << std::endl;
@@ -218,7 +237,7 @@ void Optimiser::run(size_t ngen)
 	      });
 
     // print
-    const size_t n = solutions.size(); //std::min<size_t>(5, solutions.size());
+    const size_t n = std::min<size_t>(nprint, solutions.size());
     std::for_each(solutions.begin(), std::next(solutions.begin(), n),
     		  [&](auto &s){
     		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
@@ -234,7 +253,7 @@ void Optimiser::run(size_t ngen)
     std::cout << dur.count() << " sec" << std::endl;
 
     // leave only directly inherited solutions
-    size_t nInherited = genSize*inheritedFraction;
+    size_t nInherited = Ntot*inheritedFraction;
     if (nInherited==0)
       nInherited = 1;
 

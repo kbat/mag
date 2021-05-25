@@ -17,7 +17,7 @@ int main(int argc, const char **argv)
   auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 15;
+  const size_t nLayers = 6;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // must be < 1
@@ -34,7 +34,8 @@ int main(int argc, const char **argv)
 
   auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
   opt->setReflectionOrder(0);
-  opt->setGenSize(48); // 8*6 = 48
+  //  opt->setMinRandomPopulation(0);
+  opt->setNPrint(5); // number of best solutions printed after each generation
 
   opt->setDoseWeight(1.0);
   opt->setMassWeight(0.0);
@@ -50,7 +51,7 @@ int main(int argc, const char **argv)
   // prob.insert(std::make_pair(W, 0.6));
   // //prob.insert(std::make_pair(W1, 0.6));
 
-  opt->run(300); //, prob);
+  opt->run(3); //, prob);
   // std::cout << "Mass: " << opt->getMass() << std::endl;
   //  std::cout << opt->getDose() << "\t";
   // for (auto l : result)
