@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <string>
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -35,28 +36,27 @@ Arguments::Arguments(int ac, const char **av) :
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
   try {
- po::options_description hidden("Positional arguments");
+    po::options_description hidden("Positional arguments");
     hidden.add_options()
-      ("layers", po::value<std::string>()->default_value(""), "Description of layers");
+      ("layers", po::value<std::vector<std::string> >()->multitoken(),
+       "Description of layers, e.g. 10 Concrete 4 Poly");
 
 
     //  options(argc, argv);
   po::options_description generic("Generic options", w.ws_col);
     generic.add_options()
       ("help,h", "Show this help message and exit.")
-      ("test",  po::value<std::vector<size_t> >()->multitoken(), "Test number to run")
-      ;
+      ("test",  po::value<std::vector<size_t> >()->multitoken(),
+       "Test number followed by number of layers to run");
 
-    std::array<std::string, 4> positional_args{"layers"};
-    po::positional_options_description p;
-    for (const std::string& pa : positional_args)
-      p.add(pa.data(), 1);
+    po::positional_options_description pos;
+    pos.add("layers", -1);
 
     po::options_description all_options("Usage: gam-solve [options] [layers]");
     all_options.add(generic).add(hidden);
 
     //    po::store(po::parse_command_line(argc, argv, desc), vm);
-    auto parsed = po::command_line_parser(argc, argv).options(all_options).positional(p)
+    auto parsed = po::command_line_parser(argc, argv).options(all_options).positional(pos)
       .style(po::command_line_style::allow_short |
              po::command_line_style::short_allow_adjacent |
              po::command_line_style::short_allow_next |
@@ -114,6 +114,11 @@ Arguments::Arguments(int ac, const char **av) :
   return;
 }
 
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(),
+        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
 
 bool test(size_t n, size_t nLayers)
 /*!
@@ -176,34 +181,51 @@ int main(int argc, const char **argv)
     return test(t[0], t[1]);
   }
 
+  auto config = args->GetMap()["layers"].as<std::vector<std::string> >();
 
-  auto poly = std::make_shared<Material>("Polyethylene", "Poly.root", 48, 0.91);
-  auto concrete = std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578);
-  auto b4c = std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608);
-  auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
-  auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
+  size_t n(1);
+  std::vector<std::string> vlayers;
+  for (auto l : config)
+    {
+      if (is_number(l))
+	  n = std::stoi(l);
+      else
+	for (size_t i=0; i<n; ++i)
+	  vlayers.push_back(l);
+    }
 
-  size_t nLayers = argc == 2 ? atoi(argv[1]) : 10;
-  //  std::cout << "nLayers: " << nLayers << std::endl;
+  const size_t nLayers = vlayers.size();
+  std::cout << nLayers << (nLayers == 1 ? " layer: " : " layers: ");
+  for (auto l : vlayers)
+    std::cout << l << " ";
+  std::cout << std::endl;
+
+  std::map<std::string, std::shared_ptr<Material> > mat;
+  mat.insert(std::make_pair("Poly",
+				  std::make_shared<Material>("Poly", "Poly.root", 48, 0.91)));
+  mat.insert(std::make_pair("W",
+				  std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413)));
+  mat.insert(std::make_pair("Concrete",
+			    std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578)));
+  mat.insert(std::make_pair("B4C",
+			    std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608)));
+  mat.insert(std::make_pair("Stainless304",
+			    std::make_shared<Material>("Stainless304",
+						       "Stainless304.root", 3, 7.96703)));
+
   const char p0 = 'e'; // incident particle
   const double E0 = 3e3;
   const double mu0 = 0.999;
 
-  std::vector<std::shared_ptr<Material>> mat;
+  std::vector<std::shared_ptr<Material>> layers;
 
-  // tests
-  if (argc==3) { // test nLayers
-    //    std::cout << "test" << std::endl;
-  }
+  for (auto l : vlayers)
+    layers.push_back(mat[l]);
 
-  for (size_t i=0; i<nLayers; ++i)
-    mat.push_back(W);
-
-  auto sdef = mat[0]->getSDEF();
+  auto sdef = layers[0]->getSDEF();
   sdef->Fill(E0, mu0);
 
-
-  auto solver = std::make_shared<Solver>(p0, sdef, mat);
+  auto solver = std::make_shared<Solver>(p0, sdef, layers);
   solver->run(1);
   solver->save("res.root");
 
