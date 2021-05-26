@@ -24,7 +24,7 @@ obj/solve.o: src/solve.cxx
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-gam-solve: obj/solve.o obj/Source.o obj/Material.o obj/Solver.o obj/SolverArguments.o
+gam-solve: obj/solve.o obj/Test.o obj/Source.o obj/Material.o obj/Solver.o obj/SolverArguments.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -o $@
 
