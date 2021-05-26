@@ -31,6 +31,26 @@ int main(int argc, const char **argv)
     return test->run();
   }
 
+  std::map<std::string, std::shared_ptr<Material> > mat;
+  mat.insert(std::make_pair("Poly",
+				  std::make_shared<Material>("Poly", "Poly.root", 48, 0.91)));
+  mat.insert(std::make_pair("W",
+				  std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413)));
+  // mat.insert(std::make_pair("Concrete",
+  // 			    std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578)));
+  mat.insert(std::make_pair("B4C",
+			    std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608)));
+  mat.insert(std::make_pair("Stainless304",
+			    std::make_shared<Material>("Stainless304",
+						       "Stainless304.root", 3, 7.96703)));
+
+  if (args->IsMaterials()) {
+    std::cout << "Supported materials:" << std::endl;
+    for (auto m : mat)
+      std::cout << m.first << std::endl;
+    return 0;
+  }
+
   auto config = args->GetMap()["layers"].as<std::vector<std::string> >();
 
   size_t n(1);
@@ -50,18 +70,7 @@ int main(int argc, const char **argv)
     std::cout << l << " ";
   std::cout << std::endl;
 
-  std::map<std::string, std::shared_ptr<Material> > mat;
-  mat.insert(std::make_pair("Poly",
-				  std::make_shared<Material>("Poly", "Poly.root", 48, 0.91)));
-  mat.insert(std::make_pair("W",
-				  std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413)));
-  // mat.insert(std::make_pair("Concrete",
-  // 			    std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578)));
-  mat.insert(std::make_pair("B4C",
-			    std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608)));
-  mat.insert(std::make_pair("Stainless304",
-			    std::make_shared<Material>("Stainless304",
-						       "Stainless304.root", 3, 7.96703)));
+
 
   const char p0 = 'e'; // incident particle
   const double E0 = 3e3;

@@ -22,11 +22,13 @@ SolverArguments::SolverArguments(int ac, const char **av) :
   po::options_description generic("Generic options", w.ws_col);
     generic.add_options()
       ("help,h", "Show this help message and exit.")
+      ("materials", "Print supported materials")
       ("test",  po::value<std::vector<size_t> >()->multitoken(),
        "Test number followed by number of layers to run");
 
     po::positional_options_description pos;
     pos.add("layers", -1);
+    //    pos.add("materials", 0);
 
     po::options_description all_options("Usage: gam-solve [options] [layers]");
     all_options.add(generic).add(hidden);
@@ -66,6 +68,11 @@ SolverArguments::SolverArguments(int ac, const char **av) :
       exit(1);
     }
 
+    if (!vm.count("materials") && !vm.count("layers"))
+      {
+	std::cerr << "gam-solve: list of layers must be specified" << std::endl;
+	help = true;
+      }
     if (help || vm.count("help"))
       {
         help = true;
@@ -73,10 +80,11 @@ SolverArguments::SolverArguments(int ac, const char **av) :
         stream << all_options;
         std::string helpMsg = stream.str();
         boost::algorithm::replace_all(helpMsg, "--", "-");
-	boost::algorithm::replace_all(helpMsg, "-layers", " layers");
+	//	boost::algorithm::replace_all(helpMsg, "-layers", " layers");
         std::cout << helpMsg << std::endl;
         return;
       }
+
   }
   catch(std::exception& e) {
     std::cerr << "hplot ERROR: " << e.what() << "\n";
