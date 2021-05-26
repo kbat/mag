@@ -1,4 +1,6 @@
 # gam
+Get and untar the ROOT files with transport matrices: ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
+
 Run 20 layers of Tungsten followed by 4 layers of polyethylene:
 ```gam-solve 20 Tungsten 4 Poly```
 
