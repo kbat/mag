@@ -5,9 +5,9 @@
 
 Solver::Solver(const char p0,
 	       std::shared_ptr<TH2D> sdef,
-	       std::vector<std::shared_ptr<Material>>& mat) :
-  p0(p0), sdef(sdef), mat(mat), nLayers(mat.size()),
-  particles(mat[0]->getParticles())
+	       std::vector<std::shared_ptr<Material>>& layers) :
+  p0(p0), sdef(sdef), layers(layers), nLayers(layers.size()),
+  particles(layers[0]->getParticles())
 {
   done = false;
 }
@@ -24,7 +24,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 
   // sum up contributions to i from different incident particles j
   auto sum = [&] {
-	       tmp.clear(); // really needed?
+	       //tmp.clear(); // really needed?
 	       for (auto i : particles) {
 		 tmp[i] = std::make_shared<Source>(*R[i][i]);
 		 for (auto j : particles) {
@@ -38,7 +38,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   for (auto i : particles)   // incident
     for (auto j : particles) { // scored
       R[i][j] = std::make_shared<Source>(*result[i]);
-      *R[i][j] *= *mat[layer]->getR(i,j); // reflected back by the current layer
+      *R[i][j] *= *layers[layer]->getR(i,j); // reflected back by the current layer
     }
 
   sum();
@@ -48,7 +48,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   for (auto i : particles)
     for (auto j : particles) {
       R[i][j] = std::make_shared<Source>(*tmp[i]);
-      *R[i][j] *= *mat[layer-1]->getR(i,j);
+      *R[i][j] *= *layers[layer-1]->getR(i,j);
     }
 
   sum();
@@ -58,7 +58,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   for (auto i : particles)
     for (auto j : particles) {
       R[i][j] = std::make_shared<Source>(*tmp[i]);
-      *R[i][j] *= *mat[layer]->getT(i,j);
+      *R[i][j] *= *layers[layer]->getT(i,j);
     }
 
   sum();
@@ -81,7 +81,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 
   for (auto p : particles) {
     result.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
-    *result[p] *= *mat[layer]->getT(p0, p);
+    *result[p] *= *layers[layer]->getT(p0, p);
   }
 
   // Now result contains spectra of individual particles leaving the first layer
@@ -98,7 +98,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       for (auto j : particles) {// scored
 	transmitted[i].insert(std::make_pair(j,
 					     std::make_shared<Source>(*result[i])));
-	*transmitted[i][j] *= *mat[layer]->getT(i,j); // transmitted through the current layer
+	*transmitted[i][j] *= *layers[layer]->getT(i,j); // transmitted through the current layer
       }
 
     // reflections
@@ -346,7 +346,7 @@ double Solver::getMass() const
 {
   // Return sum of densities of all materials in the vector
 
-  return std::accumulate(mat.begin(), mat.end(), 0.0,
+  return std::accumulate(layers.begin(), layers.end(), 0.0,
 			 [](double prev, const auto m)
 			 { return prev+m->getDensity(); });
 }
@@ -357,9 +357,9 @@ size_t Solver::getComplexity() const
   // TODO: use stl
 
   size_t sum = 1; // to avoid division by 0 in homogenic layers
-  size_t n = mat.size();
+  size_t n = layers.size();
   for (size_t i=1; i<n; ++i) {
-    if (mat[i-1] != mat[i])
+    if (layers[i-1] != layers[i])
       sum++;
   }
 

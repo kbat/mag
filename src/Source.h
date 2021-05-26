@@ -16,6 +16,7 @@ class Source {
  public:
   Source(const TH2D* h);
   Source(const Source&);
+  //  virtual ~Source() { std::cout << "Source destructor" << std::endl; }
   std::shared_ptr<TH2D> Histogram(const std::string&) const;
   inline Int_t GetNrows() const { return vec->GetNrows(); }
   inline std::shared_ptr<TVectorD> GetVector() const { return vec; }
