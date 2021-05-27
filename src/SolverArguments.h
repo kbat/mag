@@ -16,7 +16,7 @@ public:
   po::variables_map GetMap() const { return &vm; }
   bool IsHelp() const { return help; }
   bool IsTest() const { return vm.count("test"); }
-  bool IsMaterials() const { return vm.count("materials"); }
+  bool IsMaterials() const { return vm.count("mat"); }
 };
 
 #endif

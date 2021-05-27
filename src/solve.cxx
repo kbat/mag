@@ -13,9 +13,23 @@
 #include "SolverArguments.h"
 
 bool is_number(const std::string& s)
+/*!
+  Check if a string is numeric.
+ */
 {
     return !s.empty() && std::find_if(s.begin(),
         s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
+void print_materials(std::set<std::shared_ptr<Material> >& matdb)
+/*!
+  Print material database.
+ */
+{
+    std::cout << "Supported materials: ";
+    for (auto m : matdb)
+      std::cout << m->getName() << " ";
+    std::cout << std::endl;
 }
 
 int main(int argc, const char **argv)
@@ -31,31 +45,22 @@ int main(int argc, const char **argv)
     return test->run();
   }
 
-  std::map<std::string, std::shared_ptr<Material> > mat;
-  mat.insert(std::make_pair("Poly",
-				  std::make_shared<Material>("Poly", "Poly.root", 48, 0.91)));
-  mat.insert(std::make_pair("W",
-				  std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413)));
-  // mat.insert(std::make_pair("Concrete",
-  // 			    std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578)));
-  mat.insert(std::make_pair("B4C",
-			    std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608)));
-  mat.insert(std::make_pair("Stainless304",
-			    std::make_shared<Material>("Stainless304",
-						       "Stainless304.root", 3, 7.96703)));
+  std::set<std::shared_ptr<Material> > matdb;
+  matdb.insert(std::make_shared<Material>("Poly", "Poly.root", 48, 0.91));
+  matdb.insert(std::make_shared<Material>("W", "Tungsten.root", 38, 19.413));
+  // matdb.insert(std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578));
+  matdb.insert(std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608));
+  matdb.insert(std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703));
 
   if (args->IsMaterials()) {
-    std::cout << "Supported materials:" << std::endl;
-    for (auto m : mat)
-      std::cout << m.first << std::endl;
+    print_materials(matdb);
     return 0;
   }
 
-  auto config = args->GetMap()["layers"].as<std::vector<std::string> >();
-
+  const auto layout = args->GetMap()["layers"].as<std::vector<std::string> >();
   size_t n(1);
   std::vector<std::string> vlayers;
-  for (auto l : config)
+  for (auto l : layout)
     {
       if (is_number(l))
 	  n = std::stoi(l);
@@ -64,22 +69,32 @@ int main(int argc, const char **argv)
 	  vlayers.push_back(l);
     }
 
+  std::vector<std::shared_ptr<Material>> layers;
+  for (auto l : vlayers) {
+    const auto m = std::find_if(matdb.begin(), matdb.end(),
+				[&l](std::shared_ptr<Material> m)
+				{return l == m->getName();});
+    if (m != matdb.end())
+      layers.push_back(*m);
+    else {
+      std::cerr << "Material " << l << " not found in the database. "
+	" Print known materials with " << argv[0] << " -mat" << std::endl;
+      return 1;
+    }
+  }
+
+  // print layer configuration
   const size_t nLayers = vlayers.size();
   std::cout << nLayers << (nLayers == 1 ? " layer: " : " layers: ");
   for (auto l : vlayers)
     std::cout << l << " ";
   std::cout << std::endl;
 
-
-
-  const char p0 = 'e'; // incident particle
-  const double E0 = 3e3;
-  const double mu0 = 0.999;
-
-  std::vector<std::shared_ptr<Material>> layers;
-
-  for (auto l : vlayers)
-    layers.push_back(mat[l]);
+  // get sdef
+  const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
+  const char p0 = vsdef[0][0];
+  const double E0 = std::stod(vsdef[1]);
+  const double mu0 = std::stod(vsdef[2]);
 
   auto sdef = layers[0]->getSDEF();
   sdef->Fill(E0, mu0);

@@ -5,6 +5,16 @@
 #include "SolverArguments.h"
 
 
+namespace std
+{
+  std::ostream& operator<<(std::ostream &os, const std::vector<std::string> &vec)
+  {
+    for (auto item : vec)
+      os << item << " ";
+    return os;
+  }
+}
+
 SolverArguments::SolverArguments(int ac, const char **av) :
   argc(ac), argv(av), help(false)
 {
@@ -12,26 +22,26 @@ SolverArguments::SolverArguments(int ac, const char **av) :
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
   try {
-    po::options_description hidden("Positional arguments");
-    hidden.add_options()
-      ("layers", po::value<std::vector<std::string> >()->multitoken(),
-       "Description of layers, e.g. 10 Concrete 4 Poly");
-
-
     //  options(argc, argv);
   po::options_description generic("Generic options", w.ws_col);
     generic.add_options()
       ("help,h", "Show this help message and exit.")
-      ("materials", "Print supported materials")
       ("test",  po::value<std::vector<size_t> >()->multitoken(),
-       "Test number followed by number of layers to run");
+       "Test number followed by number of layers to run")
+      ("mat", "Print supported materials")
+      ("sdef",  po::value<std::vector<std::string> >()->multitoken()->
+       default_value(std::vector<std::string>{"e","3e3","0.999"}),
+       "Source definition: PAR ERG DIR. PAR must be one of the particles ID "
+       "for which the transport matrices are calculated, ERG is in MeV, DIR must be within (0,1)")
+      ("layers", po::value<std::vector<std::string> >()->multitoken(),
+       "Description of layers, e.g. 10 Concrete 4 Poly");
 
     po::positional_options_description pos;
     pos.add("layers", -1);
-    //    pos.add("materials", 0);
+    //    pos.add("mat", 0);
 
     po::options_description all_options("Usage: gam-solve [options] [layers]");
-    all_options.add(generic).add(hidden);
+    all_options.add(generic);
 
     //    po::store(po::parse_command_line(argc, argv, desc), vm);
     auto parsed = po::command_line_parser(argc, argv).options(all_options).positional(pos)
@@ -68,7 +78,7 @@ SolverArguments::SolverArguments(int ac, const char **av) :
       exit(1);
     }
 
-    if (!vm.count("materials") && !vm.count("layers"))
+    if (!vm.count("mat") && !vm.count("layers"))
       {
 	std::cerr << "gam-solve: list of layers must be specified" << std::endl;
 	help = true;
@@ -80,7 +90,7 @@ SolverArguments::SolverArguments(int ac, const char **av) :
         stream << all_options;
         std::string helpMsg = stream.str();
         boost::algorithm::replace_all(helpMsg, "--", "-");
-	//	boost::algorithm::replace_all(helpMsg, "-layers", " layers");
+	//	boost::algorithm::replace_all(helpMsg, "-sdef arg", " sdef    ");
         std::cout << helpMsg << std::endl;
         return;
       }
