@@ -12,7 +12,7 @@ ROOTLIBS   := $(shell $(ROOTCONFIG) --libs)
 
 EIGENINC   := /usr/include/eigen3
 
-GCC         = g++ -std=c++17
+GCC         = clang++ -std=c++17
 
 CXXFLAGS := -g -Ofast -fno-math-errno -Wall
 
@@ -36,6 +36,17 @@ gam: obj/gam.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -ltbb -o $@
 
+valgrind: gam-solve
+	valgrind \
+	--tool=memcheck	\
+	--smc-check=all-non-file --error-limit=no --leak-check=yes --num-callers=2 \
+	--leak-check=full --track-origins=yes --show-leak-kinds=all \
+	--suppressions=${ROOTSYS}/etc/valgrind-root.supp \
+	./gam-solve -test 2 1
+
+	# valgrind --smc-check=all-non-file -v --error-limit=no --leak-check=yes --num-callers=50 \
+	# --leak-check=full --track-origins=yes --suppressions=${ROOTSYS}/etc/valgrind-root.supp \
+	# ./gam-solve -test 2 1
 
 clean:
 	rm -fv gam-solve obj/*.o
