@@ -36,15 +36,15 @@ SolverArguments::SolverArguments(int ac, const char **av) :
       ("layers", po::value<std::vector<std::string> >()->multitoken(),
        "Description of layers, e.g. 10 Concrete 4 Poly");
 
-    po::positional_options_description pos;
-    pos.add("layers", -1);
+    // po::positional_options_description pos;
+    // pos.add("layers", -1);
     //    pos.add("mat", 0);
 
     po::options_description all_options("Usage: gam-solve [options] [layers]");
     all_options.add(generic);
 
     //    po::store(po::parse_command_line(argc, argv, desc), vm);
-    auto parsed = po::command_line_parser(argc, argv).options(all_options).positional(pos)
+    auto parsed = po::command_line_parser(argc, argv).options(all_options) //.positional(pos)
       .style(po::command_line_style::allow_short |
              po::command_line_style::short_allow_adjacent |
              po::command_line_style::short_allow_next |
@@ -78,11 +78,18 @@ SolverArguments::SolverArguments(int ac, const char **av) :
       exit(1);
     }
 
-    if (!vm.count("mat") && !vm.count("layers"))
-      {
-	std::cerr << "gam-solve: list of layers must be specified" << std::endl;
-	help = true;
-      }
+    if ((vm.count("test")) && (vm["test"].as<std::vector<size_t> >().size()!=2)) {
+      std::cerr << "Wrong number of arguments for -test" << std::endl;
+      help = true;
+    }
+
+    if (!vm.count("test"))
+      if (!vm.count("mat") && !vm.count("layers"))
+	{
+	  std::cerr << "gam-solve: list of layers must be specified" << std::endl;
+	  help = true;
+	}
+
     if (help || vm.count("help"))
       {
         help = true;
