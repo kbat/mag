@@ -12,11 +12,10 @@ std::default_random_engine eng{std::random_device{}()};
 using Distribution = std::uniform_real_distribution<>;
 Distribution dist;
 
-Optimiser::Optimiser(const char p0,
-		     std::shared_ptr<TH2D> sdef,
-		     std::set<std::shared_ptr<Material>>& mat,
+Optimiser::Optimiser(const std::map<char, std::shared_ptr<TH2D>>& sdef,
+		     const std::set<std::shared_ptr<Material>>& mat,
 		     const size_t nLayers) :
-  p0(p0), sdef(sdef), mat(mat), nLayers(nLayers)
+  sdef(sdef), mat(mat), nLayers(nLayers)
 {
   RO = 1;
   minRandomPopulation = 0;
@@ -61,7 +60,7 @@ bool Optimiser::checkMat(const std::map<std::shared_ptr<Material>, double>& prob
 
   for (auto p : prob) {
     auto m = std::find_if(mat.begin(), mat.end(),
-  			  [&p](std::shared_ptr<Material> mm)
+  			  [&p](const auto &mm)
   			  {return mm == p.first;});
     if (m == mat.end()) {
       std::cerr << "Material " << p.first->getName() << " not found in the 'mat' set" << std::endl;
@@ -117,7 +116,7 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob) co
   // in order to sample probabilities
   std::map<std::shared_ptr<Material>, double> cumulative;
   double prev = 0.0;
-  for (auto m : prob) {
+  for (const auto m : prob) {
     prev += m.second;
     cumulative.insert(std::make_pair(m.first, prev));
   }
@@ -125,12 +124,12 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob) co
   std::vector<std::shared_ptr<Material>> layers;
 
   for (size_t i=0; i<nLayers; ++i) {
-    auto p = dist(eng, Distribution::param_type{0.0, 1.0});
-    for (auto mp : cumulative) { // mp: material, probability
+    const auto p = dist(eng, Distribution::param_type{0.0, 1.0});
+    for (const auto mp : cumulative) { // mp: material, probability
       if (p<mp.second) {
-  	auto m = std::find_if(mat.begin(), mat.end(),
-  			      [&mp](std::shared_ptr<Material> mm)
-  			      {return mm == mp.first;});
+  	const auto m = std::find_if(mat.begin(), mat.end(),
+				    [&mp](std::shared_ptr<Material> mm)
+				    {return mm == mp.first;});
   	// if (m == mat.end()) {
   	//   std::cerr << mp.first->getName() << " not found in the 'mat' set" << std::endl;
   	//   exit(1);
@@ -180,9 +179,9 @@ void Optimiser::run(size_t ngen)
 
   //  Solutions with homogenic materials:
   std::for_each(mat.begin(), mat.end(),
-  		[&](auto &m){
+  		[&](const auto &m){
   		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
-  		  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+  		  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   		});
 
   // We shuffle combinations of two materials of complexity 2 in different proportions
@@ -191,11 +190,11 @@ void Optimiser::run(size_t ngen)
       for (size_t j=0; j<nLayers-1; ++j) {
 	std::vector<std::shared_ptr<Material>> layers = getLayers(m1, m2, j);
 	if (layers.size())
-	  solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+	  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
       }
 
   const size_t ncores = tbb::task_scheduler_init::default_num_threads();
-  std::cout << "Number of cores: " << ncores << std::endl;
+  //  std::cout << "Number of cores: " << ncores << std::endl;
 
   const size_t Nconst = solutions.size();
   std::cout << "Pre-defined generation size: " << Nconst << std::endl;
@@ -203,14 +202,21 @@ void Optimiser::run(size_t ngen)
   const size_t Ntot = Nconst + minRandomPopulation;
   // std::cout << "Total pre-defined generation size: " << N << std::endl;
   const size_t n = (ncores-Ntot%ncores)%ncores;
-  std::cout << "Additional random population in order to fill all cores: " << n << std::endl;
+  std::cout << "Additional random population in order to fill all " << ncores << " cores: " << n << std::endl;
   // std::cout << (Ntot+n)%ncores << std::endl;
+
+  size_t nInherited = Ntot*inheritedFraction;
+  if (nInherited==0)
+    nInherited = 1;
+  std::cout << nInherited << " best layouts are inherited into the next generation,\n  the rest " << Ntot-nInherited <<
+    " are either mutated (with probability of " << pMutation <<")\n  or otherwise crossbreed in each generation." << std::endl;
+
 
   // Now we fill the rest of the first generation with solutions made from random materials
   const size_t nRandom = minRandomPopulation + n;
   for (size_t i=0; i<nRandom; ++i) {
     std::vector<std::shared_ptr<Material>> layers = getLayers();
-    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+    solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   }
 
   nprint == -1 ? solutions.size() : nprint;
@@ -239,32 +245,28 @@ void Optimiser::run(size_t ngen)
     // print
     const size_t n = std::min<size_t>(nprint, solutions.size());
     std::for_each(solutions.begin(), std::next(solutions.begin(), n),
-    		  [&](auto &s){
+    		  [&](const auto &s){
     		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
     			      << s->getMass() << "\t" << s->getComplexity() << "\t";
-    		    auto mat = s->getLayers();
+    		    const auto mat = s->getLayers();
     		    std::for_each(mat.begin(), mat.end(),
-    				  [](auto &m){std::cout << m->getID() << " ";});
+    				  [](const auto &m){std::cout << m->getID() << " ";});
     		    std::cout << std::endl;
     		  });
 
     // leave in the solutions vector only directly inherited solutions
     // the rest will be mutated or crossbreed
     if (gen!=ngen) {
-      size_t nInherited = Ntot*inheritedFraction;
-      if (nInherited==0)
-	nInherited = 1;
-
       // failed = not directly inherited -> crossover or mutation
       std::vector<std::shared_ptr<Solver>> failed;
-      auto it = std::next(solutions.begin(), nInherited);
+      const auto it = std::next(solutions.begin(), nInherited);
       std::move(it, solutions.end(), std::back_inserter(failed));
       solutions.erase(it, solutions.end());
 
       for (std::vector<std::shared_ptr<Solver>>::const_iterator
 	     it = failed.begin(); it!=failed.end(); it++)
 	{
-	  auto p = dist(eng, Distribution::param_type{0.0, 1.0});
+	  const auto p = dist(eng, Distribution::param_type{0.0, 1.0});
 	  std::vector<std::shared_ptr<Material>> layers;
 	  if (p<pMutation)
 	    layers = mutate(*it);
@@ -275,7 +277,7 @@ void Optimiser::run(size_t ngen)
 	  //   crossover(*solutions.begin(), *it) : crossover(*it, *std::prev(it));
 
 	  if (layers.size()!=0)
-	    solutions.emplace_back(std::make_shared<Solver>(p0, sdef, layers));
+	    solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
 	  else {
 	    std::cerr << "Error: empty layers" << std::endl;
 	    exit(1);
@@ -317,7 +319,7 @@ std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_pt
   std::vector<std::shared_ptr<Material>> layers; // TODO reserve (ant not push_back) - faster?
 
   for (size_t i=0; i<n; ++i) {
-    auto p = dist(eng, Distribution::param_type{0.0, 1.0}); // TODO: use int between 0 and 1
+    const auto p = dist(eng, Distribution::param_type{0.0, 1.0}); // TODO: use int between 0 and 1
     if (p<0.5)
       layers.push_back(l1[i]);
     else

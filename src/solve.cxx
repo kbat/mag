@@ -91,15 +91,23 @@ int main(int argc, const char **argv)
   std::cout << std::endl;
 
   // get sdef
+  std::map<char, std::shared_ptr<TH2D>> sdef;
+
   const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
-  const char p0 = vsdef[0][0];
-  const double E0 = std::stod(vsdef[1]);
-  const double mu0 = std::stod(vsdef[2]);
 
-  auto sdef = layers[0]->getSDEF();
-  sdef->Fill(E0, mu0);
+  if (vsdef.size()==3) {
+    const char p0 = vsdef[0][0];
+    const double E0 = std::stod(vsdef[1]);
+    const double mu0 = std::stod(vsdef[2]);
 
-  auto solver = std::make_shared<Solver>(p0, sdef, layers);
+    auto h2 = layers[0]->getSDEF();
+    h2->Reset(); // just to be sure it's empty
+    h2->Fill(E0, mu0);
+
+    sdef.insert(std::make_pair(p0, h2));
+  }
+
+  auto solver = std::make_shared<Solver>(sdef, layers);
   solver->run(1);
   solver->save("res.root");
 

@@ -17,22 +17,26 @@ int main(int argc, const char **argv)
   auto steel = std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703);
   auto W = std::make_shared<Material>("Tungsten", "Tungsten.root", 38, 19.413);
 
-  const size_t nLayers = 150;
+
+  std::set<std::shared_ptr<Material> > matdb;
+  matdb.insert(poly);
+  //  matdb.insert(concrete);
+  matdb.insert(b4c);
+  matdb.insert(steel);
+  matdb.insert(W);
+
+  std::map<char, std::shared_ptr<TH2D>> sdef;
+  const size_t nLayers = 6;
   const char p0 = 'e';
   const double E0 = 3e3;
   const double mu0 = 0.999; // 0 < mu0 < 1 (not <=)
 
-  std::set<std::shared_ptr<Material> > mat;
-  mat.insert(poly);
-  //  mat.insert(concrete);
-  mat.insert(b4c);
-  mat.insert(steel);
-  mat.insert(W);
+  auto h2 = (*matdb.begin())->getSDEF();
+  h2->Reset();
+  h2->Fill(E0, mu0);
+  sdef.insert(std::make_pair(p0, h2));
 
-  auto sdef = (*mat.begin())->getSDEF();
-  sdef->Fill(E0, mu0);
-
-  auto opt = std::make_unique<Optimiser>(p0, sdef, mat, nLayers);
+  auto opt = std::make_unique<Optimiser>(sdef, matdb, nLayers);
   opt->setReflectionOrder(0);
   //  opt->setMinRandomPopulation(0);
   opt->setNPrint(5); // number of best solutions printed after each generation

@@ -4,6 +4,8 @@
 #include "Material.h"
 #include "Solver.h"
 
+#include <TH1D.h>
+
 Test::Test(size_t n, size_t nLayers) :
   n(n), nLayers(nLayers)
 {
@@ -52,7 +54,10 @@ bool Test::run()
     return false;
   }
 
-  auto solver = std::make_shared<Solver>('n', mat[0]->getSDEF(), mat);
+  std::map<char, std::shared_ptr<TH2D>> sdef;
+  sdef.insert(std::make_pair('n', mat[0]->getSDEF()));
+
+  auto solver = std::make_shared<Solver>(sdef, mat);
   solver->run(ro);
   solver->save("res.root");
 

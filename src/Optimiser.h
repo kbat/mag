@@ -6,8 +6,7 @@
 
 class Optimiser {
  private:
-  const char p0; //< incident particle ID
-  const std::shared_ptr<TH2D> sdef; //< source definition
+  std::map<char, std::shared_ptr<TH2D>>  sdef;   ///< source definition
   std::set<std::shared_ptr<Material> > mat; //< library of materials
   const size_t nLayers; //< number of layers
   size_t RO;     //< Reflection Order
@@ -30,8 +29,8 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>> getLayers() const;
 
  public:
-  Optimiser(const char, std::shared_ptr<TH2D>,
-	    std::set<std::shared_ptr<Material> >&,
+  Optimiser(const std::map<char, std::shared_ptr<TH2D>>&,
+	    const std::set<std::shared_ptr<Material> >&,
 	    const size_t);
   void run(size_t);
   inline void setReflectionOrder(size_t ro) { RO = ro; }

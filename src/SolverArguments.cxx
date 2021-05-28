@@ -78,6 +78,13 @@ SolverArguments::SolverArguments(int ac, const char **av) :
       exit(1);
     }
 
+    const auto sdefSize = vm["sdef"].as<std::vector<std::string> >().size();
+
+    if ((sdefSize!=1) && (sdefSize!=3)) {
+      std::cerr << "Wrong number of arguments for -sdef: " << sdefSize << std::endl;
+      help = true;
+    }
+
     if ((vm.count("test")) && (vm["test"].as<std::vector<size_t> >().size()!=2)) {
       std::cerr << "Wrong number of arguments for -test" << std::endl;
       help = true;

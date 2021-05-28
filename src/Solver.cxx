@@ -3,22 +3,64 @@
 
 #include "Solver.h"
 
-Solver::Solver(const char p0,
-	       std::shared_ptr<TH2D> sdef,
-	       std::vector<std::shared_ptr<Material>>& layers) :
-  p0(p0), sdef(sdef), layers(layers), nLayers(layers.size()),
+Solver::Solver(const std::map<char, std::shared_ptr<TH2D>>&  sdef,
+	       const std::vector<std::shared_ptr<Material>>& layers) :
+  sdef(sdef), layers(layers), nLayers(layers.size()),
   particles(layers[0]->getParticles())
 {
+  if (!checkParticles())
+    exit(1);
+
+  // An empty source histogram for transported particles not present in the 'sdef' map
+  emptySDEF = std::make_shared<TH2D>(*(*sdef.begin()).second.get());
+  emptySDEF->Reset();
+
   done = false;
 }
 
-std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
+bool Solver::checkParticles() const
+/*!
+  Return false if SDEF contains non-transported particles
+*/
 {
-  // Implements the first-order reflection:
-  // reflect backwards from the current layer into the previous one;
-  // then reflect forward towards the current layer and transmit
-  // through the current layer
+  bool val = true;
+  for_each(sdef.begin(), sdef.end(),
+	   [&](const auto &s){
+	     if (!particles.count(s.first)) {
+	       std::cerr << "Error: SDEF contains non-transported particle: " << s.first << std::endl;
+	       val = false;
+	     }
+	   });
+  return val;
+}
 
+void Solver::fillSDEF()
+/*!
+ Fill the 'result' map with sdef histograms. For the particles present in 'sdef'
+ their corresponding histograms are used. For the other transported particles
+ a copy of an empty histogram (emptySDEF) is used.
+*/
+{
+  for_each(particles.begin(), particles.end(),
+	   [&](const auto &p){
+	     std::shared_ptr<TH2D> h = emptySDEF;
+	     auto s = std::find_if(sdef.begin(), sdef.end(),
+				   [&p](const auto &s){ return p == s.first; });
+	     if (s!=sdef.end())
+	       h = s->second;
+
+	     result.insert(std::make_pair(p, std::make_shared<Source>(h.get())));
+	   });
+}
+
+std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
+/*!
+  Implements the first-order reflection:
+  reflect backwards from the current layer into the previous one;
+  then reflect forward towards the current layer and transmit
+  through the current layer
+*/
+{
   std::map<char, std::map<char, std::shared_ptr<Source> > > R;
   std::map<char, std::shared_ptr<Source> >  tmp;
 
@@ -63,7 +105,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 
   sum();
 
-  return tmp; // std::move?
+  return tmp;
 }
 
 std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
@@ -73,22 +115,13 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
   if (done)
     return result;
 
-  size_t layer=0;
+  fillSDEF();
 
-  // LAYER 0
-  // incident particle is e, but we still need individual sources for each particle,
-  // they will be used at sources for the next layer
 
-  for (auto p : particles) {
-    result.insert(std::make_pair(p, std::make_shared<Source>(sdef.get())));
-    *result[p] *= *layers[layer]->getT(p0, p);
-  }
-
-  // Now result contains spectra of individual particles leaving the first layer
-  // transmitted[i][j]: transmitted spectra from incident particle i to j
-  std::map<char, std::shared_ptr<Source> > reflected;
-
-  for (size_t layer=1; layer<nLayers; ++layer) {
+  for (size_t layer=0; layer<nLayers; ++layer) {
+    // reflected spectra (if needed)
+    std::map<char, std::shared_ptr<Source> > reflected;
+    // transmitted[i][j]: transmitted spectra from incident particle i to j
     std::map<char, std::map<char, std::shared_ptr<Source> > > transmitted;
 
     // define all combinations of spectra after the 2nd layer
@@ -102,7 +135,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
       }
 
     // reflections
-    if (ro>=1)
+    if ((layer>0) && (ro>=1))
       reflected = reflect(layer);
 
     // add up spectra of each secondary particle produced by different incidents
@@ -114,7 +147,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	  *result[i] += *transmitted[j][i];
     }
 
-    if (ro>=1)
+    if ((layer>0) && (ro>=1))
       for (auto i : particles)
 	*result[i] += *reflected[i];
   }
@@ -128,11 +161,13 @@ void Solver::save(const std::string& fname) const
 {
   TFile fout(fname.data(), "recreate");
 
-  for (auto p : particles)
-    result.at(p)->Histogram(std::string(1, p))->Write();
+  for_each(particles.begin(), particles.end(),
+	   [&](const auto &p){
+	     auto h = result.at(p)->Histogram(std::string(1, p));
+	     h->Write();
+	   });
 
   fout.Close();
-
 }
 
 size_t Solver::getFTDbin(const double E, const std::vector<float>& ebins) const
@@ -308,17 +343,13 @@ double Solver::getDose() const
 
   //  return getDose('n');
 
-  double D = 0.0;
   // particles with flux-to-dose conversion factors available:
   static std::set<char> ftd {'n', 'p', 'e', '|', 'h'};
 
-  for (auto i : particles)
-    if (ftd.count(i)) {
-      double d = getDose(i);
-      D += d;
-    }
-
-  return D;
+  return std::accumulate(particles.begin(), particles.end(), 0.0,
+  		  [&](double prev, const auto p){
+  		    return ftd.count(p) ? prev+getDose(p) : prev;
+  		  });
 }
 
 double Solver::getDose(const char p) const
