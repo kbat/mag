@@ -35,11 +35,8 @@ Material::Material(const std::string& name,
     }
     delete obj;
   }
-  // sdef->Print();
-  // std::cout << n << " " << T.size() << " " << R.size() << std::endl;
-  // for (auto p : particles)
-  //   std::cout << p << " ";
-  // std::cout<<std::endl;
+
+  file.Close();
 }
 
 std::shared_ptr<TMatrixD> Material::h2m(const TH2D *h) const
