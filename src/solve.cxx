@@ -4,6 +4,8 @@
 
 #include <TROOT.h>
 #include <TH2D.h>
+#include <THnSparse.h>
+#include <TKey.h>
 #include <TFile.h>
 
 #include "Test.h"
@@ -31,6 +33,53 @@ void print_materials(std::set<std::shared_ptr<Material> >& matdb)
       std::cout << m->getName() << " ";
     std::cout << std::endl;
 }
+
+std::map<char, std::shared_ptr<TH2D>> fillSDEF(const std::string& fname)
+/*!
+  Read sdef tallies from the given file name and convert them into TH2D histograms
+ */
+{
+  const double epsilon = 1e-3;
+  std::map<char, std::shared_ptr<TH2D>> sdef;
+  const std::map<size_t,char> tallyDict = {{1,'n'}, {11,'p'}, {21,'e'}, {31,'|'} };
+
+  std::cout << fname << std::endl;
+
+  TFile file(fname.data());
+  TIter next(file.GetListOfKeys());
+
+  while (TKey *key = (TKey*)next()) {
+    TObject *obj = file.Get(key->GetName()); // copy object to memory
+    if (obj->InheritsFrom("THnSparseF")) {
+      const THnSparseF *f1 = dynamic_cast<THnSparseF*>(obj);
+      const std::string hname = f1->GetName();
+      std::string tnum = hname;
+      tnum.erase(0,1); // remove ^f
+      if (f1->GetAxis(0)->GetNbins() == 2) {
+	f1->GetAxis(0)->SetRange(2,2); // assume that 2nd bin is forward-going
+      }
+      f1->GetAxis(5)->SetRangeUser(epsilon, 1.0-epsilon); // forward bins only
+      auto h = f1->Projection(5,6);
+      h->SetDirectory(0);
+      try {
+	const char p0 = tallyDict.at(std::stoi(tnum));
+	//	h->SetName(std::string(1,p0).c_str());
+	h->SetName(&p0);
+	//	std::cout << h->GetName() << std::endl;
+	sdef.insert(std::make_pair(p0, std::make_shared<TH2D>(*h)));
+      } catch (...) {
+      	std::cout << "solve.cxx: error with " << hname << std::endl;
+      }
+      delete h; h = nullptr;
+    }
+    delete obj; obj = nullptr;
+  }
+
+  file.Close();
+
+  return sdef;
+}
+
 
 int main(int argc, const char **argv)
 {
@@ -95,7 +144,15 @@ int main(int argc, const char **argv)
 
   const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
 
-  if (vsdef.size()==3) {
+  if (vsdef.size()==1) {
+    sdef = fillSDEF(vsdef[0]);
+    std::cout << "Fluxes of " << sdef.size() << " sdef particles:\t" << std::flush;
+    std::for_each(sdef.begin(), sdef.end(),
+		  [](const auto& s) {
+		    std::cout << s.first << ": " << s.second->Integral() << "\t";
+		  });
+    std::cout << std::endl;
+  } else if (vsdef.size()==3) {
     const char p0 = vsdef[0][0];
     const double E0 = std::stod(vsdef[1]);
     const double mu0 = std::stod(vsdef[2]);
@@ -105,6 +162,9 @@ int main(int argc, const char **argv)
     h2->Fill(E0, mu0);
 
     sdef.insert(std::make_pair(p0, h2));
+  } else {
+    std::cerr << "solve.cxx: wrong sdef" << std::endl;
+    return 1;
   }
 
   auto solver = std::make_shared<Solver>(sdef, layers);
@@ -112,8 +172,9 @@ int main(int argc, const char **argv)
   solver->save("res.root");
 
   static std::set<char> ftd {'n', 'p', 'e', '|'};
+  std::cout << "\t\tDose rates:\t" << std::flush;
   for (auto p : ftd)
-    std::cout << p << " " << solver->getDose(p) << "\t";
+    std::cout << p << ": " << solver->getDose(p) << "\t";
 
   std::cerr << "total: " << solver->getDose() << std::endl;
 
