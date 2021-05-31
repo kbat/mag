@@ -25,6 +25,9 @@ class Material
   std::shared_ptr<TMatrixD> get(const std::string&) const;
   std::shared_ptr<TMatrixD> getT(const char, const char) const;
   std::shared_ptr<TMatrixD> getR(const char, const char) const;
+  // to prevent data loss conversion if size_t passed instead of char
+  std::shared_ptr<TMatrixD> getT(const size_t, const size_t) const = delete;
+  std::shared_ptr<TMatrixD> getR(const size_t, const size_t) const = delete;
   inline std::shared_ptr<TH2D> getSDEF() const { return sdef; }
   inline std::set<char> getParticles() const { return particles; }
   void print() const;
