@@ -101,11 +101,13 @@ int main(int argc, const char **argv)
   }
 
   std::set<std::shared_ptr<Material> > matdb;
-  matdb.insert(std::make_shared<Material>("Poly", "Poly.root", 48, 0.91));
-  matdb.insert(std::make_shared<Material>("W", "Tungsten.root", 38, 19.413));
-  // matdb.insert(std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578));
-  matdb.insert(std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608));
   matdb.insert(std::make_shared<Material>("Stainless304", "Stainless304.root", 3, 7.96703));
+  matdb.insert(std::make_shared<Material>("Water", "Water.root", 11, 1.0));
+  matdb.insert(std::make_shared<Material>("Lead", "Lead.root", 23, 11.1837));
+  matdb.insert(std::make_shared<Material>("W", "Tungsten.root", 38, 19.413));
+  matdb.insert(std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608));
+  matdb.insert(std::make_shared<Material>("Poly", "Poly.root", 48, 0.91));
+  matdb.insert(std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578));
 
   if (args->IsMaterials()) {
     print_materials(matdb);
