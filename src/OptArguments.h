@@ -18,6 +18,7 @@ public:
   bool IsMaterials() const { return vm.count("mat"); }
   size_t getNLayers() const { return vm["nlayers"].as<size_t>();   }
   size_t getNGen() const { return vm["ngen"].as<size_t>();   }
+  std::vector<std::string> getTail() const { return vm["tail"].as<std::vector<std::string>>();   }
 };
 
 #endif

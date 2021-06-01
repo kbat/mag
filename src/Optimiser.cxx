@@ -56,7 +56,7 @@ bool Optimiser::checkSum(const std::map<std::shared_ptr<Material>, double>& prob
 
 bool Optimiser::checkMat(const std::map<std::shared_ptr<Material>, double>& prob) const
 {
-  // Check if materals in the 'prob' map match to the 'mat' set
+  // Check if materals in the 'prob' map match the 'mat' set
 
   for (auto p : prob) {
     auto m = std::find_if(mat.begin(), mat.end(),
@@ -148,7 +148,7 @@ Optimiser::getLayers(const std::map<std::shared_ptr<Material>, double>& prob) co
 
 std::vector<std::shared_ptr<Material>> Optimiser::getLayers() const
 {
-  // Return vector of layers with uniform material probabilities
+  // Return vector of layers with uniform random material probabilities
 
   // non-normalised random uniform vector
   std::vector<double> vec(mat.size());
@@ -181,6 +181,7 @@ void Optimiser::run(size_t ngen)
   std::for_each(mat.begin(), mat.end(),
   		[&](const auto &m){
   		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
+		  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
   		  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   		});
 
@@ -189,8 +190,10 @@ void Optimiser::run(size_t ngen)
     for (auto m2 : mat)
       for (size_t j=0; j<nLayers-1; ++j) {
 	std::vector<std::shared_ptr<Material>> layers = getLayers(m1, m2, j);
-	if (layers.size())
+	if (layers.size()) {
+	  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
 	  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
+	}
       }
 
   const size_t ncores = tbb::task_scheduler_init::default_num_threads();
@@ -216,6 +219,7 @@ void Optimiser::run(size_t ngen)
   const size_t nRandom = minRandomPopulation + n;
   for (size_t i=0; i<nRandom; ++i) {
     std::vector<std::shared_ptr<Material>> layers = getLayers();
+    layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
     solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   }
 
@@ -304,7 +308,9 @@ std::vector<std::shared_ptr<Material>> Optimiser::mutate(const std::shared_ptr<S
   // diversity into the sampled population
 
   // just return new random layers
-  return getLayers();
+  auto layers = getLayers();
+  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
+  return layers;
 }
 
 std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_ptr<Solver>& s1,
@@ -314,7 +320,7 @@ std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_pt
 
   const std::vector<std::shared_ptr<Material>> l1 = s1->getLayers();
   const std::vector<std::shared_ptr<Material>> l2 = s2->getLayers();
-  const size_t n = l1.size();
+  const size_t n = nLayers;
 
   std::vector<std::shared_ptr<Material>> layers; // TODO reserve (ant not push_back) - faster?
 
@@ -325,6 +331,8 @@ std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_pt
     else
       layers.push_back(l2[i]);
   }
+
+  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
 
   return layers;
 }

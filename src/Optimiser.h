@@ -7,7 +7,8 @@
 class Optimiser {
  private:
   std::map<char, std::shared_ptr<TH2D>>  sdef;   ///< source definition
-  std::set<std::shared_ptr<Material> > mat; //< library of materials
+  std::set<std::shared_ptr<Material> > mat; //< library of materials to optimise
+  std::vector<std::shared_ptr<Material> > tail; //< fixed configuration of tail (not optimised)
   const size_t nLayers; //< number of layers
   size_t RO;     //< Reflection Order
   size_t minRandomPopulation;     //< number of solutions in a single generation
@@ -45,6 +46,7 @@ class Optimiser {
   std::vector<std::shared_ptr<Material>>
     crossover(const std::shared_ptr<Solver>&, const std::shared_ptr<Solver>&) const;
   inline void setNPrint(int n) { nprint =n ;}
+  inline void setTail(const std::vector<std::shared_ptr<Material>>& t) {tail = t;}
 };
 
 

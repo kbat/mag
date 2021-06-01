@@ -7,7 +7,16 @@
 #include "Optimiser.h"
 #include "OptArguments.h"
 
-void print_materials(const std::set<std::shared_ptr<Material> >& matdb)
+bool is_number(const std::string& s) // TODO: do not duplicate code with solve.cxx
+/*!
+  Check if a string is numeric.
+ */
+{
+    return !s.empty() && std::find_if(s.begin(),
+        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
+void print_materials(const std::set<std::shared_ptr<Material> >& matdb)// TODO: do not duplicate code with solve.cxx
 /*!
   Print material database.
  */
@@ -42,6 +51,39 @@ int main(int argc, const char **argv)
   }
 
 
+  ////////////////////////////////////////////////////////
+  // TODO: do not duplicate code with solve.cxx
+  const auto layout = args->getTail();
+  std::vector<std::shared_ptr<Material>> tail;
+  if (!layout[0].empty()) // tail is defined
+    {
+      size_t n(1);
+      std::vector<std::string> vtail;
+      for (auto l : layout)
+	{
+	  if (is_number(l))
+	    n = std::stoi(l);
+	  else
+	    for (size_t i=0; i<n; ++i)
+	      vtail.push_back(l);
+	}
+
+      for (auto l : vtail) {
+	const auto m = std::find_if(matdb.begin(), matdb.end(),
+				    [&l](std::shared_ptr<Material> m)
+				    {return l == m->getName();});
+	if (m != matdb.end())
+	  tail.push_back(*m);
+	else {
+	  std::cerr << "Material " << l << " not found in the database. "
+	    " Print known materials with " << argv[0] << " -mat" << std::endl;
+	  return 1;
+	}
+      }
+    }
+  ///////////////////////////////////////////////////////
+
+
   std::map<char, std::shared_ptr<TH2D>> sdef;
   const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
 
@@ -70,6 +112,7 @@ int main(int argc, const char **argv)
   }
 
   auto opt = std::make_unique<Optimiser>(sdef, matdb, args->getNLayers());
+  opt->setTail(tail);
   opt->setReflectionOrder(0);
   //  opt->setMinRandomPopulation(0);
   opt->setNPrint(5); // number of best solutions printed after each generation

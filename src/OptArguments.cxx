@@ -41,7 +41,10 @@ OptArguments::OptArguments(int ac, const char **av) :
        "Only bins with c>0 are taken into account "
        "(since we assume there is no material to reflect from before the 0th layer)")
       ("nlayers", po::value<size_t>(), "Number of layers to optimise [no default]")
-      ("ngen", po::value<size_t>()->default_value(10), "Number of generations to run");
+      ("ngen", po::value<size_t>()->default_value(1), "Number of generations to run")
+      ("tail", po::value<std::vector<std::string> >()->multitoken()->
+       default_value(std::vector<std::string>{""}),
+       "List of non-optimised layers to put in the tail.");
 
     // po::positional_options_description pos;
     // pos.add("layers", -1);
