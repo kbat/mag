@@ -43,8 +43,6 @@ std::map<char, std::shared_ptr<TH2D>> fillSDEF(const std::string& fname)
   std::map<char, std::shared_ptr<TH2D>> sdef;
   const std::map<size_t,char> tallyDict = {{1,'n'}, {11,'p'}, {21,'e'}, {31,'|'} };
 
-  std::cout << fname << std::endl;
-
   TFile file(fname.data());
   TIter next(file.GetListOfKeys());
 
@@ -88,9 +86,17 @@ int main(int argc, const char **argv)
   if (args->IsHelp())
     return 0;
 
+  // get sdef
+  std::map<char, std::shared_ptr<TH2D>> sdef;
+  const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
+
   if (args->IsTest()) {
     auto t = args->GetMap()["test"].as<std::vector<size_t> >();
     std::unique_ptr<Test> test = std::make_unique<Test>(t[0], t[1]);
+    if (vsdef.size()==1) {
+      sdef = fillSDEF(vsdef[0]);
+      test->setSDEF(sdef);
+    }
     return test->run();
   }
 
@@ -139,10 +145,7 @@ int main(int argc, const char **argv)
     std::cout << l << " ";
   std::cout << std::endl;
 
-  // get sdef
-  std::map<char, std::shared_ptr<TH2D>> sdef;
 
-  const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
 
   if (vsdef.size()==1) {
     sdef = fillSDEF(vsdef[0]);

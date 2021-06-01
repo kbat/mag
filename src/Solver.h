@@ -18,6 +18,7 @@ class Solver {
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
   std::map<char, std::shared_ptr<Source> > reflect(const size_t layer);
   bool checkParticles() const;
+  bool checkSDEF() const;
   void fillSDEF();
  public:
   Solver(const std::map<char, std::shared_ptr<TH2D>>&, const std::vector<std::shared_ptr<Material>> &);

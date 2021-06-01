@@ -527,6 +527,89 @@ dt2e + rft2e;
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: title   start ]
+Test 7: several particles in sdef.root, the rest is the same as test 6
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdefn: matrix([1,5,3,7])$
+sdefp: matrix([1,3,2,4])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Layer 0: directly transmitted (reflection not possible since there is no material before)
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef1n: sdefn.nTn + sdefp.pTn;
+sdef1p: sdefn.nTp + sdefp.pTp;
+sdef1e: sdefn.nTe + sdefp.pTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Layer 1: directly transmitted
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2n: sdef1n.nTn + sdef1p.pTn + sdef1e.eTn;
+dt2p: sdef1n.nTp + sdef1p.pTp + sdef1e.eTp;
+dt2e: sdef1n.nTe + sdef1p.pTe + sdef1e.eTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Layer 1: reflected back to layer 0
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rb2n: sdef1n.nRn + sdef1p.pRn + sdef1e.eRn;
+rb2p:  sdef1n.nRp + sdef1p.pRp + sdef1e.eRp;
+rb2e: sdef1n.nRe + sdef1p.pRe + sdef1e.eRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Reflected forward to layer 1
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rf2n: rb2n.nRn + rb2p.pRn + rb2e.eRn;
+rf2p: rb2n.nRp + rb2p.pRp + rb2e.eRp;
+rf2e: rb2n.nRe + rb2p.pRe + rb2e.eRe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Reflected particles transmitted through layer 1
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+rft2n: rf2n.nTn + rf2p.pTn + rf2e.eTn;
+rft2p: rf2n.nTp + rf2p.pTp + rf2e.eTp;
+rft2e: rf2n.nTe + rf2p.pTe + rf2e.eTe;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Sum of directly transmitted and reflected
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+dt2n + rft2n;
+dt2p + rft2p;
+dt2e + rft2e;
+/* [wxMaxima: input   end   ] */
+
+
 
 /* Old versions of Maxima abort on loading files that end in a comment. */
 "Created with wxMaxima 20.12.1"$

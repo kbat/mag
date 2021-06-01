@@ -11,11 +11,30 @@ Solver::Solver(const std::map<char, std::shared_ptr<TH2D>>&  sdef,
   if (!checkParticles())
     exit(1);
 
+  assert(checkSDEF());
+
   // An empty source histogram for transported particles not present in the 'sdef' map
   emptySDEF = std::make_shared<TH2D>(*(*sdef.begin()).second.get());
   emptySDEF->Reset();
 
   done = false;
+}
+
+bool Solver::checkSDEF() const
+/*!
+  Return false if any of the SDEF histograms is nullptr
+ */
+{
+  bool val = true;
+  for_each(sdef.begin(),sdef.end(),
+	   [&val](const auto& s) {
+	     if (s.second == nullptr) {
+	       std::cerr << "Error: nullptr passed as SDEF histogram for " << s.first << std::endl;
+	       val = false;
+	     }
+	   });
+
+  return val;
 }
 
 bool Solver::checkParticles() const

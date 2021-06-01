@@ -26,6 +26,7 @@ bool Test::run()
   auto mTest3 = std::make_shared<Material>("Test", "test/solver/test3.root", 3, 1);
   auto mTest5 = std::make_shared<Material>("Test", "test/solver/test5.root", 4, 1);
   auto mTest6 = std::make_shared<Material>("Test", "test/solver/test6.root", 5, 1);
+  auto mTest7 = std::make_shared<Material>("Test", "test/solver/test7.root", 5, 1);
 
   size_t ro=0; // reflection order
   if (n==1) {
@@ -49,13 +50,20 @@ bool Test::run()
     ro = 1;
     for (size_t i=0; i<nLayers; ++i)
       mat.push_back(mTest6);
+  } else if (n==7) {
+    ro = 1;
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest7);
   } else {
     std::cerr << "gam-solver: test error" << std::endl;
     return false;
   }
 
   std::map<char, std::shared_ptr<TH2D>> sdef;
-  sdef.insert(std::make_pair('n', mat[0]->getSDEF()));
+  if (getSDEF().size())
+    sdef = getSDEF();
+  else
+    sdef.insert(std::make_pair('n', mat[0]->getSDEF()));
 
   auto solver = std::make_shared<Solver>(sdef, mat);
   solver->run(ro);

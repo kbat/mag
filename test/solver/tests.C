@@ -2,6 +2,58 @@
 
 const double epsilon = 0.01;
 
+void makeSDEF()
+{
+  const double fEdges[3] = {0, 0.5, 1.0};
+  const double dEdges[2] = {0, 1.0};
+  const double uEdges[2] = {0, 1.0};
+  const double sEdges[2] = {0, 1.0};
+  const double mEdges[2] = {0, 1.0};
+  const double cEdges[3] = {0, 0.5, 1.0};
+  const double eEdges[3] = {0, 1.0, 2.0};
+  const double tEdges[2] = {0, 1.0};
+  Int_t bins[8] = {2, 1, 1, 1, 1, 2, 2, 1};
+  Double_t *value = new Double_t[8];
+
+  auto f1 = std::make_shared<THnSparseF>("f1", "n", 8, bins);
+  f1->SetBinEdges(0, fEdges);
+  f1->SetBinEdges(1, dEdges);
+  f1->SetBinEdges(2, uEdges);
+  f1->SetBinEdges(3, sEdges);
+  f1->SetBinEdges(4, mEdges);
+  f1->SetBinEdges(5, cEdges);
+  f1->SetBinEdges(6, eEdges);
+  f1->SetBinEdges(7, tEdges);
+
+  // neutrons
+  const Int_t idx11[] = {2,1,1,1,1,1,1,1};
+  f1->SetBinContent(idx11, 1);
+
+  const Int_t idx12[] = {2,1,1,1,1,2,1,1};
+  f1->SetBinContent(idx12, 3);
+
+  const Int_t idx21[] = {2,1,1,1,1,1,2,1};
+  f1->SetBinContent(idx21, 5);
+
+  const Int_t idx22[] = {2,1,1,1,1,2,2,1};
+  f1->SetBinContent(idx22, 7);
+
+  auto f11 = dynamic_cast<THnSparseF*>(f1->Clone("f11"));
+  f11->SetTitle("p");
+  f11->SetBinContent(idx11, 1);
+  f11->SetBinContent(idx12, 2);
+  f11->SetBinContent(idx21, 3);
+  f11->SetBinContent(idx22, 4);
+
+  //  f1->Projection(5,6)->Draw("text, col");
+
+  TFile fout("sdef.root", "recreate");
+  f1->Write();
+  f11->Write();
+  fout.Close();
+
+}
+
 bool cmp2(const char *title,
 	 const char *fname, const char *hname, const size_t nlayers, const double v1, const double v2)
 {
@@ -453,6 +505,102 @@ int test6(const char *fname="test6.root")
   return sum;
 }
 
+int test7(const char *fname="test7.root")
+{
+  /*
+    Same as test6 but 3 particles in SDEF: n, p and e
+   */
+
+  makeSDEF();
+
+  Int_t sum = 0;
+
+  const Int_t nx = 2;
+  const Int_t ny = 2;
+
+  TFile f(fname, "recreate");
+
+  // TH2D sdef("sdef", "sdef;Energy;#mu", nx, 0, nx, ny, 0, 1);
+  // sdef.SetBinContent(1,1,1);
+  // sdef.SetBinContent(1,2,3);
+  // sdef.SetBinContent(2,1,5);
+  // sdef.SetBinContent(2,2,7);
+
+
+  const Int_t n = nx*ny;
+
+  TH2D nTn("nTn", "nTn", n, 0, n, n, 0, n);
+  TH2D nTe("nTe", "nTe", n, 0, n, n, 0, n);
+  TH2D nTp("nTp", "nTp", n, 0, n, n, 0, n);
+
+  TH2D eTn("eTn", "eTn", n, 0, n, n, 0, n);
+  TH2D eTe("eTe", "eTe", n, 0, n, n, 0, n);
+  TH2D eTp("eTp", "eTp", n, 0, n, n, 0, n);
+
+  TH2D pTn("pTn", "pTn", n, 0, n, n, 0, n);
+  TH2D pTe("pTe", "pTe", n, 0, n, n, 0, n);
+  TH2D pTp("pTp", "pTp", n, 0, n, n, 0, n);
+
+  TH2D nRn("nRn", "nRn", n, 0, n, n, 0, n);
+  TH2D nRe("nRe", "nRe", n, 0, n, n, 0, n);
+  TH2D nRp("nRp", "nRp", n, 0, n, n, 0, n);
+
+  TH2D eRn("eRn", "eRn", n, 0, n, n, 0, n);
+  TH2D eRe("eRe", "eRe", n, 0, n, n, 0, n);
+  TH2D eRp("eRp", "eRp", n, 0, n, n, 0, n);
+
+  TH2D pRn("pRn", "pRn", n, 0, n, n, 0, n);
+  TH2D pRe("pRe", "pRe", n, 0, n, n, 0, n);
+  TH2D pRp("pRp", "pRp", n, 0, n, n, 0, n);
+
+  Int_t k=1;
+  for (Int_t j=1; j<=n; ++j)
+    for (Int_t i=1; i<=n; ++i) {
+      nTn.SetBinContent(i,j,k);
+      nTe.SetBinContent(i,j,k+1);
+      nTp.SetBinContent(i,j,k+2);
+
+      eTn.SetBinContent(i,j,k+3);
+      eTe.SetBinContent(i,j,k+4);
+      eTp.SetBinContent(i,j,k+5);
+
+      pTn.SetBinContent(i,j,k+6);
+      pTe.SetBinContent(i,j,k+7);
+      pTp.SetBinContent(i,j,k+8);
+
+      nRn.SetBinContent(i,j,k/10.0);
+      nRe.SetBinContent(i,j,k/10.0+1);
+      nRp.SetBinContent(i,j,k/10.0+2);
+
+      eRn.SetBinContent(i,j,k/10.0+3);
+      eRe.SetBinContent(i,j,k/10.0+4);
+      eRp.SetBinContent(i,j,k/10.0+5);
+
+      pRn.SetBinContent(i,j,k/10.0+6);
+      pRe.SetBinContent(i,j,k/10.0+7);
+      pRp.SetBinContent(i,j,k/10.0+8);
+
+      k++;
+    }
+  f.Write();
+  f.Close();
+
+
+  // 1 layer
+  system("cd ../../ && ./gam-solve -sdef test/solver/sdef.root -test 7 1");
+  sum += cmp4("test7n", "../../res.root", "n", 1, 290, 316, 342, 368);
+  sum += cmp4("test7p", "../../res.root", "p", 1, 342, 368, 394, 420);
+  sum += cmp4("test7e", "../../res.root", "e", 1, 316, 342, 368, 394);
+
+  // 2 layers
+  system("cd ../../ && ./gam-solve -sdef test/solver/sdef.root -test 7 2");
+  sum += cmp4("test7n", "../../res.root", "n", 2, 1.70083008e8, 1.863192143999999e8, 2.025554207999999e8,2.187916272e8);
+  sum += cmp4("test7p", "../../res.root", "p", 2, 2.025554207999999e8, 2.187916272e8, 2.350278335999999e8, 2.5126404e8);
+  sum += cmp4("test7e", "../../res.root", "e", 2, 1.863192143999999e8, 2.025554207999999e8, 2.187916272e8, 2.350278335999999e8);
+
+  return sum;
+}
+
 
 int tests()
 {
@@ -463,6 +611,7 @@ int tests()
   sum += test4("test1.root");
   sum += test5("test5.root");
   sum += test6("test6.root");
+  sum += test7("test7.root"); // multiple particles in sdef
 
   if (sum == 0)
     std::cout << "All tests passed" << std::endl;
