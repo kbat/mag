@@ -32,7 +32,7 @@ obj/gam.o: src/gam.cxx
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-gam: obj/gam.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o
+gam: obj/gam.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o obj/OptArguments.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -ltbb -o $@
 
