@@ -15,7 +15,7 @@ class Optimiser {
   double doseWeight;  //< dose weight in objective function
   double massWeight;  //< mass weight in objective function
   double compWeight;  //< complexity weight in objective function
-  double inheritedFraction; //< fraction of solutions directly inherited to the next generation
+  size_t nInherited; //< number of solutions directly inherited into the next generation
   double pMutation; //< mutation probability (crossover = 1 - pMutation)
   int    nprint;    //< number of best solutions printed at each generation
 
@@ -39,7 +39,7 @@ class Optimiser {
   inline void setDoseWeight(double w) { doseWeight = w; }
   inline void setMassWeight(double w) { massWeight = w; }
   inline void setComplexityWeight(double w) { compWeight = w; }
-  inline void setInheritedFraction(double f) { inheritedFraction = f; }
+  inline void setNInherited(size_t n) { nInherited = n; }
   inline void setPMutation(double val) { pMutation = val; }
   double getFitness(const std::shared_ptr<Solver>&) const;
   std::vector<std::shared_ptr<Material>> mutate(const std::shared_ptr<Solver>&) const;

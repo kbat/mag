@@ -22,7 +22,7 @@ Optimiser::Optimiser(const std::map<char, std::shared_ptr<TH2D>>& sdef,
   doseWeight = 1.0;
   massWeight = 0.0;
   compWeight = 0.0;
-  inheritedFraction = 0.05;
+  nInherited = 2;
   pMutation = 0.3;
   nprint = -1;
 
@@ -208,9 +208,6 @@ void Optimiser::run(size_t ngen)
   std::cout << "Additional random population in order to fill all " << ncores << " cores: " << n << std::endl;
   // std::cout << (Ntot+n)%ncores << std::endl;
 
-  size_t nInherited = Ntot*inheritedFraction;
-  if (nInherited==0)
-    nInherited = 1;
   std::cout << nInherited << " best layouts are inherited into the next generation,\n  the rest " << Ntot-nInherited <<
     " are either mutated (with probability of " << pMutation <<")\n  or otherwise crossbreed in each generation." << std::endl;
 

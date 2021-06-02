@@ -121,7 +121,7 @@ int main(int argc, const char **argv)
   opt->setMassWeight(0.0);
   opt->setComplexityWeight(0.0);
 
-  // opt->setInheritedFraction(0.07); // 0.05
+  opt->setNInherited(2); // 0.05
   // opt->setPMutation(0.1); // 0.3
 
   opt->run(args->getNGen()); //, prob);

@@ -49,4 +49,4 @@ valgrind: gam-solve
 	# ./gam-solve -test 2 1
 
 clean:
-	rm -fv gam-solve obj/*.o
+	rm -fv gam gam-solve obj/*.o
