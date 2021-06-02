@@ -16,9 +16,10 @@ public:
   po::variables_map GetMap() const { return &vm; }
   bool IsHelp() const { return help; }
   bool IsMaterials() const { return vm.count("mat"); }
-  size_t getNLayers() const { return vm["nlayers"].as<size_t>();   }
-  size_t getNGen() const { return vm["ngen"].as<size_t>();   }
-  std::vector<std::string> getTail() const { return vm["tail"].as<std::vector<std::string>>();   }
+  size_t getNLayers() const { return vm["nlayers"].as<size_t>(); }
+  size_t getNGen() const { return vm["ngen"].as<size_t>(); }
+  size_t getNPrint() const { return vm["nprint"].as<size_t>(); }
+  std::vector<std::string> getTail() const { return vm["tail"].as<std::vector<std::string>>(); }
 };
 
 #endif

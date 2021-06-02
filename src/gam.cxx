@@ -115,7 +115,7 @@ int main(int argc, const char **argv)
   opt->setTail(tail);
   opt->setReflectionOrder(0);
   //  opt->setMinRandomPopulation(0);
-  opt->setNPrint(5); // number of best solutions printed after each generation
+  opt->setNPrint(args->getNPrint()); // number of best solutions printed after each generation
 
   opt->setDoseWeight(1.0);
   opt->setMassWeight(0.0);
