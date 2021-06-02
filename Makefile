@@ -12,7 +12,7 @@ ROOTLIBS   := $(shell $(ROOTCONFIG) --libs)
 
 EIGENINC   := /usr/include/eigen3
 
-GCC         = clang++ -std=c++17
+GCC         = g++ -std=c++17
 
 CXXFLAGS := -g -Ofast -fno-math-errno -Wall
 
@@ -26,7 +26,7 @@ obj/solve.o: src/solve.cxx
 
 gam-solve: obj/solve.o obj/SDEF.o obj/Test.o obj/Source.o obj/Material.o obj/Solver.o obj/SolverArguments.o
 	@echo "Linking $@"
-	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -o $@
+	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -L$(HOME)/.conda/envs/WORK/lib -lboost_program_options -o $@
 
 obj/gam.o: src/gam.cxx
 	@echo "Compiling $@"
@@ -34,7 +34,7 @@ obj/gam.o: src/gam.cxx
 
 gam: obj/gam.o obj/SDEF.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o obj/OptArguments.o
 	@echo "Linking $@"
-	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -lboost_program_options -ltbb -o $@
+	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -L$(HOME)/.conda/envs/WORK/lib -lboost_program_options -ltbb -o $@
 
 valgrind: gam-solve
 	valgrind \
