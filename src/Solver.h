@@ -36,6 +36,7 @@ class Solver {
   double getMass() const;
   size_t getComplexity() const;
   inline std::vector<std::shared_ptr<Material>> getLayers() const {return layers;}
+  bool operator==(const Solver& rhs);
 };
 
 

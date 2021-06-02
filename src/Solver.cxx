@@ -415,3 +415,22 @@ size_t Solver::getComplexity() const
 
   return sum;
 }
+
+bool Solver::operator==(const Solver& rhs)
+{
+  //  std::cout << "comparing" << std::endl;
+  const auto rlayers = rhs.getLayers();
+  const size_t n = rlayers.size();
+
+  const auto llayers = getLayers();
+
+  if (llayers.size() != n)
+    return false;
+
+  for (size_t i=0; i<n; ++i) {
+    if (llayers[i]->getID() != rlayers[i]->getID())
+      return false;
+  }
+
+  return true;
+}
