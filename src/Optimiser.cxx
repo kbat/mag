@@ -243,6 +243,9 @@ void Optimiser::run(size_t ngen)
 		return (getFitness(l)<getFitness(r));
 	      });
 
+    // remove duplicates
+    purge(solutions);
+
     // print
     const size_t n = std::min<size_t>(nprint, solutions.size());
     std::for_each(solutions.begin(), std::next(solutions.begin(), n),
@@ -332,4 +335,18 @@ std::vector<std::shared_ptr<Material>> Optimiser::crossover(const std::shared_pt
   layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
 
   return layers;
+}
+
+void Optimiser::purge(std::vector<std::shared_ptr<Solver>>& solutions)
+/*!
+  Remove duplicate layers in the *sorted* vector of solutions
+ */
+{
+  for (std::vector<std::shared_ptr<Solver>>::const_iterator
+	 it = solutions.begin(); it!=solutions.end(); it++)
+      {
+	if (std::next(it) != solutions.end())
+	  if (*(*it) == *(*std::next(it)))
+	    solutions.erase(it);
+      }
 }

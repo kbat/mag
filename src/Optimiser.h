@@ -47,6 +47,7 @@ class Optimiser {
     crossover(const std::shared_ptr<Solver>&, const std::shared_ptr<Solver>&) const;
   inline void setNPrint(int n) { nprint =n ;}
   inline void setTail(const std::vector<std::shared_ptr<Material>>& t) {tail = t;}
+  void purge(std::vector<std::shared_ptr<Solver>>&);
 };
 
 
