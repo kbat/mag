@@ -21,10 +21,11 @@ void print_materials(const std::set<std::shared_ptr<Material> >& matdb)// TODO: 
   Print material database.
  */
 {
-    std::cout << "Supported materials: ";
+  std::cout << "Supported materials:" << std::endl;
     std::for_each(matdb.begin(), matdb.end(),
 	     [](const auto &m) {
-	       std::cout << m->getName() << " ";
+	       // TODO: use C++-20 and std::format
+	       std::cout << m->getID() << " " << m->getName() << " " << m->getDensity() << std::endl;;
 	     });
     std::cout << std::endl;
 }

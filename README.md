@@ -24,6 +24,13 @@ by a list of five best solutions, e.g.
 Generation: 1
 2.17279 sec
 Fitness         Dose            Mass    Complexity Materials
+0.185034 194.13 1         38 38 38 38 38 38 38 38 38 38
+0.228578 0.228578 185.901 2         38 38 38 38 38 38 38 38 38 23
+0.251875 0.251875 185.901 2         23 38 38 38 38 38 38 38 38 38
+0.255914 0.255914 182.684 2         38 38 38 38 38 38 38 38 38 3
+0.282889 0.282889 177.223 2         38 38 38 38 38 38 38 38 38 47
+
+
 0.185034        0.185034        194.13  1          38 38 38 38 38 38 38 38 38 38
 0.228578        0.228578        185.901 2          38 38 38 38 38 38 38 38 38 23
 0.251875        0.251875        185.901 2          23 38 38 38 38 38 38 38 38 38
@@ -46,3 +53,5 @@ Fitness         Dose            Mass    Complexity Materials
   thickness of 1 cm).  Actually, since our problem is 2D, the layer is
   infinite in the directions perpendicular to the beam, therefore its
   mass is infinite.
+* **Complexity** is number of material changes in the material list
+* **Materials** list of material numbers for each layer. Material numbers can be printed with ``gam -mat``
