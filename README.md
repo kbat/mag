@@ -4,13 +4,14 @@ The code in this repository implements methodology described in
 [https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339)
 and extended to support the transport of multiple particle types.
 
-Currently, for particle types are transported: e, n, p, and |.
+Currently, four particle types are transported: e, n, p, and |.
 
 There are two executables: solver (`gam-solve`) and optimiser (`gam`).
 
 They need these [ROOT](https://root.cern) data files with
-pre-calculated transport matrices: ```scp
-clu0-fe-0:~konbat/mat.tar.bz2 .```
+pre-calculated transport matrices:
+
+```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
 
 ## Solver
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
@@ -22,7 +23,7 @@ Each layer is 1 cm thick.
 The output shows the layer configuration and dose rates for each transported particle type:
 ```
 24 layers: W W W W W W W W W W W W W W W W W W W W Poly Poly Poly Poly
-                Dose rates:     e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  total: 0.00764416
+Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  total: 0.00764416
 ```
 
 
@@ -31,7 +32,7 @@ Optimise materials of 10 layers to minimise the figure of merit:
 
 ```./gam -nlayers 10 -ngen 2```
 
-With 10 layers, the code runs approximately 180 configurations for each generation,
+With 10 layers and 5 known materials, the code runs approximately 180 configurations for each generation,
 with the exact number depending on the available number of cores.
 
 The output for each generation consists of the runtime line followed
