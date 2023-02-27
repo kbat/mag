@@ -1,6 +1,6 @@
 The code in this repository implements methodology described in
 [https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339)
-extended to support the transport of multiple particle types.
+and extended to support the transport of multiple particle types.
 
 # gam
 Get and uncompress the ROOT files with transport matrices: ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```

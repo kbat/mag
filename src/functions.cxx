@@ -30,7 +30,6 @@ void print_materials(const std::set<std::shared_ptr<Material> >& matdb)
 	       // TODO: use C++-20 and std::format
 	       std::cout << m->getID() << " " << m->getName() << " " << m->getDensity() << std::endl;;
 	     });
-    std::cout << std::endl;
 }
 
 void set_sdef(const std::vector<std::string>& vsdef,
