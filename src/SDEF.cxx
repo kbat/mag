@@ -16,6 +16,8 @@ SDEF::SDEF(const std::string& fname) :
   const std::map<size_t,char> tallyDict = {{1,'n'}, {11,'p'}, {21,'e'}, {31,'|'} };
 
   TFile file(fname.data());
+  if (file.IsZombie())
+      exit(1);
   TIter next(file.GetListOfKeys());
 
   while (TKey *key = (TKey*)next()) {
