@@ -76,8 +76,8 @@ int main(int argc, const char **argv)
   opt->setNPrint(args->getNPrint()); // number of best solutions printed after each generation
 
   opt->setDoseWeight(1.0);
-  opt->setMassWeight(0.0);
-  opt->setComplexityWeight(0.0);
+  opt->setMassWeight(0.5);
+  opt->setComplexityWeight(0.1);
 
   opt->setNInherited(2); // 0.05
   // opt->setPMutation(0.1); // 0.3

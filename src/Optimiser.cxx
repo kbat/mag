@@ -19,9 +19,13 @@ Optimiser::Optimiser(const std::map<char, std::shared_ptr<TH2D>>& sdef,
 {
   RO = 1;
   minRandomPopulation = 0;
+
+  // these are default values
+  // set the weights in gam.cxx
   doseWeight = 1.0;
   massWeight = 0.5;
   compWeight = 0.1;
+
   nInherited = 2;
   pMutation = 0.3;
   nprint = -1;
