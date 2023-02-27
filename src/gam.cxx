@@ -6,29 +6,7 @@
 #include "Solver.h"
 #include "Optimiser.h"
 #include "OptArguments.h"
-
-bool is_number(const std::string& s) // TODO: do not duplicate code with solve.cxx
-/*!
-  Check if a string is numeric.
- */
-{
-    return !s.empty() && std::find_if(s.begin(),
-        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
-}
-
-void print_materials(const std::set<std::shared_ptr<Material> >& matdb)// TODO: do not duplicate code with solve.cxx
-/*!
-  Print material database.
- */
-{
-  std::cout << "Supported materials:" << std::endl;
-    std::for_each(matdb.begin(), matdb.end(),
-	     [](const auto &m) {
-	       // TODO: use C++-20 and std::format
-	       std::cout << m->getID() << " " << m->getName() << " " << m->getDensity() << std::endl;;
-	     });
-    std::cout << std::endl;
-}
+#include "functions.h"
 
 int main(int argc, const char **argv)
 {
@@ -88,29 +66,8 @@ int main(int argc, const char **argv)
   std::map<char, std::shared_ptr<TH2D>> sdef;
   const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
 
-  if (vsdef.size()==1) {
-    auto s = std::make_unique<SDEF>(vsdef[0]);
-    sdef = s->getSDEF();
-    std::cout << "Fluxes of " << sdef.size() << " sdef particles:\t" << std::flush;
-    std::for_each(sdef.begin(), sdef.end(),
-		  [](const auto& s) {
-		    std::cout << s.first << ": " << s.second->Integral() << "\t";
-		  });
-    std::cout << std::endl;
-  } else if (vsdef.size()==3) {
-    const char p0 = vsdef[0][0];
-    const double E0 = std::stod(vsdef[1]);
-    const double mu0 = std::stod(vsdef[2]);
-
-    auto h2 = (*matdb.begin())->getSDEF();
-    h2->Reset(); // just to be sure it's empty
-    h2->Fill(E0, mu0);
-
-    sdef.insert(std::make_pair(p0, h2));
-  } else {
-    std::cerr << "gam.cxx: wrong sdef" << std::endl;
-    return 1;
-  }
+  auto h2 = (*matdb.begin())->getSDEF();
+  set_sdef(vsdef, h2, sdef);
 
   auto opt = std::make_unique<Optimiser>(sdef, matdb, args->getNLayers());
   opt->setTail(tail);

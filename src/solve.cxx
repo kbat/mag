@@ -8,26 +8,7 @@
 #include "Source.h"
 #include "Solver.h"
 #include "SolverArguments.h"
-
-bool is_number(const std::string& s)
-/*!
-  Check if a string is numeric.
- */
-{
-    return !s.empty() && std::find_if(s.begin(),
-        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
-}
-
-void print_materials(const std::set<std::shared_ptr<Material> >& matdb)
-/*!
-  Print material database.
- */
-{
-    std::cout << "Supported materials: ";
-    for (auto m : matdb)
-      std::cout << m->getName() << " ";
-    std::cout << std::endl;
-}
+#include "functions.h"
 
 int main(int argc, const char **argv)
 {
@@ -98,31 +79,8 @@ int main(int argc, const char **argv)
     std::cout << l << " ";
   std::cout << std::endl;
 
-
-
-  if (vsdef.size()==1) {
-    auto s = std::make_unique<SDEF>(vsdef[0]);
-    sdef = s->getSDEF();
-    std::cout << "Fluxes of " << sdef.size() << " sdef particles:\t" << std::flush;
-    std::for_each(sdef.begin(), sdef.end(),
-		  [](const auto& s) {
-		    std::cout << s.first << ": " << s.second->Integral() << "\t";
-		  });
-    std::cout << std::endl;
-  } else if (vsdef.size()==3) {
-    const char p0 = vsdef[0][0];
-    const double E0 = std::stod(vsdef[1]);
-    const double mu0 = std::stod(vsdef[2]);
-
-    auto h2 = layers[0]->getSDEF();
-    h2->Reset(); // just to be sure it's empty
-    h2->Fill(E0, mu0);
-
-    sdef.insert(std::make_pair(p0, h2));
-  } else {
-    std::cerr << "solve.cxx: wrong sdef" << std::endl;
-    return 1;
-  }
+  auto h2 = layers[0]->getSDEF();
+  set_sdef(vsdef, h2, sdef);
 
   auto solver = std::make_shared<Solver>(sdef, layers);
   solver->run(1);
