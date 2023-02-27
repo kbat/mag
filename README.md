@@ -7,13 +7,30 @@ and extended to support the transport of multiple particle types.
 Currently, four particle types are transported: e, n, p, and |.
 
 There are two executables: solver (`gam-solve`) and optimiser (`gam`).
-
 They need these [ROOT](https://root.cern) data files with
 pre-calculated transport matrices:
 
 ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
 
 ## Solver
+
+List supported materials:
+```
+gam-solve -mat
+```
+The output shows material number, name and mass density:
+```
+Supported materials:
+3  Stainless304 7.96703
+11 Water        1
+38 W            19.413
+23 Lead         11.1837
+47 B4C          2.50608
+48 Poly         0.91
+49 Concrete     2.33578
+```
+
+
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
 ```gam-solve -layers 20 W 4 Poly -sdef e 3e3 1.0```
