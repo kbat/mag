@@ -246,12 +246,15 @@ void Optimiser::run(size_t ngen)
     // remove duplicates
     purge(solutions);
 
+
+    std::cout << "Fitness  Dose     Mass   Complexity Materials" << std::endl;
+
     // print
     const size_t n = std::min<size_t>(nprint, solutions.size());
     std::for_each(solutions.begin(), std::next(solutions.begin(), n),
     		  [&](const auto &s){
-    		    std::cout << getFitness(s) << "\t" << s->getDose() << "\t"
-    			      << s->getMass() << "\t" << s->getComplexity() << "\t";
+    		    std::cout << getFitness(s) << " " << s->getDose() << " "
+    			      << s->getMass() << " " << s->getComplexity() << "         ";
     		    const auto mat = s->getLayers();
     		    std::for_each(mat.begin(), mat.end(),
     				  [](const auto &m){std::cout << m->getID() << " ";});
