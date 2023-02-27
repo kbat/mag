@@ -1,6 +1,6 @@
 The code in this repository implements methodology described in
 [https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339)
-extended to support transport of multiple particle types.
+extended to support the transport of multiple particle types.
 
 # gam
 Get and uncompress the ROOT files with transport matrices: ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
@@ -8,7 +8,7 @@ Get and uncompress the ROOT files with transport matrices: ```scp clu0-fe-0:~kon
 ## Solver
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
-```gam-solve -layers 20 W 4 Poly -sdef e 3e3 0.999```
+```gam-solve -layers 20 W 4 Poly -sdef e 3e3 1.0```
 
 Each layer is 1 cm thick
 
