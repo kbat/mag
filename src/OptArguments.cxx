@@ -32,14 +32,14 @@ OptArguments::OptArguments(int ac, const char **av) :
        "Two types of source definition are possible: (a) PAR ERG DIR. "
        "PAR must be one of the particles ID "
        "for which the transport matrices are calculated, ERG is in MeV, DIR must be within (0,1). "
-       "(b) /path/to/sdef.root. The sdef.root is normally the mctal file converted into ROOT format "
+       "(b) /path/to/sdef.root. The sdef.root is normally an mctal file converted into ROOT format "
        "by the mctal2root tool (see https://github.com/kbat/mc-tools). "
        "It must contain THnSparse histograms with tally numbers corresponding "
        "to the Matrix::tallyDict tuple (see data.py), i.e. f1 tally corresponds to neutrons, "
        "f11 tally corresponds to photons etc. "
        "The binning must be the same as the one of R and T matrices "
-       "Only bins with c>0 are taken into account "
-       "(since we assume there is no material to reflect from before the 0th layer)")
+       "Only bins with c>0 are taken into account, "
+       "since we assume there is no material to reflect from before the 0th layer")
       ("nlayers", po::value<size_t>(), "Number of layers to optimise [no default]")
       ("nprint", po::value<size_t>()->default_value(5),
        "Number of best solutions printed at each generation")

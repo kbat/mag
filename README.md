@@ -4,7 +4,7 @@ Get and uncompress the ROOT files with transport matrices: ```scp clu0-fe-0:~kon
 ## Solver
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
-```gam-solve -layers 20 W 4 Poly -sdef e 3e3 1.0```
+```gam-solve -layers 20 W 4 Poly -sdef e 3e3 0.999```
 
 Each layer is 1 cm thick
 
