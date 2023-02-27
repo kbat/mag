@@ -34,8 +34,9 @@ Fitness         Dose            Mass    Complexity Materials
 * The **fitness function** is the figure of merit for the optimisation
   algorithm defined in
   [Optimiser::getFitness](https://github.com/kbat/gam/blob/master/src/Optimiser.cxx). Currently,
-  it's a linear combination of dose, mass and complexity.
-* **Dose** is the equivalent dose beyond the layers. The flux-to-dose
+  it's hard-coded as a linear combination of dose, mass and
+  complexity.
+* **Dose** is equivalent dose beyond the layers. The flux-to-dose
  conversion factors are defined for neutrons in
  [Solver::getNeutronFTD](https://github.com/kbat/gam/blob/master/src/Solver.cxx)
  and in the other similar methods for the other particles.

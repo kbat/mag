@@ -20,8 +20,8 @@ Optimiser::Optimiser(const std::map<char, std::shared_ptr<TH2D>>& sdef,
   RO = 1;
   minRandomPopulation = 0;
   doseWeight = 1.0;
-  massWeight = 0.0;
-  compWeight = 0.0;
+  massWeight = 0.5;
+  compWeight = 0.1;
   nInherited = 2;
   pMutation = 0.3;
   nprint = -1;
