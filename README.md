@@ -1,5 +1,5 @@
 # gam
-Get and untar the ROOT files with transport matrices: ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
+Get and uncompress the ROOT files with transport matrices: ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
 
 ## Solver
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
@@ -38,4 +38,10 @@ Fitness         Dose            Mass    Complexity Materials
 * **Dose** is the equivalent dose beyond the layers. The flux-to-dose
  conversion factors are defined for neutrons in
  [Solver::getNeutronFTD](https://github.com/kbat/gam/blob/master/src/Solver.cxx)
- and in the other similar methods for the other particles.  *
+ and in the other similar methods for the other particles.
+* **Mass** is the sum of densities of all layers. This is probably
+  misleading, but I still call it *mass* because this value is
+  proportional to the total mass (since all layers have the same
+  thickness of 1 cm).  Actually, since our problem is 2D, the layer is
+  infinite in the directions perpendicular to the beam, therefore its
+  mass is infinite.
