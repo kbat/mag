@@ -23,9 +23,15 @@ by a list of five best solutions, e.g.
 ```
 Generation: 1
 2.17279 sec
-0.185034        0.185034        194.13  1       38 38 38 38 38 38 38 38 38 38
-0.228578        0.228578        185.901 2       38 38 38 38 38 38 38 38 38 23
-0.251875        0.251875        185.901 2       23 38 38 38 38 38 38 38 38 38
-0.255914        0.255914        182.684 2       38 38 38 38 38 38 38 38 38 3
-0.282889        0.282889        177.223 2       38 38 38 38 38 38 38 38 38 47
+Fitness         Dose            Mass    Complexity Materials
+0.185034        0.185034        194.13  1          38 38 38 38 38 38 38 38 38 38
+0.228578        0.228578        185.901 2          38 38 38 38 38 38 38 38 38 23
+0.251875        0.251875        185.901 2          23 38 38 38 38 38 38 38 38 38
+0.255914        0.255914        182.684 2          38 38 38 38 38 38 38 38 38 3
+0.282889        0.282889        177.223 2          38 38 38 38 38 38 38 38 38 47
 ```
+
+The fitness function is the figure of merit for the optimisation
+algorithm defined in
+[Optimiser::getFitness](https://github.com/kbat/gam/blob/master/src/Optimiser.cxx). Currently,
+it's a linear combination of dose, mass and complexity.
