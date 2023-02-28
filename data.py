@@ -1,6 +1,5 @@
-"""GAM module.
+""" Data analysis classes for the GAM method
 
-An implimentation of Genetic Algorithms with Matrices transport method.
 """
 
 __title__   = 'GAM'
