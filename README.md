@@ -1,13 +1,13 @@
 # GAM - Genetic Algorithm with Matrices
 
 The code in this repository implements methodology described in
-[https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339)
-and extended to support the transport of multiple particle types.
+[https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339).
+It is extended to support the transport of multiple particle types.
 
 Currently, four particle types are transported: e, n, p, and |.
 
 There are two executables: solver (`gam-solve`) and optimiser (`gam`).
-They need these [ROOT](https://root.cern) data files with
+They use these [ROOT](https://root.cern) data files with
 pre-calculated transport matrices:
 
 ```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
@@ -30,6 +30,8 @@ Supported materials:
 49 Concrete     2.33578
 ```
 
+The material numbers can be chosen arbitrarily, they currently correspond to the material numbers used in [CombLayer][https://github.com/sansell/comblayer].
+
 
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
@@ -45,9 +47,9 @@ Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  tota
 
 
 ## Optimiser
-Optimise materials of 10 layers to minimise the figure of merit:
+Optimise materials of 10 layers to minimise the fitness function:
 
-```./gam -nlayers 10 -ngen 2```
+```gam -nlayers 10 -ngen 2```
 
 With 10 layers and 5 known materials, the code runs approximately 180 configurations for each generation,
 with the exact number depending on the available number of cores.
@@ -91,4 +93,4 @@ Fitness    Dose      Mass    Complexity Materials
   infinite in the directions perpendicular to the beam, therefore its
   mass is infinite.
 * **Complexity** is the number of material changes in the material list.
-* **Materials** list of material numbers for each layer. Material numbers can be printed with ``gam -mat``.
+* **Materials** is the list of material numbers for each layer. Material numbers can be printed with ``gam -mat``.
