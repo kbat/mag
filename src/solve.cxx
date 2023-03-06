@@ -84,7 +84,10 @@ int main(int argc, const char **argv)
 
   auto solver = std::make_shared<Solver>(sdef, layers);
   solver->run(1);
-  solver->save("res.root");
+
+  const auto fout = args->GetMap()["o"].as<std::string>();
+  if (!fout.empty())
+    solver->save(fout.data());
 
   static std::set<char> ftd {'n', 'p', 'e', '|'};
   std::cout << "\t\tDose rates:\t" << std::flush;

@@ -27,10 +27,10 @@ SolverArguments::SolverArguments(int ac, const char **av) :
     generic.add_options()
       ("help,h", "Show this help message and exit.")
       ("test",  po::value<std::vector<size_t> >()->multitoken(),
-       "Test number followed by number of layers to run")
-      ("mat", "Print supported materials")
+       "Test number followed by number of layers to run. Default: do not run tests.")
+      ("mat", "Print supported materials. Default: do not print material information.")
       ("sdef",  po::value<std::vector<std::string> >()->multitoken()->
-       default_value(std::vector<std::string>{"e","3e3","0.999"}),
+       default_value(std::vector<std::string>{"e","3e3","1.0"}),
        "Two types of source definition are possible: (a) PAR ERG DIR. "
        "PAR must be one of the particles ID "
        "for which the transport matrices are calculated, ERG is in MeV, DIR must be within (0,1). "
@@ -41,15 +41,16 @@ SolverArguments::SolverArguments(int ac, const char **av) :
        "f11 tally corresponds to photons etc. "
        "The binning must be the same as the one of R and T matrices "
        "Only bins with c>0 are taken into account, "
-       "since we assume there is no material to reflect from before the 0th layer")
+       "since we assume there is no material to reflect from before the 0th layer.")
       ("layers", po::value<std::vector<std::string> >()->multitoken(),
-       "Description of layers, e.g. 10 Concrete 4 Poly");
+       "Description of layers, e.g. 10 Concrete 4 Poly.")
+      ("o", po::value<std::string>()->default_value(""), "Optional file name four the resulting spectra.");
 
     // po::positional_options_description pos;
     // pos.add("layers", -1);
     //    pos.add("mat", 0);
 
-    po::options_description all_options("Usage: gam-solve [options] [layers]");
+    po::options_description all_options("Usage: gam-solve [options] -layers [layer specification]");
     all_options.add(generic);
 
     //    po::store(po::parse_command_line(argc, argv, desc), vm);
