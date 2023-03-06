@@ -12,7 +12,7 @@ def getH0(args):
 
     E0 = 707.732 # dummy
     mu0 = 0.05   # dummy
-    fname = os.path.join(args.dir,"case001",args.mctal)
+    fname = os.path.join(args.dir,"case0001",args.mctal)
 
     d0 = Data(fname, E0, mu0, 1)
     h0 = d0.histT
