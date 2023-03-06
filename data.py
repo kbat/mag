@@ -96,7 +96,7 @@ class Matrix:
     """
     def __init__(self, particle):
         self.particle = particle # scored particle
-        tallyDict = {"n" : 1, "p" : 11, "e" : 21, "|" : 31 }
+        tallyDict = {"n" : 1, "e" : 11, "p" : 21, "|" : 31 }
         self.tally = tallyDict[particle]
         self.vecT = []
         self.vecR = []
