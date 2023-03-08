@@ -23,6 +23,7 @@ class Material:
         self.mt = mt
 
     def setMX(self, particle, line):
+        assert len(particle) == 1, "Particle identifier must be a char"
         self.mx[particle] = line
 
     def setLib(self, lib):
@@ -43,7 +44,11 @@ class Material:
 
 
 
-def printGeometry(f, mat, thick=1):
+def printGeometry(f, mat, par, erg, dir, thick=1):
+    print("GAM")
+    print(f"c Incident particle: {par}")
+    print(f"c Energy: {erg}")
+    print(f"c Direction cosine: {dir}")
     print("1 0 7")
     print("2 0 -7 -1")
     print("3 0  7 -2")
@@ -53,6 +58,9 @@ def printGeometry(f, mat, thick=1):
     print(f"2 py {thick}")
     print("7 so 1e5")
     print("")
+
+def printSDEF(f, par, erg, dir):
+    print(f"sdef par={par} erg={erg} pos=0 -0.1 0 dir={dir} vec=0 1 0")
 
 
 def main():
@@ -80,8 +88,13 @@ def main():
 
     mat = m49
 
-    printGeometry(1, mat)
+    par = "p"
+    erg = 3000
+    dir = 1.0
+
+    printGeometry(1, mat, par, erg, dir)
     mat.Print()
+    printSDEF(1, par, erg, dir)
 
 
 
