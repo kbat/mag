@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import os
 import sys
 import math
 import argparse
@@ -49,8 +50,13 @@ class Material(Base):
 
 
 class Simulation(Base):
-    def __init__(self, matname):
+    def __init__(self, matname, version):
         self.matname = matname
+        self.version = version
+        self.particles = ('n', 'p', 'e', '|')
+
+        self.path = os.path.join(self.matname, self.version)
+        os.mkdir(self.path)
 
         self.materials = {}
 
@@ -94,8 +100,8 @@ class Simulation(Base):
     def printEnergyTally(self):
         print(f"e0 {self.emin} {self.nbinse}log {self.emax}")
 
-    def setCosine(self, n):
-        """ Set cosine binning
+    def setNCosine(self, n):
+        """ Set number of cosine bins
 
         n: number of lin equal bins between -PI to PI
         """
@@ -137,9 +143,9 @@ class Simulation(Base):
         print("f31:| 1 2")
 
     def printPhysics(self):
-        print("mode n p e |")
+        print("mode ", " ".join(self.particles))
         print("fcl:n,p 3j 1")
-        print("imp:n,p,e,| 0 1 2r")
+        print("imp:%s 0 1 2r" % ",".join(self.particles))
         print(f"phys:n {self.emax}")
         print("cut:n j 0.0")
         print(f"phys:p {self.emax} 2j 1")
@@ -156,7 +162,19 @@ class Simulation(Base):
         self.printPhysics()
 
     def Print(self):
-        self.printInp(self.mat, 'n', 5e-7, 0.09)
+        # total number of cases
+        # needed to format the folder name number
+        n = len(self.particles) * len(self.ebins) * len(self.cbins)
+        n = max(3, math.ceil(math.log10(n)))
+        case=1
+        for par in self.particles:
+            for erg in self.ebins:
+                for d in self.cbins:
+                    print("case: ", case, par, erg, d)
+                    path = os.path.join(self.path, f"case%.{n}d" % case)
+                    os.mkdir(path)
+                    # self.printInp(self.mat, par, erg, d)
+                    case += 1
 
 
 
@@ -166,31 +184,18 @@ class Simulation(Base):
 def main():
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/gam")
-    parser.add_argument('dir',   type=str, help='folder with case*/mctal.root files')
-    parser.add_argument("-mctal",type=str, help='mctal.root file names', default="mctal.root")
-    parser.add_argument("-inp",  type=str, help='MCNP input file names (assumed to be in the same folder as mctal.root)', default="inp")
+    parser.add_argument('mat',   type=str, help='Material name. A folder with the same name will be created for the generated input files. The material with this name must exist in the material database defined in the Simulation class constructor.')
+    parser.add_argument('version',   type=str, help='Simulation version identifier. A folder with this name will be created under the material folder.')
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
 
+    args = parser.parse_args()
 
-
-    run = Simulation("Concrete")
-    run.setEnergy(1e-6, 3001, 99)
-    run.setCosine(18)
+    run = Simulation(args.mat, args.version)
+    # run.setEnergy(1e-6, 3001, 99)
+    # run.setNCosine(18)
+    run.setEnergy(1e-6, 3001, 0)
+    run.setNCosine(2)
     run.Print()
-
-    return 0
-
-
-    mat = m49
-
-    par = "p"
-    erg = 3000
-    dir = 1.0
-
-    printGeometry(1, mat, par, erg, dir)
-    mat.Print()
-    printSDEF(1, par, erg, dir)
-
 
 
 if __name__=="__main__":
