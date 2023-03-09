@@ -83,9 +83,9 @@ c0    -0.984808 -0.939693 -0.866025 -0.766044 -0.642788 -0.5
        0.642788  0.766044  0.866025  0.939693  0.984808  1.0
 fc1 neutrons
 f1:n   1 2
-fc11 electrons
+fc11 photons
 f11:p  1 2
-fc21 photons
+fc21 electrons
 f21:e  1 2
 fc31 muons
 f31:|  1 2
