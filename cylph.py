@@ -131,7 +131,9 @@ class Simulation(Base):
         print("")
 
     def printSDEF(self, par, erg, dir):
-        print(f"sdef par={par} erg={erg} pos=0 -0.1 0 dir={dir} vec=0 1 0")
+        print(f"sdef par={par} erg=d1 pos=0 -0.1 0 dir={dir} vec=0 1 0")
+        print(f"si1 {erg[0]} {erg[1]}")
+        print(f"sp1 -21 0")
 
     def printTallies(self):
         print("fc1 neutrons")
@@ -167,11 +169,14 @@ class Simulation(Base):
     def Print(self):
         # total number of cases
         # needed to format the folder name number
-        n = len(self.particles) * len(self.ebins) * len(self.cbins)
+        nebins = len(self.ebins)
+        n = len(self.particles) * nebins * len(self.cbins)
         n = max(3, math.ceil(math.log10(n)))
         case=1
         for par in self.particles:
-            for erg in self.ebins:
+            for ebin in range(nebins-1):
+                erg = (self.ebins[ebin], self.ebins[ebin+1])
+#                print("energy: ",erg, self.ebins)
                 for d in self.cbins:
                     print("case: ", case, par, erg, d)
                     path = os.path.join(self.path, f"case%.{n}d" % case)
