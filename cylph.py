@@ -6,6 +6,7 @@ import math
 import argparse
 import textwrap
 import numpy as np
+from contextlib import redirect_stdout
 
 class Base:
     width=80     # textwrap width
@@ -41,12 +42,12 @@ class Material(Base):
         print(textwrap.fill(f"m{self.n}  {comp}", width=self.width, subsequent_indent=self.indent))
         if self.lib:
             print(textwrap.fill(self.lib, initial_indent=self.indent))
-            print("why 70u but not .70u?")
+            print("why 70u but not .70u?",file=sys.stderr)
         if self.mt:
             print(f"mt{self.n} {self.mt}")
         if self.mx:
             for p,line in self.mx.items():
-                print(f"mx:{p} {line}")
+                print(f"mx{self.n}:{p} {line}")
 
 
 class Simulation(Base):
@@ -56,7 +57,7 @@ class Simulation(Base):
         self.particles = ('n', 'p', 'e', '|')
 
         self.path = os.path.join(self.matname, self.version)
-        os.mkdir(self.path)
+#        os.mkdir(self.path)
 
         self.materials = {}
 
@@ -152,14 +153,16 @@ class Simulation(Base):
         print("prdmp 2j 1")
         print("stop ctme 120")
 
-    def printInp(self, mat, par, erg, dir, thick=1):
-        self.printGeometry(mat, par, erg, dir, thick)
-        mat.Print()
-        self.printSDEF(par, erg, dir)
-        self.printEnergyTally()
-        self.printCosineTally()
-        self.printTallies()
-        self.printPhysics()
+    def printInp(self, inp, mat, par, erg, dir, thick=1):
+        with open(inp, "w") as f:
+            with redirect_stdout(f):
+                self.printGeometry(mat, par, erg, dir, thick)
+                mat.Print()
+                self.printSDEF(par, erg, dir)
+                self.printEnergyTally()
+                self.printCosineTally()
+                self.printTallies()
+                self.printPhysics()
 
     def Print(self):
         # total number of cases
@@ -172,8 +175,8 @@ class Simulation(Base):
                 for d in self.cbins:
                     print("case: ", case, par, erg, d)
                     path = os.path.join(self.path, f"case%.{n}d" % case)
-                    os.mkdir(path)
-                    # self.printInp(self.mat, par, erg, d)
+                    os.makedirs(path)
+                    self.printInp(os.path.join(path, "inp"), self.mat, par, erg, d)
                     case += 1
 
 
