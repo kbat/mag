@@ -57,7 +57,6 @@ class Simulation(Base):
         self.particles = ('n', 'p', 'e', '|')
 
         self.path = os.path.join(self.matname, self.version)
-#        os.mkdir(self.path)
 
         self.materials = {}
 
@@ -118,8 +117,8 @@ class Simulation(Base):
     def printGeometry(self, mat, par, erg, dir, thick=1):
         print("GAM")
         print(f"c Incident particle: {par}")
-        print(f"c Energy: {erg} MeV")
-        print(f"c Direction cosine: {dir}")
+        print("c Energy: %g MeV" % ((erg[0] + erg[1])/2.0))
+        print("c Direction cosine: %g" % ((dir[0]+dir[1])/2.0))
         print("1 0 7")
         print("2 0 -7 -1")
         print("3 0  -7 2")
@@ -131,9 +130,11 @@ class Simulation(Base):
         print("")
 
     def printSDEF(self, par, erg, dir):
-        print(f"sdef par={par} erg=d1 pos=0 -0.1 0 dir={dir} vec=0 1 0")
-        print(f"si1 {erg[0]} {erg[1]}")
+        print(f"sdef par={par} erg=d1 pos=0 -0.1 0 dir=d2 vec=0 1 0")
+        print(f"si1 {erg[0]:.5e} {erg[1]:.5e}")
         print(f"sp1 -21 0")
+        print(f"si2 {dir[0]:.5f} {dir[1]:.5f}")
+        print(f"sp2 -21 0")
 
     def printTallies(self):
         print("fc1 neutrons")
@@ -167,21 +168,22 @@ class Simulation(Base):
                 self.printPhysics()
 
     def Print(self):
-        # total number of cases
+        # n is total number of cases
         # needed to format the folder name number
         nebins = len(self.ebins)
-        n = len(self.particles) * nebins * len(self.cbins)
+        ncbins = len(self.cbins)
+        n = len(self.particles) * nebins * ncbins
         n = max(3, math.ceil(math.log10(n)))
         case=1
+        ncbins = int(ncbins/2) # run towards forward hemisphere only
         for par in self.particles:
             for ebin in range(nebins-1):
                 erg = (self.ebins[ebin], self.ebins[ebin+1])
-#                print("energy: ",erg, self.ebins)
-                for d in self.cbins:
-                    print("case: ", case, par, erg, d)
+                for cbin in range(ncbins):
+                    dir = (self.cbins[ncbins+cbin], self.cbins[ncbins+cbin+1])
                     path = os.path.join(self.path, f"case%.{n}d" % case)
                     os.makedirs(path)
-                    self.printInp(os.path.join(path, "inp"), self.mat, par, erg, d)
+                    self.printInp(os.path.join(path, "inp"), self.mat, par, erg, dir)
                     case += 1
 
 
@@ -199,10 +201,10 @@ def main():
     args = parser.parse_args()
 
     run = Simulation(args.mat, args.version)
-    # run.setEnergy(1e-6, 3001, 99)
-    # run.setNCosine(18)
-    run.setEnergy(1e-6, 3001, 0)
-    run.setNCosine(2)
+    run.setEnergy(1e-6, 3001, 99)
+    run.setNCosine(18)
+    # run.setEnergy(1e-6, 3001, 0)
+    # run.setNCosine(4)
     run.Print()
 
 
