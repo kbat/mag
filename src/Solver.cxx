@@ -81,23 +81,23 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 */
 {
   std::map<char, std::map<char, std::shared_ptr<Source> > > R;
-  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2;
+  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2, tmp3;
 
   // sum up contributions to i from different incident particles j
-  auto sum = [&] {
-	       //tmp1.clear(); // really needed?
+  auto sum = [&](std::map<char, std::shared_ptr<Source> >  &tmp) {
+	       //tmp.clear(); // really needed?
 	       for (auto i : particles) {
-		 tmp1[i] = std::make_shared<Source>(*R[i][i]);
+		 tmp[i] = std::make_shared<Source>(*R[i][i]);
 		 for (auto j : particles) {
 		   if (i!=j)
-		     *tmp1[i] += *R[j][i];
+		     *tmp[i] += *R[j][i];
 		 }
 	       }
 	     };
 
   enum  direction {kR, kT};
 
-  auto propagate = [&](const std::map<char, std::shared_ptr<Source> > &src,
+  auto propagate = [&](std::map<char, std::shared_ptr<Source> > &src,
 		       const std::shared_ptr<Material> &bb,
 		       const direction dir)
 		   {
@@ -106,22 +106,39 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 			 R[i][j] = std::make_shared<Source>(*src.at(i));
 			 *R[i][j] *= (dir == kR) ? *bb->getR(i,j) : *bb->getT(i,j);
 		       }
-		     sum();
-		     R.clear();
+		     sum((src==result) ? tmp1 : src);
+		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
 		   };
 
   // first order reflection
   propagate(result, layers[layer], kR); // reflected back by the current layer
-  propagate(tmp1, layers[layer-1], kR); // reflecting forward
   tmp2 = tmp1;
+  propagate(tmp1, layers[layer-1], kR); // reflecting from the previous layer to the current one
   propagate(tmp1, layers[layer], kT); // transmitting through the current layer
 
-  // second order reflection
-  if (layer >=2) {
-    //    propagate(tmp2, layers[layer], kT); // transmitting through the current layer
-  }
+  // // second order reflection
+  // if (layer >=2) {
+  //   propagate(tmp2, layers[layer-1], kT);
+  //   tmp3 = tmp2;
+  //   propagate(tmp2, layers[layer-2], kR);
+  //   propagate(tmp2, layers[layer-1], kT);
+  //   propagate(tmp2, layers[layer], kT);
 
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp2[i];
+  // }
 
+  // // third order reflection
+  // if (layer >= 3) {
+  //   propagate(tmp3, layers[layer-2], kT);
+  //   propagate(tmp3, layers[layer-3], kR);
+  //   propagate(tmp3, layers[layer-2], kT);
+  //   propagate(tmp3, layers[layer-1], kT);
+  //   propagate(tmp3, layers[layer], kT);
+
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp3[i];
+  // }
 
   return tmp1;
 }

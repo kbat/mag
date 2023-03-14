@@ -48,5 +48,8 @@ valgrind: gam-solve
 	# --leak-check=full --track-origins=yes --suppressions=${ROOTSYS}/etc/valgrind-root.supp \
 	# ./gam-solve -test 2 1
 
+test: gam-solve
+	cd test/solver && root -b -q tests.C
+
 clean:
 	rm -fv gam gam-solve obj/*.o
