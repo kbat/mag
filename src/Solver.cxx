@@ -81,50 +81,49 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 */
 {
   std::map<char, std::map<char, std::shared_ptr<Source> > > R;
-  std::map<char, std::shared_ptr<Source> >  tmp;
+  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2;
 
   // sum up contributions to i from different incident particles j
   auto sum = [&] {
-	       //tmp.clear(); // really needed?
+	       //tmp1.clear(); // really needed?
 	       for (auto i : particles) {
-		 tmp[i] = std::make_shared<Source>(*R[i][i]);
+		 tmp1[i] = std::make_shared<Source>(*R[i][i]);
 		 for (auto j : particles) {
 		   if (i!=j)
-		     *tmp[i] += *R[j][i];
+		     *tmp1[i] += *R[j][i];
 		 }
 	       }
 	     };
 
-  // reflecting back
-  for (auto i : particles)   // incident
-    for (auto j : particles) { // scored
-      R[i][j] = std::make_shared<Source>(*result[i]);
-      *R[i][j] *= *layers[layer]->getR(i,j); // reflected back by the current layer
-    }
+  enum  direction {kR, kT};
 
-  sum();
+  auto propagate = [&](const std::map<char, std::shared_ptr<Source> > &src,
+		       const std::shared_ptr<Material> &bb,
+		       const direction dir)
+		   {
+		     for (auto i : particles)   // incident
+		       for (auto j : particles) { // scored
+			 R[i][j] = std::make_shared<Source>(*src.at(i));
+			 *R[i][j] *= (dir == kR) ? *bb->getR(i,j) : *bb->getT(i,j);
+		       }
+		     sum();
+		     R.clear();
+		   };
 
-  // reflecting forward
-  R.clear();
-  for (auto i : particles)
-    for (auto j : particles) {
-      R[i][j] = std::make_shared<Source>(*tmp[i]);
-      *R[i][j] *= *layers[layer-1]->getR(i,j);
-    }
+  // first order reflection
+  propagate(result, layers[layer], kR); // reflected back by the current layer
+  propagate(tmp1, layers[layer-1], kR); // reflecting forward
+  tmp2 = tmp1;
+  propagate(tmp1, layers[layer], kT); // transmitting through the current layer
 
-  sum();
+  // second order reflection
+  if (layer >=2) {
+    //    propagate(tmp2, layers[layer], kT); // transmitting through the current layer
+  }
 
-  // transmitting through the current layer
-  R.clear();
-  for (auto i : particles)
-    for (auto j : particles) {
-      R[i][j] = std::make_shared<Source>(*tmp[i]);
-      *R[i][j] *= *layers[layer]->getT(i,j);
-    }
 
-  sum();
 
-  return tmp;
+  return tmp1;
 }
 
 std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
