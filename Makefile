@@ -9,6 +9,7 @@ ROOTCONFIG := root-config
 ROOTCFLAGS := $(shell $(ROOTCONFIG) --cflags)
 ROOTGLIBS  := $(shell $(ROOTCONFIG) --glibs)
 ROOTLIBS   := $(shell $(ROOTCONFIG) --libs)
+ROOTETC    := $(shell $(ROOTCONFIG) --etcdir)
 
 EIGENINC   := /usr/include/eigen3
 
@@ -41,11 +42,11 @@ valgrind: gam-solve
 	--tool=memcheck	\
 	--smc-check=all-non-file --error-limit=no --leak-check=yes --num-callers=2 \
 	--leak-check=full --track-origins=yes --show-leak-kinds=all \
-	--suppressions=${ROOTSYS}/etc/valgrind-root.supp \
+	--suppressions=$(ROOTETC)/valgrind-root.supp \
 	./gam-solve -test 2 1
 
 	# valgrind --smc-check=all-non-file -v --error-limit=no --leak-check=yes --num-callers=50 \
-	# --leak-check=full --track-origins=yes --suppressions=${ROOTSYS}/etc/valgrind-root.supp \
+	# --leak-check=full --track-origins=yes --suppressions=$(ROOTETC)/valgrind-root.supp \
 	# ./gam-solve -test 2 1
 
 test: gam-solve
