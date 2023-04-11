@@ -117,8 +117,8 @@ class Simulation(Base):
     def printGeometry(self, mat, par, erg, dir, thick=1):
         print("GAM")
         print(f"c Incident particle: {par}")
-        print("c Energy: %g MeV" % ((erg[0] + erg[1])/2.0))
-        print("c Direction cosine: %g" % ((dir[0]+dir[1])/2.0))
+        print("c Energy: %g MeV [average]" % ((erg[0] + erg[1])/2.0))
+        print("c Direction cosine: %g [average]" % ((dir[0]+dir[1])/2.0))
         print("1 0 7")
         print("2 0 -7 -1")
         print("3 0  -7 2")
@@ -202,7 +202,7 @@ def main():
 
     run = Simulation(args.mat, args.version)
     run.setEnergy(1e-6, 3001, 99)
-    run.setNCosine(18)
+    run.setNCosine(18) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
     # run.setEnergy(1e-6, 3001, 0)
     # run.setNCosine(4)
     run.Print()
