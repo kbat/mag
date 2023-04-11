@@ -130,7 +130,7 @@ class Simulation(Base):
         print("")
 
     def printSDEF(self, par, erg, dir):
-        print(f"sdef par={par} erg=d1 pos=0 -0.1 0 dir=d2 vec=0 1 0")
+        print(f"sdef par={par} erg=d1 pos=0 1e-4 0 dir=d2 vec=0 1 0")
         print(f"si1 {erg[0]:.5e} {erg[1]:.5e}")
         print(f"sp1 -21 0")
         print(f"si2 {dir[0]:.5f} {dir[1]:.5f}")
