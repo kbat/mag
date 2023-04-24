@@ -82,14 +82,14 @@ int main(int argc, const char **argv)
   auto h2 = layers[0]->getSDEF();
   set_sdef(vsdef, h2, sdef);
 
-  auto solver = std::make_shared<Solver>(sdef, layers);
+  auto solver = std::make_shared<Solver>(sdef, layers, -1);
   solver->run(1);
 
   const auto fout = args->GetMap()["o"].as<std::string>();
   if (!fout.empty())
     solver->save(fout.data());
 
-  static std::set<char> ftd {'n', 'p', 'e', '|'};
+  const std::set<char> ftd {'n', 'p', 'e', '|'};
   std::cout << "\t\tDose rates:\t" << std::flush;
   for (auto p : ftd)
     std::cout << p << ": " << solver->getDose(p) << "\t";

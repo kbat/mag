@@ -86,7 +86,7 @@ class Simulation(Base):
         emax: maximum energy [MeV]
         n: number of log equal bins between emin and emax
         i.e. specifying emin=1e-6, emax=3001, n=99 corresponds to the MCNP card
-        e0 1e-6 3001 99 and defines 101 energy bins between 0 and 3001 MeV
+        e0 1e-6 99i 3001 and defines 101 energy bins between 0 and 3001 MeV
         """
         assert emin<emax, "emin >= emax"
         self.emin = emin

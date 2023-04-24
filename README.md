@@ -30,7 +30,7 @@ Supported materials:
 49 Concrete     2.33578
 ```
 
-The material numbers can be chosen arbitrarily, they currently correspond to the material numbers used in [CombLayer][https://github.com/sansell/comblayer].
+The material numbers can be chosen arbitrarily, they currently correspond to the material numbers used in [CombLayer](https://github.com/sansell/comblayer).
 
 
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:

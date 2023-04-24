@@ -65,7 +65,7 @@ bool Test::run()
   else
     sdef.insert(std::make_pair('n', mat[0]->getSDEF()));
 
-  auto solver = std::make_shared<Solver>(sdef, mat);
+  auto solver = std::make_shared<Solver>(sdef, mat, -1); // -1 is needed to turn off reflectins in order to  pass tests (but comment out reflections > 2 order)
   solver->run(ro);
   solver->save("res.root");
 

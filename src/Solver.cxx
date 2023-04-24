@@ -4,8 +4,9 @@
 #include "Solver.h"
 
 Solver::Solver(const std::map<char, std::shared_ptr<TH2D>>&  sdef,
-	       const std::vector<std::shared_ptr<Material>>& layers) :
-  sdef(sdef), layers(layers), nLayers(layers.size()),
+	       const std::vector<std::shared_ptr<Material>>& layers,
+	       const int nr) :
+  sdef(sdef), layers(layers), nLayers(layers.size()), nReflectionLayers(0),
   particles(layers[0]->getParticles())
 {
   if (!checkParticles())
@@ -16,6 +17,15 @@ Solver::Solver(const std::map<char, std::shared_ptr<TH2D>>&  sdef,
   // An empty source histogram for transported particles not present in the 'sdef' map
   emptySDEF = std::make_shared<TH2D>(*(*sdef.begin()).second.get());
   emptySDEF->Reset();
+
+  // Set the number of last layers where reflection should be taken
+  // into account. If negative, reflection in all layers is calculated
+  // (this is slow). Experiment with this number to set it to the
+  // minimum value which does not yet significantly biases results.
+  if (nr<0)
+    nReflectionLayers = nLayers;
+  else
+    nReflectionLayers = std::min(nr,(int)nLayers);
 
   done = false;
 }
@@ -62,11 +72,10 @@ void Solver::fillSDEF()
 {
   for_each(particles.begin(), particles.end(),
 	   [&](const auto &p){
-	     std::shared_ptr<TH2D> h = emptySDEF;
 	     auto s = std::find_if(sdef.begin(), sdef.end(),
 				   [&p](const auto &s){ return p == s.first; });
-	     if (s!=sdef.end())
-	       h = s->second;
+
+	     const std::shared_ptr<TH2D> h = (s == sdef.end()) ? emptySDEF : s->second;
 
 	     result.insert(std::make_pair(p, std::make_shared<Source>(h.get())));
 	   });
@@ -81,7 +90,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 */
 {
   std::map<char, std::map<char, std::shared_ptr<Source> > > R;
-  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2, tmp3;
+  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2, tmp3, tmp4;
 
   // sum up contributions to i from different incident particles j
   auto sum = [&](std::map<char, std::shared_ptr<Source> >  &tmp) {
@@ -99,8 +108,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 
   auto propagate = [&](std::map<char, std::shared_ptr<Source> > &src,
 		       const std::shared_ptr<Material> &bb,
-		       const direction dir)
-		   {
+		       const direction dir) {
 		     for (auto i : particles)   // incident
 		       for (auto j : particles) { // scored
 			 R[i][j] = std::make_shared<Source>(*src.at(i));
@@ -110,11 +118,15 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
 		   };
 
+  std::cout << "TODO: this can be ran in parallel:" << std::endl;
+
   // first order reflection
-  propagate(result, layers[layer], kR); // reflected back by the current layer
-  tmp2 = tmp1;
-  propagate(tmp1, layers[layer-1], kR); // reflecting from the previous layer to the current one
-  propagate(tmp1, layers[layer], kT); // transmitting through the current layer
+  if (layer>=1) {
+    propagate(result, layers[layer], kR); // reflected back by the current layer
+    tmp2 = tmp1;
+    propagate(tmp1, layers[layer-1], kR); // reflecting from the previous layer to the current one
+    propagate(tmp1, layers[layer], kT); // transmitting through the current layer
+  }
 
   // // second order reflection
   // if (layer >=2) {
@@ -122,7 +134,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   //   tmp3 = tmp2;
   //   propagate(tmp2, layers[layer-2], kR);
   //   propagate(tmp2, layers[layer-1], kT);
-  //   propagate(tmp2, layers[layer], kT);
+  //   propagate(tmp2, layers[layer],   kT);
 
   //   for (auto i : particles)
   //     *tmp1[i] += *tmp2[i];
@@ -131,13 +143,27 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   // // third order reflection
   // if (layer >= 3) {
   //   propagate(tmp3, layers[layer-2], kT);
+  //   tmp4 = tmp3;
   //   propagate(tmp3, layers[layer-3], kR);
   //   propagate(tmp3, layers[layer-2], kT);
   //   propagate(tmp3, layers[layer-1], kT);
-  //   propagate(tmp3, layers[layer], kT);
+  //   propagate(tmp3, layers[layer],   kT);
 
   //   for (auto i : particles)
   //     *tmp1[i] += *tmp3[i];
+  // }
+
+  // // fourth order reflection
+  // if (layer >= 4) {
+  //   propagate(tmp4, layers[layer-3], kT);
+  //   propagate(tmp4, layers[layer-4], kR);
+  //   propagate(tmp4, layers[layer-3], kT);
+  //   propagate(tmp4, layers[layer-2], kT);
+  //   propagate(tmp4, layers[layer-1], kT);
+  //   propagate(tmp4, layers[layer],   kT);
+
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp4[i];
   // }
 
   return tmp1;
@@ -162,16 +188,21 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
     // because they will be the corresponding sdefs
-    for (auto i : particles)   // incident
-      for (auto j : particles) {// scored
+    for (auto i : particles)     // incident
+      for (auto j : particles) { // scored
 	transmitted[i].insert(std::make_pair(j,
 					     std::make_shared<Source>(*result[i])));
 	*transmitted[i][j] *= *layers[layer]->getT(i,j); // transmitted through the current layer
       }
 
     // reflections
-    if ((layer>0) && (ro>=1))
+    const bool doReflect = (layer>0) && (layer>=nLayers-nReflectionLayers) && (ro>=1);
+    //    std::cout << layer << " " << nLayers-nReflectionLayers << " " << std::flush;
+    if (doReflect)// {
+      //      std::cout << "reflect" << std::endl;
       reflected = reflect(layer);
+    // } else
+    //   std::cout << std::endl;
 
     // add up spectra of each secondary particle produced by different incidents
     result.clear();
@@ -182,7 +213,7 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 	  *result[i] += *transmitted[j][i];
     }
 
-    if ((layer>0) && (ro>=1))
+    if (doReflect)
       for (auto i : particles)
 	*result[i] += *reflected[i];
   }

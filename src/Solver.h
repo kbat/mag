@@ -11,6 +11,7 @@ class Solver {
   std::map<char, std::shared_ptr<TH2D>>  sdef;   ///< source definition
   std::vector<std::shared_ptr<Material>> layers; ///< vector of materials
   const size_t nLayers;           ///< number of material layers
+  size_t nReflectionLayers;
   const std::set<char> particles; ///< set of transported particles
   std::map<char, std::shared_ptr<Source> > result;
   bool done; // true the run method was called
@@ -21,7 +22,9 @@ class Solver {
   bool checkSDEF() const;
   void fillSDEF();
  public:
-  Solver(const std::map<char, std::shared_ptr<TH2D>>&, const std::vector<std::shared_ptr<Material>> &);
+  Solver(const std::map<char, std::shared_ptr<TH2D>>&,
+	 const std::vector<std::shared_ptr<Material>>&,
+	 const int nr);
   //  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
   std::map<char, std::shared_ptr<Source> > run(const size_t ro=1);
   void save(const std::string&) const;
