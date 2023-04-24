@@ -83,10 +83,12 @@ void Solver::fillSDEF()
 
 std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 /*!
-  Implements the first-order reflection:
-  reflect backwards from the current layer into the previous one;
+  Implements reflections (firt and multpila orders).
+  First order: reflect backwards from the current layer into the previous one;
   then reflect forward towards the current layer and transmit
-  through the current layer
+  through the current layer.
+  Second order: the same but two layers backward.
+  etc
 */
 {
   std::map<char, std::map<char, std::shared_ptr<Source> > > R;
@@ -104,7 +106,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 	       }
 	     };
 
-  enum  direction {kR, kT};
+  enum direction {kR, kT};
 
   auto propagate = [&](std::map<char, std::shared_ptr<Source> > &src,
 		       const std::shared_ptr<Material> &bb,
@@ -330,7 +332,7 @@ double Solver::getElectronFTD(const double E) const
   // Return the flux-to-dose proton ICRP 2010 conversion factors in
   // uSv/hour per electron/cm2/sec Reference: Table A1.3 page 63 in
   // ICRP report OPERATIONAL QUANTITIES FOR EXTERNAL RADIATION EXPOSURE
-  // This is a link to draft, the document was not released yet
+  // This is a link to draft, the document is not released yet
   // https://www.icrp.org/docs/ICRU%20and%20ICRP%20Draft%20Joint%20Report%20Operational%20Quantities%20for%20External%20Radiation%20Exposure.pdf
   // The values from the table were divided by 277 in order to
   // convert from electron fluence per ambient dose to uSv/h per electron/cm2/sec
@@ -358,7 +360,7 @@ double Solver::getMuonFTD(const double E) const
   // Return the flux-to-dose proton ICRP 2010 conversion factors in
   // uSv/hour per mu-/cm2/sec Reference: Table A1.6 on page 69 in
   // ICRP report OPERATIONAL QUANTITIES FOR EXTERNAL RADIATION EXPOSURE
-  // This is a link to draft, the document was not released yet
+  // This is a link to draft, the document is not released yet
   // https://www.icrp.org/docs/ICRU%20and%20ICRP%20Draft%20Joint%20Report%20Operational%20Quantities%20for%20External%20Radiation%20Exposure.pdf
   // The values from the table were divided by 277 in order to
   // convert from mu- fluence per ambient dose to uSv/h per mu-/cm2/sec
@@ -368,7 +370,6 @@ double Solver::getMuonFTD(const double E) const
   static std::vector<float> ebins{1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100,
 				  150, 200, 300, 400, 500, 600, 800, 1000, 1500, 2000, 3000, 4000,
 				  5000, 6000, 8000, 10000};
-
 
   static std::vector<float> data{0.64982, 0.64982, 0.66426, 0.67870, 0.69675, 0.74007, 0.87365,
 				 1.05776, 1.19856, 1.49458, 1.67870, 2.37184, 2.65343, 2.72563,
