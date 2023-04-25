@@ -15,11 +15,13 @@ class Solver {
   std::vector<std::shared_ptr<Material>> layers; ///< vector of materials
   const size_t nLayers;           ///< number of material layers
   size_t nReflectionLayers;
+  size_t ReflectionOrder;
   const std::set<char> particles; ///< set of transported particles
   std::map<char, std::shared_ptr<Source> > result;
   bool done; // true the run method was called
   std::shared_ptr<TH2D> emptySDEF; ///< TODO: delete
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
+  data_t reflectOLD(const size_t layer);
   data_t reflect(const size_t layer);
   bool checkParticles() const;
   bool checkSDEF() const;

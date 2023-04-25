@@ -7,6 +7,7 @@ Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
 	       const std::vector<std::shared_ptr<Material>>& layers,
 	       const int nr) :
   sdef(sdef), layers(layers), nLayers(layers.size()), nReflectionLayers(0),
+  ReflectionOrder(0),
   particles(layers[0]->getParticles())
 {
   if (!checkParticles())
@@ -81,7 +82,7 @@ void Solver::fillSDEF()
 	   });
 }
 
-data_t Solver::reflect(const size_t layer)
+data_t Solver::reflectOLD(const size_t layer)
 /*!
   Implements reflections (firt and multpila orders).
   First order: reflect backwards from the current layer into the previous one;
@@ -171,12 +172,108 @@ data_t Solver::reflect(const size_t layer)
   return tmp1;
 }
 
+data_t Solver::reflect(const size_t layer)
+/*!
+  Implements reflections (firt and multpila orders).
+  First order: reflect backwards from the current layer into the previous one;
+  then reflect forward towards the current layer and transmit
+  through the current layer.
+  Second order: the same but two layers backward.
+  etc
+*/
+{
+  std::map<ParticleID, data_t > R;
+  // lmin: min layer number where reflections should be considered
+  const size_t lmin = std::max((size_t)0, layer-ReflectionOrder);
+  const size_t maxro = layer-lmin; // maximal reflection order to calculate for the current layer
+  data_t tmp1, tmp2, tmp3, tmp4;
+  data_t ttt[maxro];
+
+  // sum up contributions to i from different incident particles j
+  auto sum = [&](data_t  &tmp) {
+	       //tmp.clear(); // really needed?
+	       for (auto i : particles) {
+		 tmp[i] = std::make_shared<Source>(*R[i][i]);
+		 for (auto j : particles) {
+		   if (i!=j)
+		     *tmp[i] += *R[j][i];
+		 }
+	       }
+	     };
+
+  enum direction {kR, kT};
+
+  auto propagate = [&](data_t &src,
+		       const std::shared_ptr<Material> &bb,
+		       const direction dir) {
+		     for (auto i : particles)   // incident
+		       for (auto j : particles) { // scored
+			 R[i][j] = std::make_shared<Source>(*src.at(i));
+			 *R[i][j] *= (dir == kR) ? *bb->getR(i,j) : *bb->getT(i,j);
+		       }
+		     sum((src==result) ? tmp1 : src);
+		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
+		   };
+
+  std::cout << "TODO: this can be ran in parallel:" << std::endl;
+
+  // first order reflection
+  if (layer>=1) {
+    propagate(result, layers[layer], kR); // reflected back by the current layer
+    tmp2 = tmp1;
+    propagate(tmp1, layers[layer-1], kR); // reflecting from the previous layer to the current one
+    propagate(tmp1, layers[layer], kT); // transmitting through the current layer
+  }
+
+  // // second order reflection
+  // if (layer >=2) {
+  //   propagate(tmp2, layers[layer-1], kT);
+  //   tmp3 = tmp2;
+  //   propagate(tmp2, layers[layer-2], kR);
+  //   propagate(tmp2, layers[layer-1], kT);
+  //   propagate(tmp2, layers[layer],   kT);
+
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp2[i];
+  // }
+
+  // // third order reflection
+  // if (layer >= 3) {
+  //   propagate(tmp3, layers[layer-2], kT);
+  //   tmp4 = tmp3;
+  //   propagate(tmp3, layers[layer-3], kR);
+  //   propagate(tmp3, layers[layer-2], kT);
+  //   propagate(tmp3, layers[layer-1], kT);
+  //   propagate(tmp3, layers[layer],   kT);
+
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp3[i];
+  // }
+
+  // // fourth order reflection
+  // if (layer >= 4) {
+  //   propagate(tmp4, layers[layer-3], kT);
+  //   propagate(tmp4, layers[layer-4], kR);
+  //   propagate(tmp4, layers[layer-3], kT);
+  //   propagate(tmp4, layers[layer-2], kT);
+  //   propagate(tmp4, layers[layer-1], kT);
+  //   propagate(tmp4, layers[layer],   kT);
+
+  //   for (auto i : particles)
+  //     *tmp1[i] += *tmp4[i];
+  // }
+
+  return tmp1;
+}
+
 data_t Solver::run(const size_t ro)
 {
   // ro : reflection order to take into account [only ro<=1 implemented]
 
   if (done)
     return result;
+
+  ReflectionOrder = ro;
 
   fillSDEF();
 
@@ -198,7 +295,7 @@ data_t Solver::run(const size_t ro)
       }
 
     // reflections
-    const bool doReflect = (layer>0) && (layer>=nLayers-nReflectionLayers) && (ro>=1);
+    const bool doReflect = (layer>0) && (layer>=nLayers-nReflectionLayers) && (ReflectionOrder>=1);
     //    std::cout << layer << " " << nLayers-nReflectionLayers << " " << std::flush;
     if (doReflect)// {
       //      std::cout << "reflect" << std::endl;
