@@ -12,7 +12,7 @@ std::default_random_engine eng{std::random_device{}()};
 using Distribution = std::uniform_real_distribution<>;
 Distribution dist;
 
-Optimiser::Optimiser(const std::map<char, std::shared_ptr<TH2D>>& sdef,
+Optimiser::Optimiser(const std::map<ParticleID, std::shared_ptr<TH2D>>& sdef,
 		     const std::set<std::shared_ptr<Material>>& mat,
 		     const size_t nLayers) :
   sdef(sdef), mat(mat), nLayers(nLayers)

@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
     return 0;
 
   // get sdef
-  std::map<char, std::shared_ptr<TH2D>> sdef;
+  std::map<ParticleID, std::shared_ptr<TH2D>> sdef;
   const auto vsdef = args->GetMap()["sdef"].as<std::vector<std::string> >();
 
   if (args->IsTest()) {
@@ -89,7 +89,7 @@ int main(int argc, const char **argv)
   if (!fout.empty())
     solver->save(fout.data());
 
-  const std::set<char> ftd {'n', 'p', 'e', '|'};
+  const std::set<ParticleID> ftd {'n', 'p', 'e', '|'};
   std::cout << "\t\tDose rates:\t" << std::flush;
   for (auto p : ftd)
     std::cout << p << ": " << solver->getDose(p) << "\t";

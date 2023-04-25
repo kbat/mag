@@ -6,6 +6,9 @@
 #include "Source.h"
 #include "Material.h"
 
+using ParticleID = char;
+using data_t = std::map<ParticleID, std::shared_ptr<Source>>;
+
 class Solver {
  private:
   std::map<char, std::shared_ptr<TH2D>>  sdef;   ///< source definition
@@ -17,7 +20,7 @@ class Solver {
   bool done; // true the run method was called
   std::shared_ptr<TH2D> emptySDEF; ///< TODO: delete
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
-  std::map<char, std::shared_ptr<Source> > reflect(const size_t layer);
+  data_t reflect(const size_t layer);
   bool checkParticles() const;
   bool checkSDEF() const;
   void fillSDEF();
@@ -26,8 +29,8 @@ class Solver {
 	 const std::vector<std::shared_ptr<Material>>&,
 	 const int nr);
   //  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
-  std::map<char, std::shared_ptr<Source> > run(const size_t ro=1);
-  void save(const std::string&) const;
+  data_t run(const size_t ro=1);
+  void   save(const std::string&) const;
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;
   double getProtonFTD(const double) const;
@@ -41,6 +44,5 @@ class Solver {
   inline std::vector<std::shared_ptr<Material>> getLayers() const {return layers;}
   bool operator==(const Solver& rhs);
 };
-
 
 #endif

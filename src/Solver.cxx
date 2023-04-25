@@ -3,7 +3,7 @@
 
 #include "Solver.h"
 
-Solver::Solver(const std::map<char, std::shared_ptr<TH2D>>&  sdef,
+Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
 	       const std::vector<std::shared_ptr<Material>>& layers,
 	       const int nr) :
   sdef(sdef), layers(layers), nLayers(layers.size()), nReflectionLayers(0),
@@ -81,7 +81,7 @@ void Solver::fillSDEF()
 	   });
 }
 
-std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
+data_t Solver::reflect(const size_t layer)
 /*!
   Implements reflections (firt and multpila orders).
   First order: reflect backwards from the current layer into the previous one;
@@ -91,11 +91,11 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   etc
 */
 {
-  std::map<char, std::map<char, std::shared_ptr<Source> > > R;
-  std::map<char, std::shared_ptr<Source> >  tmp1, tmp2, tmp3, tmp4;
+  std::map<ParticleID, data_t > R;
+  data_t tmp1, tmp2, tmp3, tmp4;
 
   // sum up contributions to i from different incident particles j
-  auto sum = [&](std::map<char, std::shared_ptr<Source> >  &tmp) {
+  auto sum = [&](data_t  &tmp) {
 	       //tmp.clear(); // really needed?
 	       for (auto i : particles) {
 		 tmp[i] = std::make_shared<Source>(*R[i][i]);
@@ -108,7 +108,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
 
   enum direction {kR, kT};
 
-  auto propagate = [&](std::map<char, std::shared_ptr<Source> > &src,
+  auto propagate = [&](data_t &src,
 		       const std::shared_ptr<Material> &bb,
 		       const direction dir) {
 		     for (auto i : particles)   // incident
@@ -171,7 +171,7 @@ std::map<char, std::shared_ptr<Source> > Solver::reflect(const size_t layer)
   return tmp1;
 }
 
-std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
+data_t Solver::run(const size_t ro)
 {
   // ro : reflection order to take into account [only ro<=1 implemented]
 
@@ -183,9 +183,9 @@ std::map<char, std::shared_ptr<Source> > Solver::run(const size_t ro)
 
   for (size_t layer=0; layer<nLayers; ++layer) {
     // reflected spectra (if needed)
-    std::map<char, std::shared_ptr<Source> > reflected;
+    data_t reflected;
     // transmitted[i][j]: transmitted spectra from incident particle i to j
-    std::map<char, std::map<char, std::shared_ptr<Source> > > transmitted;
+    std::map<ParticleID, data_t> transmitted;
 
     // define all combinations of spectra after the 2nd layer
     // but before we do transport, we just copy data from result
@@ -382,7 +382,7 @@ double Solver::getMuonFTD(const double E) const
   return data[j];
 }
 
-double Solver::getFTD(const char p, const double E) const
+double Solver::getFTD(const ParticleID p, const double E) const
 {
   // Return flux to dose conversion factor for the particle of the given energy
   // p : MCNP particle ID
@@ -411,7 +411,7 @@ double Solver::getDose() const
   //  return getDose('n');
 
   // particles with flux-to-dose conversion factors available:
-  static std::set<char> ftd {'n', 'p', 'e', '|', 'h'};
+  static std::set<ParticleID> ftd {'n', 'p', 'e', '|', 'h'};
 
   return std::accumulate(particles.begin(), particles.end(), 0.0,
   		  [&](double prev, const auto p){
@@ -419,7 +419,7 @@ double Solver::getDose() const
   		  });
 }
 
-double Solver::getDose(const char p) const
+double Solver::getDose(const ParticleID p) const
 {
   // Return dose rate contribution from the specified particle p
   // [uSv/h per primary particle normalisation]

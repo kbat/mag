@@ -6,7 +6,7 @@
 
 class Optimiser {
  private:
-  std::map<char, std::shared_ptr<TH2D>>  sdef;   ///< source definition
+  std::map<char, std::shared_ptr<TH2D>> sdef;   ///< source definition
   std::set<std::shared_ptr<Material> > mat; //< library of materials to optimise
   std::vector<std::shared_ptr<Material> > tail; //< fixed configuration of tail (not optimised)
   const size_t nLayers; //< number of layers
