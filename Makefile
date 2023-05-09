@@ -49,7 +49,7 @@ valgrind: gam-solve
 	# ./gam-solve -test 2 1
 
 test: gam-solve
-	cd test/solver && root -b -q tests.C
+	cd test/solver && root -b -q -l tests.C
 
 clean:
 	rm -fv gam gam-solve obj/*.o

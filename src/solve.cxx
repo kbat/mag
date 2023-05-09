@@ -83,7 +83,7 @@ int main(int argc, const char **argv)
   set_sdef(vsdef, h2, sdef);
 
   auto solver = std::make_shared<Solver>(sdef, layers, -1);
-  solver->run(1);
+  solver->run(2);
 
   const auto fout = args->GetMap()["o"].as<std::string>();
   if (!fout.empty())

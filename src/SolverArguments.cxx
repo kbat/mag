@@ -39,7 +39,7 @@ SolverArguments::SolverArguments(int ac, const char **av) :
        "It must contain THnSparse histograms with tally numbers corresponding "
        "to the Matrix::tallyDict tuple (see data.py), i.e. f1 tally corresponds to neutrons, "
        "f11 tally corresponds to photons etc. "
-       "The binning must be the same as the one of R and T matrices "
+       "The binning must be the same as the one of R and T matrices. "
        "Only bins with c>0 are taken into account, "
        "since we assume there is no material to reflect from before the 0th layer.")
       ("layers", po::value<std::vector<std::string> >()->multitoken(),

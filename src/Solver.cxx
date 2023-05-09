@@ -184,7 +184,8 @@ data_t Solver::reflect(const size_t layer)
 {
   std::map<ParticleID, data_t > R;
   // lmin: min layer number where reflections should be considered
-  const size_t lmin = std::max((size_t)0, layer-ReflectionOrder);
+  const size_t lmin = std::max(0, int(layer-ReflectionOrder));
+  assert(layer-lmin>=0);
   const size_t maxro = layer-lmin; // maximal reflection order to calculate for the current layer
   data_t tmp1, tmp2, tmp3, tmp4;
   data_t ttt[maxro];
@@ -192,9 +193,9 @@ data_t Solver::reflect(const size_t layer)
   // sum up contributions to i from different incident particles j
   auto sum = [&](data_t  &tmp) {
 	       //tmp.clear(); // really needed?
-	       for (auto i : particles) {
+	       for (const auto i : particles) {
 		 tmp[i] = std::make_shared<Source>(*R[i][i]);
-		 for (auto j : particles) {
+		 for (const auto j : particles) {
 		   if (i!=j)
 		     *tmp[i] += *R[j][i];
 		 }
@@ -206,8 +207,8 @@ data_t Solver::reflect(const size_t layer)
   auto propagate = [&](data_t &src,
 		       const std::shared_ptr<Material> &bb,
 		       const direction dir) {
-		     for (auto i : particles)   // incident
-		       for (auto j : particles) { // scored
+		     for (const auto i : particles)   // incident
+		       for (const auto j : particles) { // scored
 			 R[i][j] = std::make_shared<Source>(*src.at(i));
 			 *R[i][j] *= (dir == kR) ? *bb->getR(i,j) : *bb->getT(i,j);
 		       }
@@ -215,7 +216,13 @@ data_t Solver::reflect(const size_t layer)
 		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
 		   };
 
-  std::cout << "TODO: this can be ran in parallel:" << std::endl;
+  std::cout << "layer: " << layer << " lmin " << lmin << " ReflectionOrder: " << maxro << std::endl;
+  for (size_t l=layer; l-- > lmin;) {
+    std::cout << "\tlayer: " << l+1 << " lmin: " << lmin << std::endl;
+    for (size_t ro=1; ro<=maxro; ++ro)
+      std::cout << "\t\tro: " << ro << std::endl;
+  }
+
 
   // first order reflection
   if (layer>=1) {
