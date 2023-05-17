@@ -107,8 +107,7 @@ data_t Solver::reflect(const size_t layer)
 
   auto propagate = [&](data_t &src,
 		       const std::shared_ptr<Material> &bb,
-		       const direction dir,
-		       const size_t l) { // i is tmp for verbose output
+		       const direction dir) {
 		     for (const auto i : particles)   // incident
 		       for (const auto j : particles) { // scored
 			 R[i][j] = std::make_shared<Source>(*src.at(i));
@@ -118,26 +117,26 @@ data_t Solver::reflect(const size_t layer)
 		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
 		   };
 
-  propagate(result, layers[layer], kR, layer); // reflected back by the current layer
+  propagate(result, layers[layer], kR); // reflected back by the current layer
   ttt[layer] = tmp1; // reflected spectra entering layer number layer-ro
 
   for (size_t i=1; i<maxro; ++i) {
     const auto l = layer-i;
-    propagate(tmp1, layers[l], kT, l); // transmitting back
+    propagate(tmp1, layers[l], kT); // transmitting back
     ttt[l] = tmp1; // reflected spectra entering layer number layer-i
   }
 
   for (size_t i=0; i<maxro; ++i) {
     const auto l = layer-i-1;
     tmp1 = ttt[l+1];
-    propagate(tmp1, layers[l], kR, l);
+    propagate(tmp1, layers[l], kR);
     rrr[l] = tmp1;
   }
 
   tmp1 = rrr[layer-maxro];
   for (size_t i=0; i<maxro; ++i) {
     const auto l = layer-maxro+1+i;
-    propagate(tmp1, layers[l], kT, l);
+    propagate(tmp1, layers[l], kT);
 
     if (l!=layer)
       for (auto j : particles)
