@@ -193,7 +193,7 @@ class Simulation(Base):
 
 def main():
     parser = argparse.ArgumentParser(description=main.__doc__,
-                                     epilog="Homepage: https://github.com/kbat/gam")
+                                     epilog="Example to run on the SLURM cluster: parallel -j40 sbatch -W :::  .case*.slurm (provided that the .slurm files are prepared for each case folder)")
     parser.add_argument('mat',   type=str, help='Material name. A folder with the same name will be created for the generated input files. The material with this name must exist in the material database defined in the Simulation class constructor.')
     parser.add_argument('version',   type=str, help='Simulation version identifier. A folder with this name will be created under the material folder.')
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='explain what is being done')
