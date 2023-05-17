@@ -66,6 +66,11 @@ class Simulation(Base):
         m1.setMX("p", "1002 3j")
         self.materials[m1.name] = m1
 
+        m2 = Material(1, "Para-H", 0.0700011)
+        m2.addComponent("1001.70c 1")
+        m2.setMT("hpara.20t")
+        self.materials[m2.name] = m2
+
         m49 = Material(49, "Concrete", 2.33578)
         m49.addComponent("1001.70c 0.00776555 1002.70c 1.16501e-06 8016.70c 0.0438499")
         m49.addComponent("11023.70c 0.00104778 12000.60c 0.000148662 13027.70c 0.00238815")
@@ -154,7 +159,7 @@ class Simulation(Base):
         print("cut:n j 0.0")
         print(f"phys:p {self.emax} 2j 1")
         print("prdmp 2j 1")
-        print("stop ctme 120")
+        print("stop ctme 5")
 
     def printInp(self, inp, mat, par, erg, dir, thick=1):
         with open(inp, "w") as f:
@@ -201,8 +206,9 @@ def main():
     args = parser.parse_args()
 
     run = Simulation(args.mat, args.version)
-    run.setEnergy(1e-9, 3001, 130)
-    run.setNCosine(18) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
+    run.particles = ('n')
+    run.setEnergy(1, 2, 1)
+    run.setNCosine(2) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
     # run.setEnergy(1e-6, 3001, 0)
     # run.setNCosine(4)
     run.Print()
