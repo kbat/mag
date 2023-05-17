@@ -295,6 +295,13 @@ data_t Solver::run(const int nr, const size_t ro)
   return result;
 }
 
+data_t Solver::runMarkov()
+{
+  if (done)
+    return result;
+}
+
+
 void Solver::save(const std::string& fname) const
 {
   TFile fout(fname.data(), "recreate");
