@@ -201,7 +201,7 @@ def main():
     args = parser.parse_args()
 
     run = Simulation(args.mat, args.version)
-    run.setEnergy(1e-6, 3001, 99)
+    run.setEnergy(1e-9, 3001, 130)
     run.setNCosine(18) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
     # run.setEnergy(1e-6, 3001, 0)
     # run.setNCosine(4)
