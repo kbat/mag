@@ -116,36 +116,24 @@ data_t Solver::reflect(const size_t layer)
 		       }
 		     sum((src==result) ? tmp1 : src);
 		     //		     R.clear(); // TODO: if called and the historam at one point is empty then no corresponding histogram in the output ROOT file.
-		     // if (dir==kR)
-		     //   std::cout << "\t\t Reflected through layer " << l << std::endl;
-		     // else
-		     //   std::cout << "\t\t Transmitted through layer " << l << std::endl;
 		   };
 
-  // std::cout << "layer: " << layer << std::endl;
   propagate(result, layers[layer], kR, layer); // reflected back by the current layer
   ttt[layer] = tmp1; // reflected spectra entering layer number layer-ro
 
-  // std::cout << "start transmitting back. maxro: " << maxro << std::endl;
   for (size_t i=1; i<maxro; ++i) {
     const auto l = layer-i;
-    // std::cout << "layer-i: " << l << std::endl;
     propagate(tmp1, layers[l], kT, l); // transmitting back
     ttt[l] = tmp1; // reflected spectra entering layer number layer-i
   }
-  // std::cout << "end" << std::endl;
 
-  // std::cout << "start reflecting" << std::endl;
   for (size_t i=0; i<maxro; ++i) {
     const auto l = layer-i-1;
     tmp1 = ttt[l+1];
     propagate(tmp1, layers[l], kR, l);
     rrr[l] = tmp1;
   }
-  // std::cout << "end" << std::endl;
 
-  // TODO: add transmitting + summing up
-  //  std::cout << "start transmitting forward + summing up" << std::endl;
   tmp1 = rrr[layer-maxro];
   for (size_t i=0; i<maxro; ++i) {
     const auto l = layer-maxro+1+i;
@@ -155,76 +143,6 @@ data_t Solver::reflect(const size_t layer)
       for (auto j : particles)
 	*tmp1[j] += *rrr[l][j];
   }
-  //  std::cout << "end" << std::endl;
-
-  return tmp1;
-
-
-  // std::cout << "here1" << std::endl;
-
-  // i=1;
-  // for (size_t l = lmin; l<layer; ++l) {
-  //   // TODO: fix the ttt index
-  //   propagate(ttt[i++], layers[l], kR, l); // reflecting back
-  //   i++;
-  // }
-
-  // std::cout << "here2" << std::endl;
-
-  // i=1; // TODO get rid of i
-  // for (size_t l = lmin+1; l<=layer; ++l) {
-  //   propagate(ttt[i++], layers[l], kT, l); // transmitting forward
-  //   i++;
-  // }
-
-  // std::cout << "here3" << std::endl;
-
-  ///////////////////////////////////////////////////////////////////////
-  // first order reflection
-  std::cout << " manual first order:" << std::endl;
-  propagate(result, layers[layer], kR, layer); // reflected back by the current layer
-  tmp2 = tmp1;
-  propagate(tmp1, layers[layer-1], kR, layer-1);// reflecting from the previous layer to the current one
-  propagate(tmp1, layers[layer], kT, layer); // transmitting through the current layer
-
-  // second order reflection
-  std::cout << " manual second order:" << std::endl;
-  if (layer >=2) {
-    propagate(tmp2, layers[layer-1], kT, layer-1);
-    tmp3 = tmp2;
-    propagate(tmp2, layers[layer-2], kR, layer-2);
-    propagate(tmp2, layers[layer-1], kT, layer-1);
-    propagate(tmp2, layers[layer],   kT, layer);
-
-    for (auto i : particles)
-      *tmp1[i] += *tmp2[i];
-  }
-
-  // // third order reflection
-  // if (layer >= 3) {
-  //   propagate(tmp3, layers[layer-2], kT);
-  //   tmp4 = tmp3;
-  //   propagate(tmp3, layers[layer-3], kR);
-  //   propagate(tmp3, layers[layer-2], kT);
-  //   propagate(tmp3, layers[layer-1], kT);
-  //   propagate(tmp3, layers[layer],   kT);
-
-  //   for (auto i : particles)
-  //     *tmp1[i] += *tmp3[i];
-  // }
-
-  // // fourth order reflection
-  // if (layer >= 4) {
-  //   propagate(tmp4, layers[layer-3], kT);
-  //   propagate(tmp4, layers[layer-4], kR);
-  //   propagate(tmp4, layers[layer-3], kT);
-  //   propagate(tmp4, layers[layer-2], kT);
-  //   propagate(tmp4, layers[layer-1], kT);
-  //   propagate(tmp4, layers[layer],   kT);
-
-  //   for (auto i : particles)
-  //     *tmp1[i] += *tmp4[i];
-  // }
 
   return tmp1;
 }
