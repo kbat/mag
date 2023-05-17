@@ -4,8 +4,7 @@
 #include "Solver.h"
 
 Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
-	       const std::vector<std::shared_ptr<Material>>& layers,
-	       const int nr) :
+	       const std::vector<std::shared_ptr<Material>>& layers) :
   sdef(sdef), layers(layers), nLayers(layers.size()), nReflectionLayers(0),
   ReflectionOrder(0),
   particles(layers[0]->getParticles())
@@ -18,15 +17,6 @@ Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
   // An empty source histogram for transported particles not present in the 'sdef' map
   emptySDEF = std::make_shared<TH2D>(*(*sdef.begin()).second.get());
   emptySDEF->Reset();
-
-  // Set the number of last layers where reflection should be taken
-  // into account. If negative, reflection in all layers is calculated
-  // (this is slow). Experiment with this number to set it to the
-  // minimum value which does not yet significantly biases results.
-  if (nr<0)
-    nReflectionLayers = nLayers;
-  else
-    nReflectionLayers = std::min(nr,(int)nLayers);
 
   done = false;
 }
@@ -239,12 +229,22 @@ data_t Solver::reflect(const size_t layer)
   return tmp1;
 }
 
-data_t Solver::run(const size_t ro)
+data_t Solver::run(const int nr, const size_t ro)
 {
   // ro : reflection order to take into account [only ro<=1 implemented]
 
   if (done)
     return result;
+
+  // Set the number of last layers where reflection should be taken
+  // into account. If negative, reflection in all layers is calculated
+  // (this is slow). Experiment with this number to set it to the
+  // minimum value which does not yet significantly biases results.
+  if (nr<0)
+    nReflectionLayers = nLayers;
+  else
+    nReflectionLayers = std::min(nr,(int)nLayers);
+
 
   ReflectionOrder = ro;
 

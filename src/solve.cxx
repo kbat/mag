@@ -82,8 +82,8 @@ int main(int argc, const char **argv)
   auto h2 = layers[0]->getSDEF();
   set_sdef(vsdef, h2, sdef);
 
-  auto solver = std::make_shared<Solver>(sdef, layers, -1);
-  solver->run(4);
+  auto solver = std::make_shared<Solver>(sdef, layers);
+  solver->run(-1,4);
 
   const auto fout = args->GetMap()["o"].as<std::string>();
   if (!fout.empty())

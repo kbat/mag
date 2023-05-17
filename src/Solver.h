@@ -28,10 +28,9 @@ class Solver {
   void fillSDEF();
  public:
   Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&,
-	 const std::vector<std::shared_ptr<Material>>&,
-	 const int nr);
+	 const std::vector<std::shared_ptr<Material>>&);
   //  virtual ~Solver() { std::cout << "Solver destructor" << std::endl; }
-  data_t run(const size_t ro=1);
+  data_t run(const int nr, const size_t ro);
   void   save(const std::string&) const;
   double getNeutronFTD(const double) const;
   double getPhotonFTD(const double) const;

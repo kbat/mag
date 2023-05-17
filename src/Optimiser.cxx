@@ -186,7 +186,7 @@ void Optimiser::run(size_t ngen)
   		[&](const auto &m){
   		  std::vector<std::shared_ptr<Material>> layers = getLayers(m);
 		  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
-  		  solutions.emplace_back(std::make_shared<Solver>(sdef, layers, -1));
+  		  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   		});
 
   // We shuffle combinations of two materials of complexity 2 in different proportions
@@ -196,7 +196,7 @@ void Optimiser::run(size_t ngen)
 	std::vector<std::shared_ptr<Material>> layers = getLayers(m1, m2, j);
 	if (layers.size()) {
 	  layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
-	  solutions.emplace_back(std::make_shared<Solver>(sdef, layers, -1));
+	  solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
 	}
       }
 
@@ -221,7 +221,7 @@ void Optimiser::run(size_t ngen)
   for (size_t i=0; i<nRandom; ++i) {
     std::vector<std::shared_ptr<Material>> layers = getLayers();
     layers.insert(layers.end(), tail.begin(), tail.end()); // add tail
-    solutions.emplace_back(std::make_shared<Solver>(sdef, layers, -1));
+    solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
   }
 
   nprint == -1 ? solutions.size() : nprint;
@@ -235,7 +235,7 @@ void Optimiser::run(size_t ngen)
     tbb::parallel_for(tbb::blocked_range<size_t>(0,solutions.size()),
 		      [&](const tbb::blocked_range<size_t>& r) {
 			for (size_t i=r.begin(); i<r.end(); ++i)
-			  solutions[i]->run(RO);
+			  solutions[i]->run(-1,RO);
 		      });
     auto stop  = std::chrono::system_clock::now();
     std::chrono::duration<double> dur = stop-start;
@@ -288,7 +288,7 @@ void Optimiser::run(size_t ngen)
 	  //   crossover(*solutions.begin(), *it) : crossover(*it, *std::prev(it));
 
 	  if (layers.size()!=0)
-	    solutions.emplace_back(std::make_shared<Solver>(sdef, layers, -1));
+	    solutions.emplace_back(std::make_shared<Solver>(sdef, layers));
 	  else {
 	    std::cerr << "Error: empty layers" << std::endl;
 	    exit(1);
