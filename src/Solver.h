@@ -22,7 +22,6 @@ class Solver {
   bool done; // true the run method was called
   std::shared_ptr<TH2D> emptySDEF; ///< TODO: delete
   size_t getFTDbin(const double, const std::vector<float>& ebins) const;
-  data_t reflectOLD(const size_t layer);
   data_t reflect(const size_t layer);
   bool checkParticles() const;
   bool checkSDEF() const;
