@@ -58,11 +58,11 @@ def main():
                 print("%s -> %s" % (p0, p))
 
             hT = ROOT.TH2D(m[p0][p].T)
-            hT.SetNameTitle(p0+"T"+p, "T: %s #rightarrow %s" % (p0, p))
+            hT.SetNameTitle(p0+"T"+p, "T: %s #rightarrow %s;scored;incident" % (p0, p))
             T.append(hT)
 
             hR = ROOT.TH2D(m[p0][p].R)
-            hR.SetNameTitle(p0+"R"+p, "R: %s #rightarrow %s" % (p0, p))
+            hR.SetNameTitle(p0+"R"+p, "R: %s #rightarrow %s;scored;incident" % (p0, p))
             R.append(hR)
 
     # save matrices
