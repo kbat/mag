@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.6.0)
 
-#target_include_directories( myTarget PRIVATE ${Boost_INCLUDE_DIR})
-#target_link_libraries( myTarget ${Boost_LIBRARIES} )
-
-project(orbitloaderlib)
+project(gam)
 add_library(Gam STATIC
         functions.cxx
         Material.cxx

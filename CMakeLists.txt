@@ -2,7 +2,8 @@ project(gam)
 
 cmake_minimum_required(VERSION 3.6)
 
-set(CMAKE_MODULE_PATH              "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+#set(CMAKE_MODULE_PATH              "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS  ON)
@@ -22,4 +23,6 @@ include(cmake/BuildFlags.cmake)
 include_directories(src)
 
 add_subdirectory(src)
+
+include(CTest)
 add_subdirectory(test)
