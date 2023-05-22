@@ -54,9 +54,11 @@ int main(int argc, const char **argv)
     {
       if (is_number(l))
 	  n = std::stoi(l);
-      else
+      else {
 	for (size_t i=0; i<n; ++i)
 	  vlayers.push_back(l);
+	n=1;
+      }
     }
 
   std::vector<std::shared_ptr<Material>> layers;
@@ -72,6 +74,8 @@ int main(int argc, const char **argv)
       return 1;
     }
   }
+
+  assert(check_layers(layers));
 
   // print layer configuration
   const size_t nLayers = vlayers.size();

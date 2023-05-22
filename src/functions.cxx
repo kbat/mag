@@ -81,3 +81,34 @@ void set_sdef(const std::vector<std::string>& vsdef,
 
   return;
 }
+
+bool check_layers(std::vector<std::shared_ptr<Material>>& layers)
+{
+  // Check if matrices of all layers have the same shape. This
+  // function assumes that all matrices of the same material have the
+  // same shape (so that it's enough to compare with the other layers
+  // only one of them) - TODO
+
+  const auto l0 = *layers.begin();
+  const auto p = *l0->getParticles().begin(); // just any existing particle
+  const auto m0 = l0->getT(p,p);
+
+  bool val = true;
+
+  for_each(layers.begin()+1, layers.end(),
+	   [&](const auto& l)  {
+	     const auto ml = l->getT(p,p);
+	     std::cout << l->getName() << std::endl;
+	     if (m0->GetNrows()!=ml->GetNrows()) {
+	       std::cerr << "check_layers: different number of rows between "
+			 << l0->getName() << " and " << l->getName() << std::endl;
+	       val = false;
+	     } else if (m0->GetNcols()!=ml->GetNcols()) {
+	       std::cerr << "check_layers: different number of columns between "
+			 << l0->getName() << " and " << l->getName() << std::endl;
+	       val = false;
+	     }
+	   });
+
+  return val;
+}
