@@ -2,6 +2,7 @@
 #include <numeric>
 
 #include "Solver.h"
+#include "Markov.h"
 
 Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
 	       const std::vector<std::shared_ptr<Material>>& layers) :
@@ -216,6 +217,12 @@ data_t Solver::runMarkov()
 {
   if (done)
     return result;
+
+  fillSDEF();
+
+  auto m = std::make_shared<Markov>(layers);
+
+  return result; // WRONG
 }
 
 

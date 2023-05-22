@@ -66,7 +66,7 @@ class Simulation(Base):
         m1.setMX("p", "1002 3j")
         self.materials[m1.name] = m1
 
-        m2 = Material(1, "Para-H", 0.0700011)
+        m2 = Material(2, "Para-H", 0.0700011)
         m2.addComponent("1001.70c 1")
         m2.setMT("hpara.20t")
         self.materials[m2.name] = m2

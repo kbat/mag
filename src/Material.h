@@ -18,13 +18,15 @@ class Material
   ///! reflection matrices and their names
   std::map<std::string, std::shared_ptr<TMatrixD> > R;
   std::shared_ptr<TH2D> sdef; ///< [empty] sdef histogram
+  std::shared_ptr<TMatrixD> empty; ///< empty matrix (for the Markov process)
 
   std::shared_ptr<TMatrixD> h2m(const TH2D *h) const;
+  std::shared_ptr<TMatrixD> get(const std::string&) const;
  public:
   Material(const std::string&, const std::string&, const size_t, const double&);
-  std::shared_ptr<TMatrixD> get(const std::string&) const;
   std::shared_ptr<TMatrixD> getT(const char, const char) const;
   std::shared_ptr<TMatrixD> getR(const char, const char) const;
+  std::shared_ptr<TMatrixD> getEmpty();
   // to prevent data loss conversion if size_t passed instead of char
   std::shared_ptr<TMatrixD> getT(const size_t, const size_t) const = delete;
   std::shared_ptr<TMatrixD> getR(const size_t, const size_t) const = delete;

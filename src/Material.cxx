@@ -7,7 +7,7 @@ Material::Material(const std::string& name,
 		   const std::string& fname,
 		   const size_t id,
 		   const double& den) :
-  name(name), id(id), den(den)
+  name(name), id(id), den(den), empty(nullptr)
 {
   // Constructor
 
@@ -90,6 +90,19 @@ std::shared_ptr<TMatrixD> Material::getR(const char pIn,
   name += pOut;
 
   return get(name);
+}
+
+std::shared_ptr<TMatrixD> Material::getEmpty()
+{
+  // Return empty matrix (for the Markov process)
+  if (empty)
+    return empty;
+
+  const auto p = particles.begin(); // just any existing particle
+
+  empty = std::make_shared<TMatrixD>(TMatrixD::kZero,*getT(*p,*p));
+
+  return empty;
 }
 
 void Material::print() const
