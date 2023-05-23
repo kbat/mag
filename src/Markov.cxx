@@ -20,6 +20,7 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
   const size_t ny = N+2;
 
   const auto empty = layers[0]->getEmpty();
+  const auto unit = layers[0]->getUnit();
   std::shared_ptr<TMatrixD> m = nullptr;
   std::string title; // tmp
 
@@ -39,8 +40,8 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
 	}
       } else if (i==j+1) { // last layer - only reflection
 	if (j==0) {
-	  m = empty;
-	  title = "1E";
+	  m = unit;
+	  title = " E";
 	} else {
 	  m = layers[i-2]->getT('n','n');
 	  title = "T" + std::to_string(i-2);
@@ -109,7 +110,7 @@ data_t Markov::run()
 
   const auto r = result['n'];
 
-  std::cout << r->GetNrows() << std::endl;
+  std::cout << "n rows: " <<r->GetNrows() << std::endl;
 
   return result;
 }

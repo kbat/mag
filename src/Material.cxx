@@ -7,7 +7,7 @@ Material::Material(const std::string& name,
 		   const std::string& fname,
 		   const size_t id,
 		   const double& den) :
-  name(name), id(id), den(den), empty(nullptr)
+  name(name), id(id), den(den), empty(nullptr), unit(nullptr)
 {
   // Constructor
 
@@ -95,14 +95,29 @@ std::shared_ptr<TMatrixD> Material::getR(const char pIn,
 std::shared_ptr<TMatrixD> Material::getEmpty()
 {
   // Return empty matrix (for the Markov process)
+
   if (empty)
     return empty;
 
-  const auto p = particles.begin(); // just any existing particle
+  const auto p = particles.begin(); // just any existing particle. TODO: bin with all transported particles
 
   empty = std::make_shared<TMatrixD>(TMatrixD::kZero,*getT(*p,*p));
 
   return empty;
+}
+
+std::shared_ptr<TMatrixD> Material::getUnit()
+{
+  // Return unit (identity) matrix (for the Markov process)
+
+  if (unit)
+    return unit;
+
+  const auto p = particles.begin(); // just any existing particle. TODO: bin with all transported particles
+
+  unit = std::make_shared<TMatrixD>(TMatrixD::kUnit,*getT(*p,*p));
+
+  return unit;
 }
 
 void Material::print() const

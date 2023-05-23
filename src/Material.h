@@ -19,6 +19,7 @@ class Material
   std::map<std::string, std::shared_ptr<TMatrixD> > R;
   std::shared_ptr<TH2D> sdef; ///< [empty] sdef histogram
   std::shared_ptr<TMatrixD> empty; ///< empty matrix (for the Markov process)
+  std::shared_ptr<TMatrixD> unit; ///< identity matrix (for the Markov process)
 
   std::shared_ptr<TMatrixD> h2m(const TH2D *h) const;
   std::shared_ptr<TMatrixD> get(const std::string&) const;
@@ -27,6 +28,7 @@ class Material
   std::shared_ptr<TMatrixD> getT(const char, const char) const;
   std::shared_ptr<TMatrixD> getR(const char, const char) const;
   std::shared_ptr<TMatrixD> getEmpty();
+  std::shared_ptr<TMatrixD> getUnit();
   // to prevent data loss conversion if size_t passed instead of char
   std::shared_ptr<TMatrixD> getT(const size_t, const size_t) const = delete;
   std::shared_ptr<TMatrixD> getR(const size_t, const size_t) const = delete;
