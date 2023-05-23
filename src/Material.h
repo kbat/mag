@@ -39,3 +39,8 @@ class Material
 };
 
 #endif
+
+/* TODO
+ * implement the checkMatrices function to be sure all the matrices are of the same shape
+ * if try to avoid returning matrices. If do it, return TMatrixTLazy instead
+ */

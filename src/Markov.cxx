@@ -1,9 +1,9 @@
 #include "Markov.h"
 
 Markov::Markov(const std::vector<std::shared_ptr<Material>>& layers) :
-  layers(layers)
+  layers(layers), M(nullptr)
 {
-  const auto mop = createMOP();
+  createMatrix();
 }
 
 std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
@@ -46,4 +46,44 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
   }
 
   return mop;
+}
+
+void Markov::createMatrix()
+{
+  const auto mop = createMOP();
+  //  const size_t nx = (*mop.begin()).size();
+  const Int_t nx = mop[0].size();
+  const Int_t ny = mop.size();
+
+  assert(nx == ny);
+
+  std::cout << "createMatrix: block matrix shape: " << nx << " " << ny << std::endl;
+
+  const auto m0 = mop[0][0];
+  const Int_t NX = m0->GetNcols() * nx;
+  const Int_t NY = m0->GetNrows() * ny;
+
+  std::cout << "createMatrix: Markov process matrix shape: " << NX << " " << NY << std::endl;
+
+  M = std::make_shared<TMatrixD>(NX,NY);
+
+  // TODO: try to use sparse matrix and its GetMatrix method instead
+  Int_t i(0), j(0);
+  for (Int_t mopx = 0; mopx<nx; ++mopx) {
+    for (Int_t x = 0; x<m0->GetNcols(); ++x) {
+      for (Int_t mopy = 0; mopy<ny; ++mopy) {
+	for (Int_t y = 0; y<m0->GetNrows(); ++y) {
+	  const auto m = mop[mopx][mopy];
+	  //	  std::cout << (*m)[x][y] << " " << std::flush;
+	  (*M)[j][i] = (*m)[x][y];
+	  i++;
+	} // y
+      } // mopy
+      i=0;
+      j++;
+      //      std::cout << std::endl;
+    } // x
+  } // mopx
+
+  //  M->Print();
 }

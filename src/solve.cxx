@@ -88,11 +88,15 @@ int main(int argc, const char **argv)
   set_sdef(vsdef, h2, sdef);
 
   auto solver = std::make_shared<Solver>(sdef, layers);
-  //  solver->run(-1,4);
-  solver->runMarkov();
 
-  std::cerr << "WARNING: early return" << std::endl;
-  return 0; // early return
+  if (!true)
+    solver->run(-1,4);
+  else {
+    solver->runMarkov();
+
+    std::cerr << "WARNING: early return" << std::endl;
+    return 0; // early return
+  }
 
 
 
