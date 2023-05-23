@@ -12,7 +12,7 @@ using data_t = std::map<ParticleID, std::shared_ptr<TransportMatrix>>;
 
 class Solver {
  private:
-  std::map<ParticleID, std::shared_ptr<TH2D>>  sdef;   ///< source definition
+  std::map<ParticleID, std::shared_ptr<TH2D>> sdef;   ///< source definition
   std::vector<std::shared_ptr<Material>> layers; ///< vector of materials
   const size_t nLayers;           ///< number of material layers
   size_t nReflectionLayers; // number of last layers where reflection should be taken into account

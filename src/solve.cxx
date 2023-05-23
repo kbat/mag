@@ -87,7 +87,7 @@ int main(int argc, const char **argv)
   auto h2 = layers[0]->getSDEF();
   set_sdef(vsdef, h2, sdef);
 
-  auto solver = std::make_shared<Solver>(sdef, layers);
+  auto solver = std::make_unique<Solver>(sdef, layers);
 
   if (!true)
     solver->run(-1,4);

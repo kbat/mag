@@ -4,20 +4,20 @@
 #include "Solver.h"
 #include "Markov.h"
 
-Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>&  sdef,
+Solver::Solver(const std::map<ParticleID, std::shared_ptr<TH2D>>& sdef,
 	       const std::vector<std::shared_ptr<Material>>& layers) :
   sdef(sdef), layers(layers), nLayers(layers.size()), nReflectionLayers(0),
   ReflectionOrder(0),
   particles(layers[0]->getParticles())
 {
-  if (!checkParticles())
-    exit(1);
-
+  assert(checkParticles());
   assert(checkSDEF());
 
   // An empty source histogram for transported particles not present in the 'sdef' map
   emptySDEF = std::make_shared<TH2D>(*(*sdef.begin()).second.get());
   emptySDEF->Reset();
+
+  fillSDEF();
 
   done = false;
 }
@@ -166,9 +166,6 @@ data_t Solver::run(const int nr, const size_t ro)
 
   ReflectionOrder = ro;
 
-  fillSDEF();
-
-
   for (size_t layer=0; layer<nLayers; ++layer) {
     // reflected spectra (if needed)
     data_t reflected;
@@ -218,11 +215,11 @@ data_t Solver::runMarkov()
   if (done)
     return result;
 
-  fillSDEF();
+  auto m = std::make_unique<Markov>(result,layers);
 
-  auto m = std::make_shared<Markov>(layers);
+  done = true;
 
-  return result; // WRONG
+  return result;
 }
 
 

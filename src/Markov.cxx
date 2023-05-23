@@ -1,7 +1,8 @@
 #include "Markov.h"
 
-Markov::Markov(const std::vector<std::shared_ptr<Material>>& layers) :
-  layers(layers), M(nullptr)
+Markov::Markov(data_t& result,
+	       const std::vector<std::shared_ptr<Material>>& layers) :
+  result(result), layers(layers), M(nullptr)
 {
   createMatrix();
 }
@@ -65,9 +66,9 @@ void Markov::createMatrix()
 
   std::cout << "createMatrix: Markov process matrix shape: " << NX << " " << NY << std::endl;
 
-  M = std::make_shared<TMatrixD>(NX,NY);
-
   // TODO: try to use sparse matrix and its GetMatrix method instead
+  M = std::make_unique<TMatrixD>(NX,NY);
+
   Int_t i(0), j(0);
   for (Int_t mopx = 0; mopx<nx; ++mopx) {
     for (Int_t x = 0; x<m0->GetNcols(); ++x) {
