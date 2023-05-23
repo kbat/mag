@@ -216,6 +216,7 @@ data_t Solver::runMarkov()
     return result;
 
   auto m = std::make_unique<Markov>(result,layers);
+  m->run();
 
   done = true;
 

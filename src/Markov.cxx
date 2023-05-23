@@ -52,6 +52,10 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
 void Markov::createMatrix()
 {
   const auto mop = createMOP();
+
+  return;
+
+
   //  const size_t nx = (*mop.begin()).size();
   const Int_t nx = mop[0].size();
   const Int_t ny = mop.size();
@@ -86,5 +90,16 @@ void Markov::createMatrix()
     } // x
   } // mopx
 
-  //  M->Print();
+   M->Print();
+}
+
+data_t Markov::run()
+{
+  // Run the Markov process
+
+  const auto r = result['n'];
+
+  std::cout << r->GetNrows() << std::endl;
+
+  return result;
 }
