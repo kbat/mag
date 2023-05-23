@@ -68,7 +68,7 @@ TVectorD &Source::operator*=(const TMatrixD &m)
 {
   // Multiplication assignment operator
   // reimplemented since in ROOT a *= b return b*a but not a*b
-  // it's slow, will replace it with Eigen matrixes
+  // it's slow, will replace it with Eigen matrixes OR see efficient ROOT matrix techniques TODO
 
   const size_t n = vec->GetNrows();
   std::shared_ptr<TVectorD> vec1 = std::make_shared<TVectorD>(n);

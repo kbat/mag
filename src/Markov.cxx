@@ -1,8 +1,8 @@
 #include "Markov.h"
 
-Markov::Markov(data_t& result,
+Markov::Markov(const data_t& sdef,
 	       const std::vector<std::shared_ptr<Material>>& layers) :
-  result(result), layers(layers), M(nullptr)
+  sdef(sdef), layers(layers), M(nullptr), result({})
 {
   createMatrix();
 }
@@ -108,9 +108,17 @@ data_t Markov::run()
 {
   // Run the Markov process
 
-  const auto r = result['n'];
+  const auto r = sdef['n'];
+  auto sdefv = r->GetVector();
+  sdefv->Print();
+  sdefv->ResizeTo(M->GetNrows());
+  sdefv->Print();
 
-  std::cout << "n rows: " <<r->GetNrows() << std::endl;
+  std::cout << "n rows: " << sdefv->GetNrows() << std::endl;
 
-  return result;
+  (*sdefv) *= (*M);
+
+  sdefv->Print();
+
+  return sdef;
 }
