@@ -15,7 +15,7 @@ class Markov {
   void createMatrix();
  public:
   Markov(const data_t&,const std::vector<std::shared_ptr<Material>>&);
-  data_t run();
+  data_t run(const size_t);
 };
 
 #endif

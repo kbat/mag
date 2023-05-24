@@ -3,6 +3,11 @@ void draw1()
   TFile *f = new TFile("test1.root");
   TH2D *sdef = f->Get<TH2D>("sdef");
   TH2D *nTn = f->Get<TH2D>("nTn");
+  TH2D *nRn = f->Get<TH2D>("nRn");
+
+  sdef->SetMarkerSize(5);
+  nTn->SetMarkerSize(5);
+  nRn->SetMarkerSize(5);
 
   TCanvas *c1 = new TCanvas;
   c1->Divide(2,2);
@@ -12,6 +17,10 @@ void draw1()
 
   c1->cd(2);
   nTn->Draw("col,text");
+
+  c1->cd(4);
+  nRn->Draw("col,text");
+
 }
 
 void draw2()
@@ -147,14 +156,39 @@ void draw6()
 }
 
 
+void draw10()
+{
+  TFile *f = new TFile("test10.root");
+  TH2D *sdef = f->Get<TH2D>("sdef");
+  TH2D *nTn = f->Get<TH2D>("nTn");
+  TH2D *nRn = f->Get<TH2D>("nRn");
+
+  sdef->SetMarkerSize(5);
+  nTn->SetMarkerSize(5);
+  nRn->SetMarkerSize(5);
+
+  TCanvas *c1 = new TCanvas;
+  c1->Divide(2,2);
+
+  c1->cd(1);
+  sdef->Draw("col,text");
+
+  c1->cd(2);
+  nTn->Draw("col,text");
+
+  c1->cd(4);
+  nRn->Draw("col,text");
+
+}
+
 void draw()
 {
   gStyle->SetOptStat(0);
-  //  gStyle->SetMarkerSize(5);
-  //  draw1();
+  gStyle->SetMarkerSize(5);
+  draw10();
   // draw2();
   //  draw3();
   //  draw4();
   // draw5();
-  draw6();
+  //draw6();
 }

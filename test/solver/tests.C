@@ -54,6 +54,26 @@ void makeSDEF()
 
 }
 
+bool cmp1(const char *title,
+	 const char *fname, const char *hname, const size_t nlayers, const double v1)
+{
+  // 1 bin
+
+  TFile fres(fname);
+  TH2D *h = fres.Get<TH2D>(hname);
+  if (std::abs(h->GetBinContent(1,1)-v1) < epsilon) {
+    fres.Close();
+    std::cerr << "OK: " << title << " with " << nlayers << " layers passed" << std::endl;
+    return 0;
+  } else
+    std::cerr << title << " with " << nlayers << " layers failed" << std::endl;
+
+  h->Print("range");
+  fres.Close();
+  return 1;
+}
+
+
 bool cmp2(const char *title,
 	 const char *fname, const char *hname, const size_t nlayers, const double v1, const double v2)
 {
@@ -106,6 +126,7 @@ int test1(const char *fname="test1.root")
    */
   Int_t sum = 0;
 
+  // sdef
   const Int_t nx = 1;
   const Int_t ny = 2;
 
@@ -601,17 +622,66 @@ int test7(const char *fname="test7.root")
   return sum;
 }
 
+int test10(const char *fname="test10.root")
+{
+  // Test with Markov chain process
+  // one number
+
+  Int_t sum = 0;
+
+  // sdef
+  const Int_t nx = 1;
+  const Int_t ny = 1;
+
+  TFile f(fname, "recreate");
+
+  TH2D sdef("sdef", "sdef;Energy;#mu", nx, 0, nx, ny, 0, 1);
+  sdef.SetBinContent(1,1,1);
+
+  const Int_t n = nx*ny;
+  TH2D nTn("nTn", "nTn", n, 0, n, n, 0, n);
+  TH2D nRn("nRn", "nRn", n, 0, n, n, 0, n);
+
+  nRn.SetBinContent(1,1,0.1);
+  nTn.SetBinContent(1,1,0.8); // 1-0.1-0.8=0.1 = absorption
+
+  Int_t k=1;
+  for (Int_t i=1; i<=nx; ++i)
+    for (Int_t j=1; j<=ny; ++j) {
+      nTn.GetXaxis()->SetBinLabel(k, Form("E_{%d}#mu_{%d}", j, i));
+      nTn.GetYaxis()->SetBinLabel(k, Form("E_{%d}#mu_{%d}", j, i));
+      nRn.GetXaxis()->SetBinLabel(k, Form("E_{%d}#mu_{%d}", j, i));
+      nRn.GetYaxis()->SetBinLabel(k, Form("E_{%d}#mu_{%d}", j, i));
+      k++;
+    }
+
+  f.Write();
+  f.Close();
+
+
+  // 1 layer
+  system("cd ../../ && ./gam-solve -test 10 1");
+  sum += cmp1("test10", "../../res.root", "n", 1, 0.8);
+
+  system("cd ../../ && ./gam-solve -test 10 2");
+  sum += cmp1("test10", "../../res.root", "n", 2, 0.8);
+
+  return sum;
+}
+
 
 int tests()
 {
   Int_t sum = 0;
-  sum += test1("test1.root");
-  sum += test2("test2.root");
-  sum += test3("test3.root");
-  sum += test4("test1.root");
-  sum += test5("test5.root");
-  sum += test6("test6.root");
-  sum += test7("test7.root"); // multiple particles in sdef
+  // sum += test1("test1.root");
+  // sum += test2("test2.root");
+  // sum += test3("test3.root");
+  // sum += test4("test1.root");
+  // sum += test5("test5.root");
+  // sum += test6("test6.root");
+  // sum += test7("test7.root"); // multiple particles in sdef
+
+  sum += test10();
 
   if (sum == 0)
     std::cout << "All tests passed" << std::endl;

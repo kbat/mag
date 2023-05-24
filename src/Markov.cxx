@@ -90,6 +90,7 @@ void Markov::createMatrix()
       for (Int_t mopy = 0; mopy<ny; ++mopy) {
 	for (Int_t y = 0; y<m0->GetNrows(); ++y) {
 	  const auto m = mop[mopx][mopy];
+	  std::cout.width(2);
 	  std::cout << (*m)[x][y] << " " << std::flush;
 	  (*M)[j][i] = (*m)[x][y];
 	  i++;
@@ -104,19 +105,46 @@ void Markov::createMatrix()
   //  M->Print();
 }
 
-data_t Markov::run()
+data_t Markov::run(const size_t n)
 {
-  // Run the Markov process
+  // Run the Markov process n times
 
   const auto r = sdef['n'];
   auto sdefv = r->GetVector();
-  sdefv->Print();
+  const Int_t N = sdefv->GetNrows();
+  std::cout << "size: " << N << std::endl;
   sdefv->ResizeTo(M->GetNrows());
-  sdefv->Print();
 
-  std::cout << "n rows: " << sdefv->GetNrows() << std::endl;
+  const auto sdefm =
+    std::make_unique<TMatrixD>(1,sdefv->GetNrows());
+  for (Int_t i=0; i<sdefv->GetNrows(); ++i)
+    (*sdefm)[0][i] = (*sdefv)[i];
 
-  (*sdefv) *= (*M);
+  std::cout << "SDEF matrix:" << std::endl;
+  sdefm->Print();
+
+  std::cout << "start multiplying" << std::endl;
+  Double_t ref(0.0); // reflected backwards
+  Double_t sum(0.0); // transmitted forward
+  for (size_t i=0; i<n; ++i) {
+    std::cout <<  i << " out of " << n << std::endl;
+    (*sdefm) *= (*M);
+    ref += (*sdefm)[0][0];
+    (*sdefm)[0][0] = 0.0;
+    sum += (*sdefm)[0][sdefm->GetNcols()-1];
+    (*sdefm)[0][sdefm->GetNcols()-1] = 0.0;
+    sdefm->Print();
+    std::cout << "ref and sum: " << ref << " " << sum << std::endl;
+
+  }
+  std::cout << "end multiplying: " << ref << " " << sum << std::endl;
+
+  sdefm->Print();
+
+
+  sdefv->ResizeTo(N);
+  for (Int_t i=0; i<N; ++i)
+    (*sdefv)[i] = (*sdefm)[0][sdefm->GetNcols()-N+i];
 
   sdefv->Print();
 

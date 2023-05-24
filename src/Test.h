@@ -7,7 +7,7 @@
 class Test
 {
 private:
-  const size_t n;
+  const size_t n; //< test number
   const size_t nLayers;
   std::map<char, std::shared_ptr<TH2D>> sdef;
 public:
