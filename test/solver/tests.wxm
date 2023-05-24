@@ -610,6 +610,161 @@ dt2e + rft2e;
 /* [wxMaxima: input   end   ] */
 
 
+/* [wxMaxima: title   start ]
+Test 19: single particle, Markov process
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: section start ]
+Transmission matrices (old style)
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+nTn : matrix([12]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Spectrum of neutrons incident on the 1st layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef : matrix([1]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after the 1st layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after the 2nd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTn.nTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutron spectrum after the 3rd layer
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.nTn.nTn.nTn;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Markov process
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+M: matrix([0,1,0], [0.1,0,0.9], [0,0,0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef: matrix([1,0,0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M; /* The beam is now about to interact with the first layer */
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+two layers
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+M: matrix([0,1,0,0], [0.1, 0, 0.8, 0], [0, 0.1, 0, 0.8], [0,0,0,0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef: matrix([1, 0,0,0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M.M; /* The beam has interacted with the second layer*/
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/*now we need to zero the first sdef element (it corresponds to the reflected neutrons - should keep the sum of it) */;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef: matrix([0.0,0.0,0.8,0.0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Neutrons that leave do not come back, therefore we zero the last value (0.64) and we keep the sum of it since it contributes to the neutron which left into the forward direction 
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef: matrix([0, 0.08, 0, 0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Again, 0.008 corresponds to the neutrons reflected back (we zero it) and last 0.0 - to the forward propagating neutrons (we should zero it and keep the sum, but it is anyway zero. At this state, the total forward flux is 0.64 + 0 = 0.64 
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef: matrix([0, 0, 0.064, 0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sdef.M;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+0.64+0.0512;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+SA after 30 iterations: 0.695652;
+   [wxMaxima: comment end   ] */
+
+
 
 /* Old versions of Maxima abort on loading files that end in a comment. */
 "Created with wxMaxima 20.12.1"$
