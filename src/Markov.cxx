@@ -89,15 +89,15 @@ void Markov::createMatrix()
       for (Int_t mopy = 0; mopy<ny; ++mopy) {
 	for (Int_t y = 0; y<m0->GetNrows(); ++y) {
 	  const auto m = mop[mopx][mopy];
-	  std::cout.width(2);
-	  std::cout << (*m)[x][y] << " " << std::flush;
+	  // std::cout.width(2);
+	  // std::cout << (*m)[x][y] << " " << std::flush;
 	  (*M)[j][i] = (*m)[x][y];
 	  i++;
 	} // y
       } // mopy
       i=0;
       j++;
-      std::cout << std::endl;
+      // std::cout << std::endl;
     } // x
   } // mopx
 
@@ -112,15 +112,15 @@ data_t Markov::run(const size_t n)
 
   std::shared_ptr<TVectorD> sdefv = r->GetVector();
   const Int_t N = sdefv->GetNrows();
-  std::cout << "size: " << N << std::endl;
+  // std::cout << "size: " << N << std::endl;
   sdefv->ResizeTo(M->GetNrows());
 
   TMatrixD sdefm(1,sdefv->GetNrows());
   for (Int_t i=0; i<sdefv->GetNrows(); ++i)
     sdefm[0][i] = (*sdefv)[i];
 
-  std::cout << "SDEF matrix:" << std::endl;
-  sdefm.Print();
+  // std::cout << "SDEF matrix:" << std::endl;
+  //  sdefm.Print();
 
   std::cout << "start multiplying" << std::endl;
 
@@ -138,21 +138,22 @@ data_t Markov::run(const size_t n)
       sdefm[0][sdefm.GetNcols()-N+j] = 0.0;
     }
 
-    std::cout << "ref and sum: " << std::endl;
-    ref->Print();
-    fwd->Print();
+    // std::cout << "ref and sum: " << std::endl;
+    // ref->Print();
+    // fwd->Print();
+    std::cout << "fwd sum: " << fwd->Sum() << std::endl;
 
   }
   std::cout << "end multiplying: " << std::endl;
 
-  sdefm.Print();
+  // sdefm.Print();
 
   // set the sdef vector values to the forward spectrum, but the
   // former at first needs to be made compatible with the latter:
   r->GetVector()->ResizeTo(N);
   (*r->GetVector()) = (*fwd);
 
-  r->GetVector()->Print();
+  //r->GetVector()->Print();
 
   return sdef;
 }
