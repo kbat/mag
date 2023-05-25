@@ -11,7 +11,7 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
 {
   // Create the block matrix of pointers
 
-  std::vector<std::vector<std::shared_ptr<TMatrixD>>> mop;
+  std::vector<std::vector<std::shared_ptr<TMatrixD>>> mop; // TODO: use the ROOT block matrix class
 
   const size_t N = layers.size();
   // An additional layers: N=1th - transmission forward from the last layer:
@@ -21,8 +21,8 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
 
   const auto empty = layers[0]->getEmpty();
   const auto unit = layers[0]->getUnit();
-  std::shared_ptr<TMatrixD> m = nullptr;
-  std::string title; // tmp
+  std::shared_ptr<TMatrixD> m = nullptr; // TODO: is it better to declare it inside loops?
+  std::string title; // TODO: is it better to declare it inside loops? see the ESC19 notes
 
   for (size_t j=0; j<ny; ++j) {
     std::vector<std::shared_ptr<TMatrixD>> row;
@@ -67,7 +67,6 @@ void Markov::createMatrix()
 {
   const auto mop = createMOP();
 
-  //  const size_t nx = (*mop.begin()).size();
   const Int_t nx = mop[0].size();
   const Int_t ny = mop.size();
 
@@ -79,9 +78,9 @@ void Markov::createMatrix()
   const Int_t NX = m0->GetNcols() * nx;
   const Int_t NY = m0->GetNrows() * ny;
 
-  std::cout << "createMatrix: Markov process matrix shape: " << NX << " " << NY << std::endl;
+  std::cout << "createMatrix: Markov process plain matrix shape: " << NX << " " << NY << std::endl;
 
-  // TODO: try to use sparse matrix and its GetMatrix method instead
+  // TODO: use sparse matrix and its GetMatrix method instead
   M = std::make_unique<TMatrixD>(NX,NY);
 
   Int_t i(0), j(0);
@@ -109,43 +108,50 @@ data_t Markov::run(const size_t n)
 {
   // Run the Markov process n times
 
-  const auto r = sdef['n'];
-  auto sdefv = r->GetVector();
+  const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
+
+  std::shared_ptr<TVectorD> sdefv = r->GetVector();
   const Int_t N = sdefv->GetNrows();
   std::cout << "size: " << N << std::endl;
+
   sdefv->ResizeTo(M->GetNrows());
 
-  const auto sdefm =
-    std::make_unique<TMatrixD>(1,sdefv->GetNrows());
+  TMatrixD sdefm(1,sdefv->GetNrows());
   for (Int_t i=0; i<sdefv->GetNrows(); ++i)
-    (*sdefm)[0][i] = (*sdefv)[i];
+    sdefm[0][i] = (*sdefv)[i];
 
   std::cout << "SDEF matrix:" << std::endl;
-  sdefm->Print();
+  sdefm.Print();
 
   std::cout << "start multiplying" << std::endl;
-  //  Ref and Sum are actually vectors!
-  Double_t ref(0.0); // reflected backwards
-  Double_t sum(0.0); // transmitted forward
+
+  TVectorD ref(N); // reflected backwards
+  TVectorD fwd(N); // transmitted forward
+
   for (size_t i=0; i<=n; ++i) { // need to multiply n+1 times
     std::cout <<  i << " out of " << n << std::endl;
-    (*sdefm) *= (*M);
-    ref += (*sdefm)[0][0];
-    (*sdefm)[0][0] = 0.0;
-    sum += (*sdefm)[0][sdefm->GetNcols()-1];
-    (*sdefm)[0][sdefm->GetNcols()-1] = 0.0;
-    sdefm->Print();
-    std::cout << "ref and sum: " << ref << " " << sum << std::endl;
+    sdefm *= (*M);
+
+    for (Int_t j=0; j<N; ++j) {
+      ref[j] += sdefm[0][j];
+      sdefm[0][j] = 0.0;
+      fwd[j] += sdefm[0][sdefm.GetNcols()-N+j];
+      sdefm[0][sdefm.GetNcols()-N+j] = 0.0;
+    }
+
+    std::cout << "ref and sum: " << std::endl;
+    ref.Print();
+    fwd.Print();
 
   }
-  std::cout << "end multiplying: " << ref << " " << sum << std::endl;
+  std::cout << "end multiplying: " << std::endl;
 
-  sdefm->Print();
+  sdefm.Print();
 
 
   sdefv->ResizeTo(N);
   for (Int_t i=0; i<N; ++i)
-    (*sdefv)[i] = (*sdefm)[0][sdefm->GetNcols()-N+i];
+    (*sdefv)[i] = sdefm[0][sdefm.GetNcols()-N+i];
 
   sdefv->Print();
 

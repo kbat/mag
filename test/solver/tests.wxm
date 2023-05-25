@@ -93,6 +93,11 @@ sdef2n : sdef.nTn.nTn + sdef.nTe.eTn;
 
 
 /* [wxMaxima: input   start ] */
+m
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
 sdef2e: sdef.nTe.eTe+sdef.nTn.nTe;
 /* [wxMaxima: input   end   ] */
 
@@ -133,6 +138,21 @@ eTp : matrix([6,7,8,9],[10,11,12,13],[14,15,16,17],[18,19,20,21])$
 pTn : matrix([7,8,9,10],[11,12,13,14],[15,16,17,18],[19,20,21,22])$
 pTe : matrix([8,9,10,11],[12,13,14,15],[16,17,18,19],[20,21,22,23])$
 pTp : matrix([9,10,11,12],[13,14,15,16],[17,18,19,20],[21,22,23,24])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+e
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+k
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+a
 /* [wxMaxima: input   end   ] */
 
 
@@ -611,7 +631,7 @@ dt2e + rft2e;
 
 
 /* [wxMaxima: title   start ]
-Test 19: single particle, Markov process
+Test 10: single particle, Markov process
    [wxMaxima: title   end   ] */
 
 
@@ -763,6 +783,21 @@ sdef.M;
 /* [wxMaxima: comment start ]
 SA after 30 iterations: 0.695652;
    [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: title   start ]
+Test11: same as test1 but with Markov process
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+nTn: matrix([1,2], [3,4])
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+/* [wxMaxima: input   end   ] */
 
 
 
