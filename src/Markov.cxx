@@ -123,9 +123,21 @@ data_t Markov::run(const size_t n)
   // std::cout << "size: " << N << std::endl;
   sdefv->ResizeTo(M->GetNrows());
 
-  TMatrixD sdefm(1,sdefv->GetNrows());
-  for (Int_t i=0; i<sdefv->GetNrows(); ++i)
-    sdefm[0][i] = (*sdefv)[i];
+  TMatrixDSparse sdefm(1,sdefv->GetNrows()); //TODO: use sparse matrix also here
+  std::vector<Int_t> rowindex;
+  std::vector<Int_t> colindex;
+  std::vector<Double_t> data;
+
+  for (Int_t i=0; i<sdefv->GetNrows(); ++i) {
+    const Double_t val = (*sdefv)[i];
+    if (val>0.0) {
+      rowindex.push_back(0);
+      colindex.push_back(i);
+      data.push_back(val);
+      //      sdefm[0][i] = val;
+    }
+  }
+  sdefm.SetMatrixArray(data.size(),rowindex.data(),colindex.data(),data.data());
 
   // std::cout << "SDEF matrix:" << std::endl;
   //  sdefm.Print();
@@ -138,6 +150,7 @@ data_t Markov::run(const size_t n)
   for (size_t i=0; i<=n; ++i) { // need to multiply n+1 times
     std::cout <<  i << " out of " << n << std::endl;
     sdefm *= (*M);
+    std::cout << "done" << std::endl;
 
     for (Int_t j=0; j<N; ++j) {
       (*ref)[j] += sdefm[0][j];
