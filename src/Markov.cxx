@@ -113,7 +113,6 @@ data_t Markov::run(const size_t n)
   std::shared_ptr<TVectorD> sdefv = r->GetVector();
   const Int_t N = sdefv->GetNrows();
   std::cout << "size: " << N << std::endl;
-
   sdefv->ResizeTo(M->GetNrows());
 
   TMatrixD sdefm(1,sdefv->GetNrows());
@@ -125,35 +124,35 @@ data_t Markov::run(const size_t n)
 
   std::cout << "start multiplying" << std::endl;
 
-  TVectorD ref(N); // reflected backwards
-  TVectorD fwd(N); // transmitted forward
+  auto ref = std::make_unique<TVectorD>(N); // reflected backwards
+  auto fwd = std::make_unique<TVectorD>(N); // transmitted forward
 
   for (size_t i=0; i<=n; ++i) { // need to multiply n+1 times
     std::cout <<  i << " out of " << n << std::endl;
     sdefm *= (*M);
 
     for (Int_t j=0; j<N; ++j) {
-      ref[j] += sdefm[0][j];
+      (*ref)[j] += sdefm[0][j];
       sdefm[0][j] = 0.0;
-      fwd[j] += sdefm[0][sdefm.GetNcols()-N+j];
+      (*fwd)[j] += sdefm[0][sdefm.GetNcols()-N+j];
       sdefm[0][sdefm.GetNcols()-N+j] = 0.0;
     }
 
     std::cout << "ref and sum: " << std::endl;
-    ref.Print();
-    fwd.Print();
+    ref->Print();
+    fwd->Print();
 
   }
   std::cout << "end multiplying: " << std::endl;
 
   sdefm.Print();
 
+  // set the sdef vector values to the forward spectrum, but the
+  // former at first needs to be made compatible with the latter:
+  r->GetVector()->ResizeTo(N);
+  (*r->GetVector()) = (*fwd);
 
-  sdefv->ResizeTo(N);
-  for (Int_t i=0; i<N; ++i)
-    (*sdefv)[i] = sdefm[0][sdefm.GetNcols()-N+i];
-
-  sdefv->Print();
+  r->GetVector()->Print();
 
   return sdef;
 }
