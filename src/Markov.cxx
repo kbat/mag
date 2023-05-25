@@ -1,3 +1,4 @@
+#include <TMath.h>
 #include "Markov.h"
 
 Markov::Markov(const data_t& sdef,
@@ -112,9 +113,14 @@ void Markov::createMatrix()
   //  M->Print();
 }
 
-data_t Markov::run(const size_t n)
+data_t Markov::run(const Double_t stop)
 {
-  // Run the Markov process n times
+  // Run the Markov process
+  // If stop>0 then run it round(stop) times, otherwise
+  // run until the difference between the forward vector sum on the previous
+  // step and the current step is below stop%
+
+  Int_t n = stop > 0 ? TMath::Nint(stop) : 0;
 
   const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
 
@@ -147,10 +153,13 @@ data_t Markov::run(const size_t n)
   auto ref = std::make_unique<TVectorD>(N); // reflected backwards
   auto fwd = std::make_unique<TVectorD>(N); // transmitted forward
 
-  for (size_t i=0; i<=n; ++i) { // need to multiply n+1 times
-    std::cout <<  i << " out of " << n << std::endl;
+  Int_t i=0;
+  Double_t sum=0.0; // forward sum at the current step
+  Double_t sum1=0.0; // forward sum at the previous step
+  for (;;) { // need to multiply n+1 times
+    std::cout <<  i;    if (n>0) std::cout << " out of " << n;    std::cout << std::endl;
+
     sdefm *= (*M);
-    std::cout << "done" << std::endl;
 
     for (Int_t j=0; j<N; ++j) {
       (*ref)[j] += sdefm[0][j];
@@ -162,8 +171,17 @@ data_t Markov::run(const size_t n)
     // std::cout << "ref and sum: " << std::endl;
     // ref->Print();
     // fwd->Print();
-    std::cout << "fwd sum: " << fwd->Sum() << std::endl;
+    sum = fwd->Sum();
+    std::cout << "fwd sum: " << sum1 << " " << sum << "\t ref sum: " << ref->Sum() << std::endl;
 
+    if ((n>0) && (i==n))
+      break;
+    else {
+      if ((sum1>0.0) && (sum>0.0) && (100.0*(1.0-sum1/sum)<-stop))
+	break;
+    }
+    sum1=sum;
+    i++;
   }
   std::cout << "end multiplying: " << std::endl;
 

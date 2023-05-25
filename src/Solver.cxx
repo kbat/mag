@@ -210,7 +210,7 @@ data_t Solver::run(const int nr, const size_t ro)
   return result;
 }
 
-data_t Solver::runMarkov(const size_t n)
+data_t Solver::runMarkov(const Double_t n)
 {
   if (done)
     return result;
