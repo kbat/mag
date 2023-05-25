@@ -82,7 +82,7 @@ bool Test::run()
 
   auto solver = std::make_shared<Solver>(sdef, mat);
   if (isMarkov)
-    solver->runMarkov(1);
+    solver->runMarkov(2);
   else
     solver->run(-1, ro);
   solver->save("res.root");

@@ -683,6 +683,8 @@ int test11(const char *fname="test1.root")
   // 1 layer
   system("cd ../../ && ./gam-solve -test 11 1");
   sum += cmp2("test11", "../../res.root", "n", 1, 10, 14);
+  system("cd ../../ && ./gam-solve -test 11 2");
+  sum += cmp2("test11", "../../res.root", "n", 2, 52, 76);
 
   return sum;
 }
