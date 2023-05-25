@@ -81,19 +81,26 @@ void Markov::createMatrix()
   std::cout << "createMatrix: Markov process plain matrix shape: " << NX << " " << NY << std::endl;
 
   // TODO: use sparse matrix and its GetMatrix method instead
-  M = std::make_unique<TMatrixD>(NX,NY);
+  M = std::make_unique<TMatrixDSparse>(NX,NY);
 
   Int_t i(0), j(0);
+  std::vector<Int_t> rowindex, colindex;
+  std::vector<Double_t> data;
   for (Int_t mopx = 0; mopx<nx; ++mopx) {
     for (Int_t x = 0; x<m0->GetNcols(); ++x) {
       for (Int_t mopy = 0; mopy<ny; ++mopy) {
-	for (Int_t y = 0; y<m0->GetNrows(); ++y) {
-	  const auto m = mop[mopx][mopy];
-	  // std::cout.width(2);
-	  // std::cout << (*m)[x][y] << " " << std::flush;
-	  (*M)[j][i] = (*m)[x][y];
-	  i++;
-	} // y
+	const auto m = mop[mopx][mopy];
+  	for (Int_t y = 0; y<m0->GetNrows(); ++y) {
+  	  // std::cout.width(2);
+  	  // std::cout << (*m)[x][y] << " " << std::flush;
+  	  const Double_t val = (*m)[x][y];
+	  if (val>0.0) {
+	    colindex.push_back(i);
+	    rowindex.push_back(j);
+	    data.push_back(val);
+	  }
+  	  i++;
+  	} // y
       } // mopy
       i=0;
       j++;
@@ -101,6 +108,7 @@ void Markov::createMatrix()
     } // x
   } // mopx
 
+  M->SetMatrixArray(data.size(),rowindex.data(),colindex.data(),data.data());
   //  M->Print();
 }
 

@@ -9,7 +9,7 @@ class Markov {
  private:
   data_t sdef; //< initially: sdef (corresponds to result in Solver.cxx)
   std::vector<std::shared_ptr<Material>> layers; ///< vector of materials
-  std::shared_ptr<TMatrixD> M;
+  std::shared_ptr<TMatrixDSparse> M;
   data_t result;
   std::vector<std::vector<std::shared_ptr<TMatrixD>>> createMOP() const;
   void createMatrix();
