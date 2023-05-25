@@ -185,7 +185,7 @@ void draw()
 {
   gStyle->SetOptStat(0);
   gStyle->SetMarkerSize(5);
-  draw10();
+  draw1();
   // draw2();
   //  draw3();
   //  draw4();

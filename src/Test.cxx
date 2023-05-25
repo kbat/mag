@@ -23,7 +23,7 @@ bool Test::run()
 
   const bool isMarkov = n<10 ? false : true;
 
-  // transmission matrix tests:
+  // Transmission matrix tests:
   auto mTest1 = std::make_shared<Material>("Test", "test/solver/test1.root", 1, 1);
   auto mTest2 = std::make_shared<Material>("Test", "test/solver/test2.root", 2, 1);
   auto mTest3 = std::make_shared<Material>("Test", "test/solver/test3.root", 3, 1);
@@ -32,7 +32,8 @@ bool Test::run()
   auto mTest7 = std::make_shared<Material>("Test", "test/solver/test7.root", 5, 1);
 
   // Markov chain tests
-  auto mTest10 = std::make_shared<Material>("Test10", "test/solver/test10.root", 1, 1);
+  auto mTest10 = std::make_shared<Material>("Test10", "test/solver/test10.root", 10, 1);
+  auto mTest11 = std::make_shared<Material>("Test11", "test/solver/test1.root",  11, 1);
 
   size_t ro=0; // reflection order
 
@@ -65,6 +66,9 @@ bool Test::run()
   } else if (n==10) {
     for (size_t i=0; i<nLayers; ++i)
       mat.push_back(mTest10);
+  } else if (n==11) {
+    for (size_t i=0; i<nLayers; ++i)
+      mat.push_back(mTest11);
   } else {
     std::cerr << "Test::run error: test " << n << " is not defined" << std::endl;
     return false;
@@ -78,7 +82,7 @@ bool Test::run()
 
   auto solver = std::make_shared<Solver>(sdef, mat);
   if (isMarkov)
-    solver->runMarkov();
+    solver->runMarkov(1);
   else
     solver->run(-1, ro);
   solver->save("res.root");

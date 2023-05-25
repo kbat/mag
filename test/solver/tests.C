@@ -669,6 +669,24 @@ int test10(const char *fname="test10.root")
   return sum;
 }
 
+int test11(const char *fname="test1.root")
+{
+  // Test with Markov chain process
+  // Same as test1 => no need to generate the ROOT file
+
+  Int_t sum = 0;
+
+  // sdef
+  const Int_t nx = 1;
+  const Int_t ny = 1;
+
+  // 1 layer
+  system("cd ../../ && ./gam-solve -test 11 1");
+  sum += cmp2("test11", "../../res.root", "n", 1, 10, 14);
+
+  return sum;
+}
+
 
 int tests()
 {
@@ -681,7 +699,8 @@ int tests()
   // sum += test6("test6.root");
   // sum += test7("test7.root"); // multiple particles in sdef
 
-  sum += test10();
+  //  sum += test10(); TODO: write output to the ROOT file and check it
+  sum += test11();
 
   if (sum == 0)
     std::cout << "All tests passed" << std::endl;
