@@ -210,13 +210,13 @@ data_t Solver::run(const int nr, const size_t ro)
   return result;
 }
 
-data_t Solver::runMarkov()
+data_t Solver::runMarkov(const size_t n)
 {
   if (done)
     return result;
 
   auto m = std::make_unique<Markov>(result,layers);
-  result = m->run(30);
+  result = m->run(n);
 
   done = true;
 

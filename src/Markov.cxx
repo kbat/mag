@@ -124,9 +124,10 @@ data_t Markov::run(const size_t n)
   sdefm->Print();
 
   std::cout << "start multiplying" << std::endl;
+  //  Ref and Sum are actually vectors!
   Double_t ref(0.0); // reflected backwards
   Double_t sum(0.0); // transmitted forward
-  for (size_t i=0; i<n; ++i) {
+  for (size_t i=0; i<=n; ++i) { // need to multiply n+1 times
     std::cout <<  i << " out of " << n << std::endl;
     (*sdefm) *= (*M);
     ref += (*sdefm)[0][0];
