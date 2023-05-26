@@ -116,11 +116,14 @@ void Markov::createMatrix()
 data_t Markov::run(const Double_t stop)
 {
   // Run the Markov process
-  // If stop>0 then run it round(stop) times, otherwise
-  // run until the difference between the forward vector sum on the previous
-  // step and the current step is below stop%
+  // If stop>1 then run it round(stop) times, otherwise (if stop <= 1)
+  // run until the ratio between the forward vector sum on the previous
+  // step and the current step is below the stop fraction.
+  // Negative stop values are not allowed.
 
-  Int_t n = stop > 0 ? TMath::Nint(stop) : 0;
+  assert(stop>0.0);
+
+  Int_t n = stop > 1.0 ? TMath::Nint(stop) : 0;
 
   const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
 
@@ -177,7 +180,7 @@ data_t Markov::run(const Double_t stop)
     if ((n>0) && (i==n))
       break;
     else {
-      if ((sum1>0.0) && (sum>0.0) && (100.0*(1.0-sum1/sum)<-stop))
+      if ((sum1>0.0) && (sum>0.0) && (TMath::Abs(1.0-sum1/sum)<stop))
 	break;
     }
     sum1=sum;
