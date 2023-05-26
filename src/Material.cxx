@@ -174,9 +174,7 @@ std::shared_ptr<TMatrixD> Material::getEmpty()
   if (empty)
     return empty;
 
-  const auto p = particles.begin(); // just any existing particle. TODO: bin with all transported particles
-
-  empty = std::make_shared<TMatrixD>(TMatrixD::kZero,*getT(*p,*p));
+  empty = std::make_shared<TMatrixD>(TMatrixD::kZero,*getT());
 
   return empty;
 }
@@ -188,9 +186,7 @@ std::shared_ptr<TMatrixD> Material::getUnit()
   if (unit)
     return unit;
 
-  const auto p = particles.begin(); // just any existing particle. TODO: bin with all transported particles
-
-  unit = std::make_shared<TMatrixD>(TMatrixD::kUnit,*getT(*p,*p));
+  unit = std::make_shared<TMatrixD>(TMatrixD::kUnit,*getT());
 
   return unit;
 }

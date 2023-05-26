@@ -13,6 +13,7 @@ class Markov {
   data_t result;
   std::vector<std::vector<std::shared_ptr<TMatrixD>>> createMOP() const;
   void createMatrix();
+  std::shared_ptr<TVectorD> createAllParticleSDEF();
  public:
   Markov(const data_t&,const std::vector<std::shared_ptr<Material>>&);
   data_t run(const Double_t);

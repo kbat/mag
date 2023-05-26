@@ -44,11 +44,11 @@ std::vector<std::vector<std::shared_ptr<TMatrixD>>> Markov::createMOP() const
 	  m = unit;
 	  title = " E";
 	} else {
-	  m = layers[i-2]->getT('n','n');
+	  m = layers[i-2]->getT();
 	  title = "T" + std::to_string(i-2);
 	}
       } else if (j==i+1) {
-	m = layers[i]->getR('n','n');
+	m = layers[i]->getR();
 	title = "R"  + std::to_string(i);
       } else {
        	m = empty;
@@ -113,6 +113,24 @@ void Markov::createMatrix()
   //  M->Print();
 }
 
+std::shared_ptr<TVectorD> Markov::createAllParticleSDEF()
+{
+  const auto particles = layers[0]->getParticles(); // TODO make it a private class member and fill in ctor
+
+  const Int_t N = (*sdef.begin()).second->GetVector()->GetNrows() * particles.size();
+
+  auto vec = std::make_shared<TVectorD>(N);
+
+  Int_t j = 0;
+  for (const auto p : particles) {
+    const std::shared_ptr<TVectorD> v = sdef[p]->GetVector();
+    for (Int_t i=0; i<v->GetNrows(); ++i)
+      (*vec)[j++] = (*v)[i];
+  }
+
+  return vec;
+}
+
 data_t Markov::run(const Double_t stop)
 {
   // Run the Markov process
@@ -125,14 +143,14 @@ data_t Markov::run(const Double_t stop)
 
   Int_t n = stop > 1.0 ? TMath::Nint(stop) : 0;
 
-  const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
+  //  const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
 
-  std::shared_ptr<TVectorD> sdefv = r->GetVector();
+  std::shared_ptr<TVectorD> sdefv = createAllParticleSDEF(); //r->GetVector();
   const Int_t N = sdefv->GetNrows();
-  // std::cout << "size: " << N << std::endl;
+  //  std::cout << "size: " << N << " " << M->GetNrows() << std::endl;
   sdefv->ResizeTo(M->GetNrows());
 
-  TMatrixDSparse sdefm(1,sdefv->GetNrows()); //TODO: use sparse matrix also here
+  TMatrixDSparse sdefm(1,sdefv->GetNrows());
   std::vector<Int_t> rowindex;
   std::vector<Int_t> colindex;
   std::vector<Double_t> data;
@@ -192,11 +210,17 @@ data_t Markov::run(const Double_t stop)
   // sdefm.Print();
 
   // set the sdef vector values to the forward spectrum, but the
-  // former at first needs to be made compatible with the latter:
-  r->GetVector()->ResizeTo(N);
-  (*r->GetVector()) = (*fwd);
+  // former at first needs to have resized to be made compatible with
+  // the latter:
+  sdefv->ResizeTo(N);
 
-  //r->GetVector()->Print();
+  const auto particles = layers[0]->getParticles();
+  Int_t j = 0;
+  for (const auto p : particles) {
+    const std::shared_ptr<TVectorD> v = sdef[p]->GetVector();
+    for (Int_t i=0; i<v->GetNrows(); ++i)
+      (*v)[i] = (*fwd)[j++];
+  }
 
   return sdef;
 }
