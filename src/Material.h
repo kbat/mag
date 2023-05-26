@@ -14,12 +14,16 @@ class Material
   const double den;               ///< mass density [g/cm3]
   std::set<char> particles; ///< set of incident/scored particles
   ///! transmission matrices and their names
-  std::map<std::string, std::shared_ptr<TMatrixD> > T;
+  std::map<std::string, std::shared_ptr<TMatrixD> > mapT;
   ///! reflection matrices and their names
-  std::map<std::string, std::shared_ptr<TMatrixD> > R;
+  std::map<std::string, std::shared_ptr<TMatrixD> > mapR;
   std::shared_ptr<TH2D> sdef; ///< [empty] sdef histogram
   std::shared_ptr<TMatrixD> empty; ///< empty matrix (for the Markov process)
   std::shared_ptr<TMatrixD> unit; ///< identity matrix (for the Markov process)
+
+  // TODO: use sparse matrices for T and R (test if this is more efficient)
+  std::shared_ptr<TMatrixD> T; ///< transmission matrix for all particles (for the Markov process)
+  std::shared_ptr<TMatrixD> R; ///< reflection matrix for all particles (for the Markov process)
 
   std::shared_ptr<TMatrixD> h2m(const TH2D *h) const;
   std::shared_ptr<TMatrixD> get(const std::string&) const;
@@ -27,6 +31,8 @@ class Material
   Material(const std::string&, const std::string&, const size_t, const double&);
   std::shared_ptr<TMatrixD> getT(const char, const char) const;
   std::shared_ptr<TMatrixD> getR(const char, const char) const;
+  std::shared_ptr<TMatrixD> getT();
+  std::shared_ptr<TMatrixD> getR();
   std::shared_ptr<TMatrixD> getEmpty();
   std::shared_ptr<TMatrixD> getUnit();
   // to prevent data loss conversion if size_t passed instead of char
