@@ -160,7 +160,7 @@ data_t Markov::run(const Double_t stop)
   Double_t sum=0.0; // forward sum at the current step
   Double_t sum1=0.0; // forward sum at the previous step
   for (;;) { // need to multiply n+1 times
-    std::cout <<  i;    if (n>0) std::cout << " out of " << n;    std::cout << std::endl;
+    std::cout <<  i;    if (n>0) std::cout << " out of " << n;
 
     sdefm *= (*M);
 
@@ -175,11 +175,12 @@ data_t Markov::run(const Double_t stop)
     // ref->Print();
     // fwd->Print();
     sum = fwd->Sum();
-    std::cout << "fwd sum: " << sum1 << " " << sum << "\t ref sum: " << ref->Sum() << std::endl;
+    std::cout << "\t fwd sum: " << sum1 << " " << sum << "\t ref sum: " << ref->Sum() << std::endl;
 
-    if ((n>0) && (i==n))
-      break;
-    else {
+    if (n>0) {
+      if (i==n)
+	break;
+    } else {
       if ((sum1>0.0) && (sum>0.0) && (TMath::Abs(1.0-sum1/sum)<stop))
 	break;
     }

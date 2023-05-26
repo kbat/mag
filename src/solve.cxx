@@ -92,7 +92,7 @@ int main(int argc, const char **argv)
   if (!true)
     solver->run(-1,4);
   else {
-    solver->runMarkov(0.2);
+    solver->runMarkov(50);
 
     // std::cerr << "WARNING: early return" << std::endl;
     // return 0; // early return
