@@ -159,7 +159,7 @@ class Simulation(Base):
         print("cut:n j 0.0")
         print(f"phys:p {self.emax} 2j 1")
         print("prdmp 2j 1")
-        print("stop ctme 5")
+        print("stop ctme 120")
 
     def printInp(self, inp, mat, par, erg, dir, thick=1):
         with open(inp, "w") as f:
@@ -206,11 +206,9 @@ def main():
     args = parser.parse_args()
 
     run = Simulation(args.mat, args.version)
-    run.particles = ('n')
-    run.setEnergy(1, 2, 1)
-    run.setNCosine(2) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
-    # run.setEnergy(1e-6, 3001, 0)
-    # run.setNCosine(4)
+    run.particles = ('n', 'p', 'e')
+    run.setEnergy(1e-9, 3001, 65)
+    run.setNCosine(18) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
     run.Print()
 
 
