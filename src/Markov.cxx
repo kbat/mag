@@ -134,14 +134,10 @@ std::shared_ptr<TVectorD> Markov::createAllParticleSDEF()
 data_t Markov::run(const Double_t stop)
 {
   // Run the Markov process
-  // If stop>1 then run it round(stop) times, otherwise (if stop <= 1)
-  // run until the ratio between the forward vector sum on the previous
-  // step and the current step is below the stop fraction.
-  // Negative stop values are not allowed.
+  // If stop>=0 then run it round(stop) times
+  // If stop<0 then run roun(stop) times after the step where the fwd->Sum() value is above zero.
 
-  assert(stop>0.0);
-
-  Int_t n = stop > 1.0 ? TMath::Nint(stop) : 0;
+  Int_t nnn = TMath::Nint(stop);
 
   //  const std::shared_ptr<Source> r = sdef['n']; //  TODO implement for all particles
 
@@ -166,8 +162,14 @@ data_t Markov::run(const Double_t stop)
   }
   sdefm.SetMatrixArray(data.size(),rowindex.data(),colindex.data(),data.data());
 
-  // std::cout << "SDEF matrix:" << std::endl;
-  //  sdefm.Print();
+
+  std::cout << "saving sdef and M into a ROOT file" << std::endl;
+
+  TFile fout("markov.root", "recreate");
+  sdefm.Write("sdef");
+  M->Write("M");
+  fout.Close();
+
 
   std::cout << "start multiplying" << std::endl;
 
@@ -175,10 +177,10 @@ data_t Markov::run(const Double_t stop)
   auto fwd = std::make_unique<TVectorD>(N); // transmitted forward
 
   Int_t i=0;
+  Int_t istop = 0;
   Double_t sum=0.0; // forward sum at the current step
-  Double_t sum1=0.0; // forward sum at the previous step
   for (;;) { // need to multiply n+1 times
-    std::cout <<  i;    if (n>0) std::cout << " out of " << n;
+    std::cout <<  i;    if (nnn>0) std::cout << " out of " << nnn;
 
     sdefm *= (*M);
 
@@ -193,16 +195,17 @@ data_t Markov::run(const Double_t stop)
     // ref->Print();
     // fwd->Print();
     sum = fwd->Sum();
-    std::cout << "\t fwd sum: " << sum1 << " " << sum << "\t ref sum: " << ref->Sum() << std::endl;
+    std::cout << "\t fwd sum: " << sum << "\t ref sum: " << ref->Sum() << std::endl;
 
-    if (n>0) {
-      if (i==n)
+    if (nnn>=0) {
+      if (i==nnn)
 	break;
     } else {
-      if ((sum1>0.0) && (sum>0.0) && (TMath::Abs(1.0-sum1/sum)<stop))
+      //      std::cout << sum << " " << istop << " " << nnn << std::endl;
+      if ((sum>0.0) && (istop==-nnn))
 	break;
+      istop++;
     }
-    sum1=sum;
     i++;
   }
   std::cout << "end multiplying: " << std::endl;
