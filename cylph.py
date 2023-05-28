@@ -159,7 +159,7 @@ class Simulation(Base):
         print("cut:n j 0.0")
         print(f"phys:p {self.emax} 2j 1")
         print("prdmp 2j 1")
-        print("stop ctme 120")
+        print("stop ctme 240")
 
     def printInp(self, inp, mat, par, erg, dir, thick=1):
         with open(inp, "w") as f:
@@ -172,7 +172,7 @@ class Simulation(Base):
                 self.printTallies()
                 self.printPhysics()
 
-    def Print(self):
+    def Print(self, thick=1):
         # n is total number of cases
         # needed to format the folder name number
         nebins = len(self.ebins)
@@ -188,7 +188,7 @@ class Simulation(Base):
                     dir = (self.cbins[ncbins+cbin], self.cbins[ncbins+cbin+1])
                     path = os.path.join(self.path, f"case%.{n}d" % case)
                     os.makedirs(path)
-                    self.printInp(os.path.join(path, "inp"), self.mat, par, erg, dir)
+                    self.printInp(os.path.join(path, "inp"), self.mat, par, erg, dir, thick)
                     case += 1
 
 
@@ -209,7 +209,7 @@ def main():
     run.particles = ('n', 'p', 'e')
     run.setEnergy(1e-9, 3001, 65)
     run.setNCosine(18) # TODO: this number should be half of total (forward hemisphere only) - no need to check if even
-    run.Print()
+    run.Print(thick=5)
 
 
 if __name__=="__main__":
