@@ -116,7 +116,7 @@ class Matrix:
     def run(self):
         """Generate the Reflection and Transmission matrices """
 
-        assert len(self.rows) != 0, "Matrix is empty. Fill it row by row with the Matrix::append method"
+        assert len(self.rows) != 0, "Matrix is empty. Fill it row by row with the Matrix::append method. Check that the transported particle list (-par argument) matches the MCNP mode."
 
         # sort rows by incident energy and direction
         # 1e6 needed to avoid problems when energies are very close to each other
