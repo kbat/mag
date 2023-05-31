@@ -428,7 +428,15 @@ double Solver::getDose(const ParticleID p) const
 
   double D = 0.0;
 
-  TH1D *h = result.at(p)->Histogram(std::string(1, p))->ProjectionX();
+  std::shared_ptr<TransportMatrix> r = nullptr;
+
+  try {
+    r = result.at(p);
+  } catch (const std::out_of_range &e) {
+    return 0.0;
+  }
+
+  TH1D *h = r->Histogram(std::string(1, p))->ProjectionX();
   const Int_t nbins = h->GetNbinsX();
 
   for (Int_t bin=1; bin<=nbins; ++bin)
