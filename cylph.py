@@ -171,6 +171,8 @@ class Simulation(Base):
                 self.printCosineTally()
                 self.printTallies()
                 self.printPhysics()
+                if dir[0] > 0.8 and dir[1]>0.99 and erg[1]>3000 and par=="e":
+                    print("c here") # to find the input file to compare with
 
     def Print(self, thick=1):
         # n is total number of cases
