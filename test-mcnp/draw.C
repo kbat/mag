@@ -14,7 +14,7 @@ std::pair<TH1*, TH1*> get(const std::string fname1, const std::string tally,
   return std::make_pair<TH1*, TH1*>(hmcnp,hgam);
 }
 
-void draw(TCanvas *c1, const Int_t p1, const std::pair<TH1*, TH1*> data)
+void draw(TCanvas *c1, const Int_t p1, const std::pair<TH1*, TH1*> data, const char *title)
 {
   c1->cd(p1);
   THStack *hs = new THStack("hs", "");
@@ -30,11 +30,30 @@ void draw(TCanvas *c1, const Int_t p1, const std::pair<TH1*, TH1*> data)
 
   c1->cd(p1+4);
   auto h = dynamic_cast<TH1D*>(data.first->Clone());
-  h->Divide(data.second);
+  auto a = h->Divide(data.second);
+  if (a==0) {
+    std::cout << "ERROR: Could not divide histograms" << std::endl;
+    //    exit(0);
+  }
   h->SetTitle("MCNP/GAM;Energy [MeV]");
   h->Draw("hist,e");
   gPad->SetLogx();
   gPad->SetGrid();
+
+  std::array<TH1*,3> vec{data.first, data.second, h};
+
+  const Int_t N = data.first->GetNbinsX();
+
+  std::ofstream fout(Form("draw-%s.dat", title));
+  for (Int_t i=1; i<=N; ++i) {
+    fout << data.first->GetBinCenter(i) << " " << data.first->GetBinWidth(i)/2.0 << " ";
+    for (const auto v : vec) {
+      fout << v->GetBinContent(i) << " " << v->GetBinError(i) << " " << std::flush;
+    }
+    fout << std::endl;
+  }
+  fout.close();
+
 }
 
 void draw(const std::string fname="res.root")
@@ -49,25 +68,10 @@ void draw(const std::string fname="res.root")
   TCanvas *c1 = new TCanvas;
   c1->Divide(4,2);
 
-  draw(c1, 1, n);
-  draw(c1, 2, e);
-  draw(c1, 3, p);
-  draw(c1, 4, mu);
+  draw(c1, 1, n, "n");
+  draw(c1, 2, e, "e");
+  draw(c1, 3, p, "p");
+  draw(c1, 4, mu, "mu");
 
   c1->Print("draw.pdf");
-
-  std::array<std::pair<TH1*, TH1*>,3> vec{n,e,p};
-
-  const Int_t N = n.first->GetNbinsX();
-
-  std::ofstream fout("draw.dat");
-  for (Int_t i=1; i<=N; ++i) {
-    fout << n.first->GetBinCenter(i) << " " << n.first->GetBinWidth(i)/2.0 << " ";
-    for (const auto v : vec) {
-      fout << v.first->GetBinContent(i) << " " << v.first->GetBinError(i) << " " << std::flush;
-      fout << v.second->GetBinContent(i) << " " << v.second->GetBinError(i) << " ";
-    }
-    fout << std::endl;
-  }
-  fout.close();
 }
