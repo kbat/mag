@@ -40,7 +40,8 @@ int main(int argc, const char **argv)
   matdb.insert(std::make_shared<Material>("W", "Tungsten.root", 38, 19.413));
   matdb.insert(std::make_shared<Material>("B4C", "B4C.root", 47, 2.50608));
   matdb.insert(std::make_shared<Material>("Poly", "Poly.root", 48, 0.91));
-  matdb.insert(std::make_shared<Material>("Concrete", "Concrete.root", 49, 2.33578));
+  matdb.insert(std::make_shared<Material>("Concrete05", "Concrete05.root", 49, 2.33578));
+  matdb.insert(std::make_shared<Material>("Concrete06", "Concrete06.root", 49, 2.33578));
 
   if (args->IsMaterials()) {
     print_materials(matdb);
@@ -89,8 +90,8 @@ int main(int argc, const char **argv)
 
   auto solver = std::make_unique<Solver>(sdef, layers);
 
-  if (!true)
-    solver->run(-1,10);
+  if (true)
+    solver->run(-1,100);
   else {
     solver->runMarkov(-30);
 

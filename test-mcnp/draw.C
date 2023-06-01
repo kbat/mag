@@ -10,7 +10,6 @@ std::pair<TH1*, TH1*> get(const std::string fname1, const std::string tally,
   auto h2gam  = dynamic_cast<TH2D*>(GetObjectFromFile(fname2.data(), hname.data()));
   auto hgam = h2gam->ProjectionX();
   hgam->SetLineColor(kRed);
-  hgam->Scale(0.5);
 
   return std::make_pair<TH1*, TH1*>(hmcnp,hgam);
 }
@@ -45,7 +44,7 @@ void draw(const std::string fname="res.root")
   auto n = get("mctal.root", "f1", fname.data(),  "n");
   auto e = get("mctal.root", "f11", fname.data(), "p");
   auto p = get("mctal.root", "f21", fname.data(), "e");
-  //  auto mu = get("mctal.root", "f31", fname.data(), "|");
+  auto mu = get("mctal.root", "f31", fname.data(), "|");
 
   TCanvas *c1 = new TCanvas;
   c1->Divide(4,2);
@@ -53,7 +52,7 @@ void draw(const std::string fname="res.root")
   draw(c1, 1, n);
   draw(c1, 2, e);
   draw(c1, 3, p);
-  //  draw(c1, 4, mu);
+  draw(c1, 4, mu);
 
   c1->Print("draw.pdf");
 

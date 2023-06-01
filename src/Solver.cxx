@@ -149,7 +149,7 @@ data_t Solver::reflect(const size_t layer)
 
 data_t Solver::run(const int nr, const size_t ro)
 {
-  // ro : reflection order to take into account [only ro<=1 implemented]
+  // ro : reflection order to take into account
 
   if (done)
     return result;
