@@ -14,12 +14,26 @@ std::pair<TH1*, TH1*> get(const std::string fname1, const std::string tally,
   return std::make_pair<TH1*, TH1*>(hmcnp,hgam);
 }
 
+Double_t getIntegral(const TH1* h)
+{
+  const Int_t N = h->GetNbinsX();
+  Double_t sum = 0.0;
+  for (Int_t i=1; i<=N; ++i) {
+    const Double_t w = h->GetBinWidth(i);
+    sum += w * h->GetBinContent(i);
+  }
+  return sum;
+}
+
 void draw(TCanvas *c1, const Int_t p1, const std::pair<TH1*, TH1*> data, const char *title)
 {
   c1->cd(p1);
   THStack *hs = new THStack("hs", "");
   hs->Add(data.first);
   hs->Add(data.second);
+
+  std::cout << "MCNP: " << getIntegral(data.first) << " GAM: " << getIntegral(data.second) << std::endl;
+
   hs->Draw("nostack hist e");
   // data.first->Draw("hist e");
   // data.second->Draw("hist e same");
@@ -33,7 +47,7 @@ void draw(TCanvas *c1, const Int_t p1, const std::pair<TH1*, TH1*> data, const c
   auto a = h->Divide(data.second);
   if (a==0) {
     std::cout << "ERROR: Could not divide histograms" << std::endl;
-    //    exit(0);
+    exit(0);
   }
   h->SetTitle("MCNP/GAM;Energy [MeV]");
   h->Draw("hist,e");

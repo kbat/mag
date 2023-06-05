@@ -91,9 +91,9 @@ int main(int argc, const char **argv)
   auto solver = std::make_unique<Solver>(sdef, layers);
 
   if (true)
-    solver->run(-1,100);
+    solver->run(10,20);
   else {
-    solver->runMarkov(-30);
+    solver->runMarkov(-120);
 
     // std::cerr << "WARNING: early return" << std::endl;
     // return 0; // early return
