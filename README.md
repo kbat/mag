@@ -20,6 +20,7 @@ https://lu.app.box.com/s/jcrwg361ey8sf6eia7g1f039o9w252ed
 * [ROOT](https://root.cern)
 * [libtbb-dev](https://en.wikipedia.org/wiki/Threading_Building_Blocks)
 * [libboost-program-options](https://www.boost.org/doc/libs/1_63_0/doc/html/program_options.html)
+* C++ compiler with a minimum standard of C++17
 
 ### Compile
 ```
