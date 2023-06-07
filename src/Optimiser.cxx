@@ -21,7 +21,7 @@ Optimiser::Optimiser(const std::map<ParticleID, std::shared_ptr<TH2D>>& sdef,
   minRandomPopulation = 0;
 
   // these are default values
-  // set the weights in gam.cxx
+  // set the weights in optimise.cxx
   doseWeight = 1.0;
   massWeight = 0.5;
   compWeight = 0.1;

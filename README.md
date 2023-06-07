@@ -21,12 +21,20 @@ https://lu.app.box.com/s/jcrwg361ey8sf6eia7g1f039o9w252ed
 * [libtbb-dev](https://en.wikipedia.org/wiki/Threading_Building_Blocks)
 * [libboost-program-options](https://www.boost.org/doc/libs/1_63_0/doc/html/program_options.html)
 
+## Compile
+```console
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
 The compiled code consists of two separate executables: solver
 (`mag-solve`) which is intended for particle transport calculations,
 and optimiser (`mag-optimise`) which is specifically designed for
 geometry optimisation tasks.
 
-## Solver
+# Solver
 
 List supported materials:
 ```
@@ -49,7 +57,7 @@ currently correspond to the material numbers used in
 [CombLayer](https://github.com/sansell/comblayer).
 
 
-### Example
+## Example
 
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
@@ -63,8 +71,8 @@ The output shows the layer configuration and dose rates for each transported par
 Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  total: 0.00764416
 ```
 
+# Optimiser
 
-## Optimiser
 Optimise materials of 10 layers to minimise the fitness function:
 
 ```mag -nlayers 10 -ngen 2```
