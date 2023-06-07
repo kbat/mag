@@ -23,6 +23,8 @@ https://lu.app.box.com/s/jcrwg361ey8sf6eia7g1f039o9w252ed
 
 ## Compile
 ```console
+git checkout https://github.com/kbat/mag.git mag
+cd mag
 mkdir build
 cd build
 cmake ..
