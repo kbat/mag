@@ -7,7 +7,7 @@ layout using genetic algorithms.
 The methodology implemented in this code is based on
 [https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339).
 It has been extended to support the transport of multiple particle
-types. It leverages the Markov chain process to enhance the accuracy
+types, and it leverages the Markov chain process to enhance the accuracy
 of the obtained results.
 
 RadSynch23 presentation:
@@ -16,13 +16,13 @@ https://lu.app.box.com/s/jcrwg361ey8sf6eia7g1f039o9w252ed
 ## Installation
 
 ### Dependencies
-* Linux (should work on MAC, but never yest tested on Windows)
+* Linux (should work on MAC, but never tested on Windows yet)
 * [ROOT](https://root.cern)
 * [libtbb-dev](https://en.wikipedia.org/wiki/Threading_Building_Blocks)
 * [libboost-program-options](https://www.boost.org/doc/libs/1_63_0/doc/html/program_options.html)
 
 ### Compile
-```console
+```
 git checkout https://github.com/kbat/mag.git mag
 cd mag
 mkdir build
