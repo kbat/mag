@@ -98,7 +98,6 @@ bool check_layers(std::vector<std::shared_ptr<Material>>& layers)
   for_each(layers.begin()+1, layers.end(),
 	   [&](const auto& l)  {
 	     const auto ml = l->getT(p,p);
-	     std::cout << l->getName() << std::endl;
 	     if (m0->GetNrows()!=ml->GetNrows()) {
 	       std::cerr << "check_layers: different number of rows between "
 			 << l0->getName() << " and " << l->getName() << std::endl;

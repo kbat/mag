@@ -1,22 +1,36 @@
-# GAM - Genetic Algorithm with Matrices
+# MAG - Markov chains and Genetic algorithms
 
-The code in this repository implements methodology described in
+The code in this repository is designed to conduct 1D particle
+transport calculations using Markov chains and optimise geometry
+layout using genetic algorithms.
+
+The methodology implemented in this code is based on
 [https://doi.org/10.1002/mp.15339](https://doi.org/10.1002/mp.15339).
-It is extended to support the transport of multiple particle types.
+It has been extended to support the transport of multiple particle
+types. It leverages the Markov chain process to enhance the accuracy
+of the obtained results.
 
-Currently, four particle types are transported: e, n, p, and |.
+RadSynch23 presentation:
+https://lu.app.box.com/s/jcrwg361ey8sf6eia7g1f039o9w252ed
 
-There are two executables: solver (`gam-solve`) and optimiser (`gam`).
-They use these [ROOT](https://root.cern) data files with
-pre-calculated transport matrices:
+# Installation
 
-```scp clu0-fe-0:~konbat/mat.tar.bz2 .```
+## Dependencies
+* Linux (should work on MAC, but never yest tested on Windows)
+* [ROOT](https://root.cern)
+* [libtbb-dev](https://en.wikipedia.org/wiki/Threading_Building_Blocks)
+* [libboost-program-options](https://www.boost.org/doc/libs/1_63_0/doc/html/program_options.html)
+
+The compiled code consists of two separate executables: solver
+(`mag-solve`) which is intended for particle transport calculations,
+and optimiser (`mag-optimise`) which is specifically designed for
+geometry optimisation tasks.
 
 ## Solver
 
 List supported materials:
 ```
-gam-solve -mat
+mag-solve -mat
 ```
 The output shows material number, name and mass density:
 ```
@@ -30,12 +44,16 @@ Supported materials:
 49 Concrete     2.33578
 ```
 
-The material numbers can be chosen arbitrarily, they currently correspond to the material numbers used in [CombLayer](https://github.com/sansell/comblayer).
+The material numbers can be chosen arbitrarily. Currently, they
+currently correspond to the material numbers used in
+[CombLayer](https://github.com/sansell/comblayer).
 
+
+### Example
 
 Run 20 layers of Tungsten followed by 4 layers of polyethylene with incident 3 GeV electrons:
 
-```gam-solve -layers 20 W 4 Poly -sdef e 3e3 1.0```
+```mag-solve -layers 20 W 4 Poly -sdef e 3e3 1.0 -o spectra.root```
 
 Each layer is 1 cm thick.
 
@@ -49,10 +67,10 @@ Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  tota
 ## Optimiser
 Optimise materials of 10 layers to minimise the fitness function:
 
-```gam -nlayers 10 -ngen 2```
+```mag -nlayers 10 -ngen 2```
 
 With 10 layers and 5 known materials, the code runs approximately 180 configurations for each generation,
-with the exact number depending on the available number of cores.
+with the exact number depending on the available number of cores on your machine.
 
 The output for each generation consists of the runtime line followed
 by a list of five best solutions, e.g.
@@ -79,12 +97,12 @@ Fitness    Dose      Mass    Complexity Materials
 
 * The **fitness function** is the figure of merit for the optimisation
   algorithm defined in
-  [Optimiser::getFitness](https://github.com/kbat/gam/blob/master/src/Optimiser.cxx). Currently,
+  [Optimiser::getFitness](https://github.com/kbat/mag/blob/master/src/Optimiser.cxx). Currently,
   it's hard-coded as a linear combination of dose, mass and
   complexity.
 * **Dose** is equivalent dose beyond the layers. The flux-to-dose
  conversion factors are defined for neutrons in
- [Solver::getNeutronFTD](https://github.com/kbat/gam/blob/master/src/Solver.cxx)
+ [Solver::getNeutronFTD](https://github.com/kbat/mag/blob/master/src/Solver.cxx)
  and in the other similar methods for the other particles.
 * **Mass** is the sum of densities of all layers. This is probably
   misleading, but I still call it *mass* because this value is
@@ -93,4 +111,4 @@ Fitness    Dose      Mass    Complexity Materials
   infinite in the directions perpendicular to the beam, therefore its
   mass is infinite.
 * **Complexity** is the number of material changes in the material list.
-* **Materials** is the list of material numbers for each layer. Material numbers can be printed with ``gam -mat``.
+* **Materials** is the list of material numbers for each layer. Material numbers can be printed with ``mag-optimise -mat``.

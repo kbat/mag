@@ -52,7 +52,7 @@ OptArguments::OptArguments(int ac, const char **av) :
     // pos.add("layers", -1);
     //    pos.add("mat", 0);
 
-    po::options_description all_options("Usage: gam-solve [options] [nlayers]");
+    po::options_description all_options("Usage: mag-solve [options] [nlayers]");
     all_options.add(generic);
 
     //    po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -105,7 +105,7 @@ OptArguments::OptArguments(int ac, const char **av) :
     if (!vm.count("test"))
       if (!vm.count("mat") && !vm.count("nlayers"))
 	{
-	  std::cerr << "gam-solve: number of layers must be specified" << std::endl;
+	  std::cerr << "mag-solve: number of layers must be specified" << std::endl;
 	  help = true;
 	}
 

@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-all: gam-solve gam
+all: mag-solve mag-optimise
 
 ROOTCONFIG := root-config
 #ARCH       := $(shell $(ROOTCONFIG) --arch)
@@ -24,32 +24,32 @@ obj/solve.o: src/solve.cxx
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-gam-solve: obj/solve.o obj/SDEF.o obj/Test.o obj/Source.o obj/Material.o obj/Solver.o obj/SolverArguments.o obj/functions.o obj/Markov.o
+mag-solve: obj/solve.o obj/SDEF.o obj/Test.o obj/Source.o obj/Material.o obj/Solver.o obj/SolverArguments.o obj/functions.o obj/Markov.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -L$(HOME)/.conda/envs/WORK/lib -lboost_program_options -o $@
 
-obj/gam.o: src/gam.cxx
+obj/optimise.o: src/optimise.cxx
 	@echo "Compiling $@"
 	@$(GCC) -c $(CXXFLAGS) -Isrc/ -I$(EIGENINC) $< $(ROOTCFLAGS) -o $@
 
-gam: obj/gam.o obj/SDEF.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o obj/OptArguments.o obj/functions.o obj/Markov.o
+mag-optimise: obj/optimise.o obj/SDEF.o obj/Source.o obj/Material.o obj/Solver.o obj/Optimiser.o obj/OptArguments.o obj/functions.o obj/Markov.o
 	@echo "Linking $@"
 	@$(GCC) $^ $(ROOTLIBS) $(ROOTGLIBS) -lGeom -L$(HOME)/.conda/envs/WORK/lib -lboost_program_options -ltbb -o $@
 
-valgrind: gam-solve
+valgrind: mag-solve
 	valgrind \
 	--tool=memcheck	\
 	--smc-check=all-non-file --error-limit=no --leak-check=yes --num-callers=2 \
 	--leak-check=full --track-origins=yes --show-leak-kinds=all \
 	--suppressions=${ROOTSYS}/etc/valgrind-root.supp \
-	./gam-solve -test 2 1
+	./mag-solve -test 2 1
 
 	# valgrind --smc-check=all-non-file -v --error-limit=no --leak-check=yes --num-callers=50 \
 	# --leak-check=full --track-origins=yes --suppressions=${ROOTSYS}/etc/valgrind-root.supp \
-	# ./gam-solve -test 2 1
+	# ./mag-solve -test 2 1
 
-test: gam-solve
+test: mag-solve
 	cd test/solver && root -b -q -l tests.C
 
 clean:
-	rm -fv gam gam-solve obj/*.o
+	rm -fv mag-optimise mag-solve obj/*.o
