@@ -86,7 +86,7 @@ data_t Solver::reflect(const size_t layer)
   std::map<ParticleID, data_t > R;
   // lmin: min layer number where reflections should be considered
   const size_t lmin = std::max(0, int(layer-ReflectionOrder));
-  assert(layer-lmin>=0);
+  assert(int(layer-lmin)>=0);
   const size_t maxro = layer-lmin; // maximal reflection order to calculate for the current layer
   data_t tmp1, tmp2, tmp3, tmp4;
   data_t ttt[layer+1]; // transmitted back to the given layer
