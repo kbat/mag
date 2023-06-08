@@ -72,6 +72,8 @@ Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  tota
 
 The particle designators adhere to the MCNP notation:
 
+| ID | Description |
+|---|---|
 | e  | electron (e+ and e-) |
 | n  | neutron  |
 | p  | photon   |
