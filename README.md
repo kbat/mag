@@ -70,6 +70,14 @@ The output shows the layer configuration and dose rates for each transported par
 Dose rates: e: 7.50763e-06  n: 0.00752361   p: 0.000113037  |: 2.62634e-25  total: 0.00764416
 ```
 
+The particle designators adhere to the MCNP notation:
+
+| e  | electron (e+ and e-) |
+| n  | neutron  |
+| p  | photon   |
+| \| | muon (μ+ and μ-)     |
+| h  | proton   |
+
 ## Optimiser
 
 Optimise materials of 10 layers to minimise the fitness function:
