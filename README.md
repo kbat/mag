@@ -124,8 +124,8 @@ Fitness    Dose      Mass    Complexity Materials
 * **Mass** is the sum of densities of all layers. This is probably
   misleading, but I still call it *mass* because this value is
   proportional to the total mass (since all layers have the same
-  thickness of 1 cm).  Actually, since our problem is 2D, the layer is
+  thickness of 1 cm).  Actually, since our problem is 1D, the layer is
   infinite in the directions perpendicular to the beam, therefore its
   mass is infinite.
 * **Complexity** is the number of material changes in the material list.
-* **Materials** is the list of material numbers for each layer. Material numbers can be printed with ``mag-optimise -mat``.
+* **Materials** is the list of material numbers for each layer. Available materials can be printed with ``mag-optimise -mat``.
