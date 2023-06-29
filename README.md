@@ -52,7 +52,7 @@ Supported materials:
 ```
 
 The material numbers can be chosen arbitrarily. Currently, they
-currently correspond to the material numbers used in
+correspond to the material numbers used in
 [CombLayer](https://github.com/sansell/comblayer).
 
 
