@@ -24,5 +24,8 @@ include_directories(src)
 
 add_subdirectory(src)
 
-include(CTest)
-add_subdirectory(test)
+option(BUILD_TESTS "Build tests" ON)
+IF(BUILD_TESTS)
+    include(CTest)
+    add_subdirectory(test)
+ENDIF(BUILD_TESTS)
