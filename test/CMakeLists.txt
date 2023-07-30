@@ -4,7 +4,7 @@ add_subdirectory(solver)
 #-------------------------------------------------------------------------------
 # Google Test
 #-------------------------------------------------------------------------------
-if (EXISTS "googletest/CMakeLists.txt")
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt)
     add_subdirectory(googletest)
 
     set(TESTFILES
