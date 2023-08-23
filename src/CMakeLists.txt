@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.6.0)
+cmake_minimum_required(VERSION 3.6)
 
 project(mag)
+
 add_library(Mag STATIC
         functions.cxx
         Material.cxx
