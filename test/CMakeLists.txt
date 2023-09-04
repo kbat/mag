@@ -1,5 +1,6 @@
 add_subdirectory(bins)
 add_subdirectory(solver)
+add_subdirectory(cuda)
 
 #-------------------------------------------------------------------------------
 # Google Test
