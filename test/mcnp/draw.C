@@ -1,5 +1,5 @@
-std::pair<TH1*, TH1*> get(const std::string fname1, const std::string tally,
-			  const std::string fname2, const std::string hname)
+std::pair<TH1*, TH1*> get(const std::string& fname1, const std::string& tally,
+			  const std::string& fname2, const std::string& hname)
 {
   auto hnmcnp = dynamic_cast<THnSparseF*>(GetObjectFromFile(fname1.data(), tally.data()));
   hnmcnp->GetAxis(0)->SetRange(2,2);
