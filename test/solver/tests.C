@@ -690,22 +690,28 @@ int test11(const char *fname="test1.root")
 }
 
 
-int tests()
+int tests(const UInt_t N)
 {
-  Int_t sum = 0;
-  // sum += test1("test1.root");
-  // sum += test2("test2.root");
-  // sum += test3("test3.root");
-  // sum += test4("test1.root");
-  // sum += test5("test5.root");
-  // sum += test6("test6.root");
-  // sum += test7("test7.root"); // multiple particles in sdef
+  switch(N) {
+  case 1:
+    return test1("test1.root");
+  case 2:
+    return test2("test2.root");
+  case 3:
+    return test3("test3.root");
+  case 4:
+    return test4("test1.root");
+  case 5:
+    return test5("test5.root");
+  case 6:
+    return test6("test6.root");
+  case 7:
+    return test7("test7.root"); // multiple particles in sdef
+  case 10:
+    return test10(); //TODO: write output to the ROOT file and check it
+  case 11:
+    return test11();
+  }
 
-  //  sum += test10(); TODO: write output to the ROOT file and check it
-  sum += test11();
-
-  if (sum == 0)
-    std::cout << "All tests passed" << std::endl;
-
-  return sum;
+  return 1; // non-zero to fail test with wrong N
 }

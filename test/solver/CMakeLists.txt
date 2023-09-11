@@ -1,5 +1,23 @@
+# CTest calls (TODO replace with Google tests"
+
 add_test(ctest_build_mag_solve
          "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target mag-solve)
-add_test(NAME ctest_test_mag_solve COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C)
-set_tests_properties(ctest_test_mag_solve
-                     PROPERTIES DEPENDS ctest_build_mag_solve)
+add_test(NAME test1 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(1\))
+add_test(NAME test2 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(2\))
+add_test(NAME test3 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(3\))
+add_test(NAME test4 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(4\))
+add_test(NAME test5 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(5\))
+add_test(NAME test6 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(6\))
+add_test(NAME test7 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(7\))
+add_test(NAME test10 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(10\))
+add_test(NAME test11 COMMAND root -b -q  ${CMAKE_SOURCE_DIR}/test/solver/tests.C\(11\))
+
+set_tests_properties(test1 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test2 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test3 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test4 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test5 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test6 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test7 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test10 PROPERTIES DEPENDS ctest_build_mag_solve)
+set_tests_properties(test11 PROPERTIES DEPENDS ctest_build_mag_solve)
