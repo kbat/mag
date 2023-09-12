@@ -21,7 +21,6 @@ add_executable(mag-solve
 
 target_link_libraries(mag-solve
         Mag
-        TBB::tbb
         ROOT::Geom
         Boost::program_options
 )
