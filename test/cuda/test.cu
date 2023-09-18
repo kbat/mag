@@ -30,7 +30,8 @@
 
 __global__ void advanceParticles(float dt, particle * pArray, int nParticles)
 {
-	int idx = threadIdx.x + blockIdx.x*blockDim.x;
+  // idx: unique index for each thread
+  int idx = threadIdx.x + blockIdx.x*blockDim.x; // blockDim.x = number of threads per block
 	if(idx < nParticles)
 	{
 		pArray[idx].advance(dt);
@@ -41,6 +42,7 @@ int main(int argc, char ** argv)
 {
 	cudaError_t error;
 	int n = 1000000;
+	const unsigned int THREADS_PER_BLOCK = 256;
 	if(argc > 1)	{ n = atoi(argv[1]);}     // Number of particles
 	if(argc > 2)	{	srand(atoi(argv[2])); } // Random seed
 
@@ -72,7 +74,7 @@ int main(int argc, char ** argv)
 	for(int i=0; i<100; i++)
 	{
 		float dt = (float)rand()/(float) RAND_MAX; // Random distance each step
-		advanceParticles<<< 1 +  n/256, 256>>>(dt, devPArray, n);
+		advanceParticles<<< 1 +  n/THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(dt, devPArray, n);
 		error = cudaGetLastError();
 		if (error != cudaSuccess)
     	{
