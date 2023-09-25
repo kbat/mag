@@ -41,9 +41,9 @@ __global__ void advanceParticles(float dt, particle * pArray, int nParticles)
 int main(int argc, char ** argv)
 {
 	cudaError_t error;
-	int n = 1000000;
+	int N = 1000000;
 	const unsigned int THREADS_PER_BLOCK = 256;
-	if(argc > 1)	{ n = atoi(argv[1]);}     // Number of particles
+	if(argc > 1)	{ N = atoi(argv[1]);}     // Number of particles
 	if(argc > 2)	{	srand(atoi(argv[2])); } // Random seed
 
 	error = cudaGetLastError();
@@ -53,9 +53,9 @@ int main(int argc, char ** argv)
   	exit(1);
   	}
 
-	particle * pArray = new particle[n];
+	particle * pArray = new particle[N];
 	particle * devPArray = NULL;
-	cudaMalloc(&devPArray, n*sizeof(particle));
+	cudaMalloc(&devPArray, N*sizeof(particle));
 	cudaDeviceSynchronize(); error = cudaGetLastError();
 	if (error != cudaSuccess)
   	{
@@ -63,7 +63,7 @@ int main(int argc, char ** argv)
   	exit(1);
   	}
 
-	cudaMemcpy(devPArray, pArray, n*sizeof(particle), cudaMemcpyHostToDevice);
+	cudaMemcpy(devPArray, pArray, N*sizeof(particle), cudaMemcpyHostToDevice);
 	cudaDeviceSynchronize(); error = cudaGetLastError();
 	if (error != cudaSuccess)
   	{
@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
 	for(int i=0; i<100; i++)
 	{
 		float dt = (float)rand()/(float) RAND_MAX; // Random distance each step
-		advanceParticles<<< 1 +  n/THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(dt, devPArray, n);
+		advanceParticles<<< (N+THREADS_PER_BLOCK-1)/THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(dt, devPArray, N);
 		error = cudaGetLastError();
 		if (error != cudaSuccess)
     	{
@@ -84,11 +84,11 @@ int main(int argc, char ** argv)
 
 		cudaDeviceSynchronize();
 	}
-	cudaMemcpy(pArray, devPArray, n*sizeof(particle), cudaMemcpyDeviceToHost);
+	cudaMemcpy(pArray, devPArray, N*sizeof(particle), cudaMemcpyDeviceToHost);
 
 	v3 totalDistance(0,0,0);
 	v3 temp;
-	for(int i=0; i<n; i++)
+	for(int i=0; i<N; i++)
 	{
 		temp = pArray[i].getTotalDistance();
 		totalDistance.x += temp.x;
@@ -100,6 +100,6 @@ int main(int argc, char ** argv)
 	float avgZ = totalDistance.z /(float)n;
 	float avgNorm = sqrt(avgX*avgX + avgY*avgY + avgZ*avgZ);
 	printf(	"Moved %d particles 100 steps. Average distance traveled is |(%f, %f, %f)| = %f\n",
-					n, avgX, avgY, avgZ, avgNorm);
+					N, avgX, avgY, avgZ, avgNorm);
 	return 0;
 }
