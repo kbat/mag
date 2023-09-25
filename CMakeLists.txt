@@ -21,7 +21,7 @@ include_directories(${ROOT_INCLUDE_DIRS})
 
 find_package(Boost 1.30 COMPONENTS program_options REQUIRED )
 
-find_package(TBB REQUIRED)
+##find_package(TBB REQUIRED)
 
 include(cmake/BuildFlags.cmake)
 include_directories(src)

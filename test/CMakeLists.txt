@@ -18,7 +18,7 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt)
         add_executable(${name} ${test_cpp})
         target_link_libraries(${name}
             Mag
-            TBB::tbb
+##            TBB::tbb
             ROOT::Geom
             Boost::program_options
             GTest::gtest_main

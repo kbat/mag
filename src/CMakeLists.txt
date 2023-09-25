@@ -6,7 +6,7 @@ add_library(Mag STATIC
         functions.cxx
         Material.cxx
         OptArguments.cxx
-        Optimiser.cxx
+##        Optimiser.cxx
         SDEF.cxx
         SolverArguments.cxx
         Solver.cxx
@@ -25,16 +25,16 @@ target_link_libraries(mag-solve
         Boost::program_options
 )
 
-add_executable(mag-optimise
-        optimise.cxx
-)
+## add_executable(mag-optimise
+##         optimise.cxx
+## )
 
-target_link_libraries(mag-optimise
-        Mag
-        TBB::tbb
-        ROOT::Geom
-        Boost::program_options
-)
+## target_link_libraries(mag-optimise
+##         Mag
+##         TBB::tbb
+##         ROOT::Geom
+##         Boost::program_options
+## )
 
 
 
