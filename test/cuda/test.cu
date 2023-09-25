@@ -95,9 +95,9 @@ int main(int argc, char ** argv)
 		totalDistance.y += temp.y;
 		totalDistance.z += temp.z;
 	}
-	float avgX = totalDistance.x /(float)n;
-	float avgY = totalDistance.y /(float)n;
-	float avgZ = totalDistance.z /(float)n;
+	float avgX = totalDistance.x /(float)N;
+	float avgY = totalDistance.y /(float)N;
+	float avgZ = totalDistance.z /(float)N;
 	float avgNorm = sqrt(avgX*avgX + avgY*avgY + avgZ*avgZ);
 	printf(	"Moved %d particles 100 steps. Average distance traveled is |(%f, %f, %f)| = %f\n",
 					N, avgX, avgY, avgZ, avgNorm);
