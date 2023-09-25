@@ -29,4 +29,6 @@ if(USE_CUDA)
     add_test(NAME particles_10k COMMAND particle_test 10000 )
     add_test(NAME particles_256k COMMAND particle_test 256000 )
 
+    add_subdirectory(matrix)
+
 endif(USE_CUDA)
