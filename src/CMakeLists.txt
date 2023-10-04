@@ -17,6 +17,7 @@ add_library(Mag STATIC
 
 if(USE_CUDA)
   target_compile_definitions(Mag PRIVATE "USE_CUDA")
+  add_subdirectory(cuda)
 endif()
 
 
