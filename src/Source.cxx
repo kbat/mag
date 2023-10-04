@@ -70,6 +70,13 @@ TVectorD &Source::operator*=(const TMatrixD &m)
   // reimplemented since in ROOT a *= b return b*a but not a*b
   // it's slow, will replace it with Eigen matrixes OR see efficient ROOT matrix techniques TODO
 
+#ifdef USE_CUDA
+  std::cout << "cuda" << std::endl;
+  return *vec;
+#else
+  std::cout << "not cuda" << std::endl;
+#endif
+
   const size_t n = vec->GetNrows();
   std::shared_ptr<TVectorD> vec1 = std::make_shared<TVectorD>(n);
 

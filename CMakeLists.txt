@@ -26,6 +26,8 @@ find_package(Boost 1.30 COMPONENTS program_options REQUIRED )
 include(cmake/BuildFlags.cmake)
 include_directories(src)
 
+option(USE_CUDA "Build with CUDA support" OFF)
+
 add_subdirectory(src)
 
 option(BUILD_TESTS "Build tests" ON)

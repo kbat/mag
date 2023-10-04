@@ -15,6 +15,11 @@ add_library(Mag STATIC
 	Markov.cxx
 )
 
+if(USE_CUDA)
+  target_compile_definitions(Mag PRIVATE "USE_CUDA")
+endif()
+
+
 add_executable(mag-solve
         solve.cxx
 )
