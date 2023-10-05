@@ -15,21 +15,35 @@ add_library(Mag STATIC
 	Markov.cxx
 )
 
-if(USE_CUDA)
-  target_compile_definitions(Mag PRIVATE "USE_CUDA")
-  add_subdirectory(cuda)
-endif()
-
-
 add_executable(mag-solve
         solve.cxx
 )
 
-target_link_libraries(mag-solve
-        Mag
-        ROOT::Geom
-        Boost::program_options
-)
+
+if(USE_CUDA1)
+  target_compile_definitions(Mag PRIVATE "USE_CUDA1")
+  add_subdirectory(cuda)
+  target_link_libraries(mag-solve
+    Mag
+    kernel
+    ROOT::Geom
+    Boost::program_options
+    )
+  target_include_directories(Mag PUBLIC
+    "${PROJECT_BINARY_DIR}"
+    "${PROJECT_SOURCE_DIR}/cuda"
+    )
+else()
+  target_link_libraries(mag-solve
+    Mag
+    ROOT::Geom
+    Boost::program_options
+    )
+  target_include_directories(Mag PUBLIC
+    "${PROJECT_BINARY_DIR}"
+    )
+endif()
+
 
 ## add_executable(mag-optimise
 ##         optimise.cxx

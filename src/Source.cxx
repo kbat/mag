@@ -1,4 +1,9 @@
 #include <iostream>
+
+#ifdef USE_CUDA1
+#include "kernel.h"
+#endif
+
 #include "Source.h"
 
 Source::Source(const TH2D* h) :
@@ -70,11 +75,12 @@ TVectorD &Source::operator*=(const TMatrixD &m)
   // reimplemented since in ROOT a *= b return b*a but not a*b
   // it's slow, will replace it with Eigen matrixes OR see efficient ROOT matrix techniques TODO
 
-#ifdef USE_CUDA
-  std::cout << "cuda" << std::endl;
+#ifdef USE_CUDA1
+  std::cout << "cuda1" << std::endl;
+  matrixMultiplication();
   return *vec;
 #else
-  std::cout << "not cuda" << std::endl;
+  std::cout << "not cuda1" << std::endl;
 #endif
 
   const size_t n = vec->GetNrows();
